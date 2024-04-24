@@ -42,13 +42,13 @@ function ResponsiveDrawer(props) {
             setChat([...chat, payload])
         })
     });
-     useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const usernameParam = searchParams.get('username');
-    if (usernameParam) {
-      setUsername(usernameParam);
-    }
-  }, []);
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const usernameParam = searchParams.get('username');
+        if (usernameParam) {
+            setUsername(usernameParam);
+        }
+    }, []);
     const handleDrawerClose = () => {
         setIsClosing(true);
         setMobileOpen(false);
@@ -120,7 +120,7 @@ function ResponsiveDrawer(props) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div" >
-                       WebChat
+                        WebChat
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -170,28 +170,30 @@ function ResponsiveDrawer(props) {
                     {chat.map((payload, index) => {
                         return (
                             <>
-                             <div className={payload.username === username ? 'my-msg' : 'other-msg'}>                                 
-                                <p key={index} className='text'>
-                                <div className='username'>{payload.username}</div>
-                                    {payload.message}
-                                </p>
+                                <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
+
+                                    <div className='username'>{payload.username}</div>
+                                    <div className='message-content'>
+                                        {payload.message}
+                                    </div>
+
                                 </div>
                                 <br></br>
                             </>
                         )
                     })}
 
-                        </div>
+                </div>
                 <Box display="flex" alignItems="center" justifyContent="center" className='message'>
-                    
-                        <input
-                            type="text"
-                            placeholder="Enter your message"
-                            className='inputmsg'
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                        <button type="submit" onClick={sendChat}>Send</button>
+
+                    <input
+                        type="text"
+                        placeholder="Enter your message"
+                        className='inputmsg'
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <button type="submit" onClick={sendChat}>Send</button>
                 </Box>
             </Box>
         </Box>

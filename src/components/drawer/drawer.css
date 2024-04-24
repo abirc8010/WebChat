@@ -47,21 +47,17 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
     color:rgb(0, 255, 183);
     text-decoration: underline;
     margin-bottom: 5px;
-    margin-top: -10px; 
-}
-.text{
-color:white;
 }
 .message-container {
     width:100%;
     display: flex;
     flex-direction: column;
-     overflow-y: auto; /* Enable vertical scrolling */
-    max-height: 80vh; /* Limit the height of the container */
+     overflow-y: auto; 
+    height: 80vh; 
  
 }
 .my-msg {
-    padding:1px 8px 5px 8px;
+    padding: 1px 8px 5px 8px;
     border-radius: 10px 0px 10px 0px;
     font-size: large;
     font-weight: bold;
@@ -69,9 +65,14 @@ color:white;
     width: 50%;
     align-self: flex-end; /* Align to the right */
     margin-bottom: 10px;
+     display:inline-block;
+  overflow-wrap: break-word;
+    color:white;
+    min-height: 70px;
 }
 
 .other-msg {
+    color:white;
        padding:1px 8px 8px 8px;
     border-radius: 10px 0 10px 0;
     font-size: large;
@@ -79,6 +80,9 @@ color:white;
     background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
     width: 50%;
     margin-bottom: 10px;
+    min-height: 70px;
+     display:inline-block;
+  overflow-wrap: break-word;
 }
 .message-container::-webkit-scrollbar {
     display: none;
