@@ -30,11 +30,18 @@ function ResponsiveDrawer(props) {
     const [message, setMessage] = useState('');
     const [chat, setChat] = useState([]);
     const [username, setUsername] = useState('');
-
+    const [showTime, setTime] = useState('')
     const sendChat = (e) => {
         e.preventDefault();
-        socket.emit("chat", { message, username })
+        const date = new Date();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        const Time = day+'/'+month+'/'+year+"  ,  "+date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
+        socket.emit("chat", { message, username, Time})
         setMessage('');
+       
+     
     }
 
     useEffect(() => {
@@ -176,6 +183,7 @@ function ResponsiveDrawer(props) {
                                     <div className='message-content'>
                                         {payload.message}
                                     </div>
+                                    <div className="date-time">{payload.Time}</div>
 
                                 </div>
                                 <br></br>

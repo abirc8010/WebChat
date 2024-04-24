@@ -63,12 +63,11 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
     font-weight: bold;
     background-image: linear-gradient(to bottom right, rgb(202, 80, 198), rgb(109, 21, 152));
     width: 50%;
-    align-self: flex-end; /* Align to the right */
+    align-self: flex-end; 
     margin-bottom: 10px;
      display:inline-block;
   overflow-wrap: break-word;
     color:white;
-    min-height: 70px;
 }
 
 .other-msg {
@@ -80,10 +79,15 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
     background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
     width: 50%;
     margin-bottom: 10px;
-    min-height: 70px;
      display:inline-block;
   overflow-wrap: break-word;
 }
 .message-container::-webkit-scrollbar {
     display: none;
+}
+.date-time{
+    color:rgb(198, 197, 197);
+    font-size: small;
+    font-style: italic;
+    float: right;
 }
