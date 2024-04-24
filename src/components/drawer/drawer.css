@@ -1,0 +1,85 @@
+.bar{
+background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.drawer{
+background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(126, 54, 162))!important;
+
+}
+.MuiDrawer-paper{
+background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
+}
+.message{
+    padding-left: 30px;
+    position: fixed;
+    bottom: 0;
+   background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
+    width: 80%;
+    height: 50px;
+    margin-left: 20%;
+    right:0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (max-width: 600px) {
+    .message {
+        width: 100%;
+    }
+}
+.inputmsg{
+    padding-left: 10px;
+    border-radius: 20px;
+    height:35px;
+    border:none;
+    width: calc(70% - 100px);
+    margin-right: 10px;
+}
+
+@media (max-width: 600px) {
+    .inputmsg {
+        width: 100%;
+    }
+}
+.username{
+    color:rgb(0, 255, 183);
+    text-decoration: underline;
+    margin-bottom: 5px;
+    margin-top: -10px; 
+}
+.text{
+color:white;
+}
+.message-container {
+    width:100%;
+    display: flex;
+    flex-direction: column;
+     overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 80vh; /* Limit the height of the container */
+ 
+}
+.my-msg {
+    padding:1px 8px 5px 8px;
+    border-radius: 10px 0px 10px 0px;
+    font-size: large;
+    font-weight: bold;
+    background-image: linear-gradient(to bottom right, rgb(202, 80, 198), rgb(109, 21, 152));
+    width: 50%;
+    align-self: flex-end; /* Align to the right */
+    margin-bottom: 10px;
+}
+
+.other-msg {
+       padding:1px 8px 8px 8px;
+    border-radius: 10px 0 10px 0;
+    font-size: large;
+    font-weight: bold;
+    background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
+    width: 50%;
+    margin-bottom: 10px;
+}
+.message-container::-webkit-scrollbar {
+    display: none;
+}
