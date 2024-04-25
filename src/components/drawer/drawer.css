@@ -59,9 +59,9 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
 .my-msg {
     padding: 1px 8px 5px 8px;
     border-radius: 10px 0px 10px 0px;
-    font-size: large;
+        font-size: medium;
     font-weight: bold;
-    background-image: linear-gradient(to bottom right, rgb(202, 80, 198), rgb(109, 21, 152));
+    background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
     width: 50%;
     align-self: flex-end; 
     margin-bottom: 10px;
@@ -69,17 +69,19 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
   overflow-wrap: break-word;
     color:white;
 }
-
+.tab{
+    width: 50% !important;
+}
 .other-msg {
     color:white;
        padding:1px 8px 8px 8px;
     border-radius: 10px 0 10px 0;
-    font-size: large;
+    font-size: medium;
     font-weight: bold;
-    background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
     width: 50%;
     margin-bottom: 10px;
      display:inline-block;
+   background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
   overflow-wrap: break-word;
 }
 .message-container::-webkit-scrollbar {

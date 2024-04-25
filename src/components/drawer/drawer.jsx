@@ -12,6 +12,9 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MailIcon from '@mui/icons-material/Mail';
+import PropTypes from 'prop-types';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -20,7 +23,40 @@ import { useState, useEffect } from 'react'
 import io from 'socket.io-client'
 const socket = io("https://chat-server-umo8.onrender.com");
 
-const drawerWidth = 400;
+const drawerWidth = 370;
+function CustomTabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+              sx={{ width: '50%' }} 
+        >
+            {value === index && (
+                <Box sx={{ p: 2 }}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
+CustomTabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
+}
 
 function ResponsiveDrawer(props) {
 
@@ -30,18 +66,24 @@ function ResponsiveDrawer(props) {
     const [message, setMessage] = useState('');
     const [chat, setChat] = useState([]);
     const [username, setUsername] = useState('');
-    const [showTime, setTime] = useState('')
+    const [showTime, setTime] = useState('');
+    const [value, setValue] = React.useState(0);
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
     const sendChat = (e) => {
         e.preventDefault();
         const date = new Date();
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
-        const Time = day+'/'+month+'/'+year+"  ,  "+date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("chat", { message, username, Time})
+        const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
+        socket.emit("chat", { message, username, Time })
         setMessage('');
-       
-     
+
+
     }
 
     useEffect(() => {
@@ -74,32 +116,22 @@ function ResponsiveDrawer(props) {
     const drawer = (
         <div className='drawer'>
             <Toolbar />
+            <Box sx={{ width: '100%' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                        <Tab label="Contacts" {...a11yProps(0)} className='tab'/>
+                        <Tab label="Invitation" {...a11yProps(1)} className='tab'/>
+                    </Tabs>
+                </Box>
+                <CustomTabPanel value={value} index={0}>
+                   Contacts
+                </CustomTabPanel>
+                <CustomTabPanel value={value} index={1}>
+                   Invitation                    
+                </CustomTabPanel>
+            </Box>
             <Divider />
-            <List>
-                {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-            <Divider />
-            <List>
-                {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
+
         </div>
     );
 
