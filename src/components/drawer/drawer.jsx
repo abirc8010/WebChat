@@ -5,13 +5,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+import SendIcon from '@mui/icons-material/Send';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -19,11 +18,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import './drawer.css';
-import { useState, useEffect } from 'react'
-import io from 'socket.io-client'
+import { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+
 const socket = io("https://chat-server-umo8.onrender.com");
 
 const drawerWidth = 370;
+
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -34,7 +35,7 @@ function CustomTabPanel(props) {
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
             {...other}
-              sx={{ width: '50%' }} 
+            sx={{ width: '50%' }}
         >
             {value === index && (
                 <Box sx={{ p: 2 }}>
@@ -59,7 +60,6 @@ function a11yProps(index) {
 }
 
 function ResponsiveDrawer(props) {
-
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
@@ -68,7 +68,7 @@ function ResponsiveDrawer(props) {
     const [username, setUsername] = useState('');
     const [showTime, setTime] = useState('');
     const [value, setValue] = React.useState(0);
-
+    const [typing, setTyping] = useState('');
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -80,17 +80,40 @@ function ResponsiveDrawer(props) {
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("chat", { message, username, Time })
+        socket.emit("chat", { message, username, Time });
         setMessage('');
+    };
 
+    useEffect(() => {
+        const inputMsg = document.querySelector(".inputmsg");
+        if (inputMsg) {
+            inputMsg.addEventListener("keypress", () => {
+                socket.emit("typing", { user: username, message: "is typing..." });
+            });
+            inputMsg.addEventListener("keyup", () => {
+                socket.emit("stopTyping", "");
+            });
+        }
+    }, [username]);
 
-    }
+    useEffect(() => {
+        socket.on("notifyTyping", data => {
+            if (data.user !== username) {
+                setTyping(data.user + " " + data.message);
+            }
+        });
+        socket.on("notifyStopTyping", (data) => {
+            setTyping('');
+            console.log(data);
+        });
+    }, 5000);
 
     useEffect(() => {
         socket.on("chat", (payload) => {
             setChat([...chat, payload])
         })
     });
+
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const usernameParam = searchParams.get('username');
@@ -98,6 +121,7 @@ function ResponsiveDrawer(props) {
             setUsername(usernameParam);
         }
     }, []);
+
     const handleDrawerClose = () => {
         setIsClosing(true);
         setMobileOpen(false);
@@ -119,19 +143,18 @@ function ResponsiveDrawer(props) {
             <Box sx={{ width: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                        <Tab label="Contacts" {...a11yProps(0)} className='tab'/>
-                        <Tab label="Invitation" {...a11yProps(1)} className='tab'/>
+                        <Tab label="Contacts" {...a11yProps(0)} className='tab' />
+                        <Tab label="Invitation" {...a11yProps(1)} className='tab' />
                     </Tabs>
                 </Box>
-                <CustomTabPanel value={value} index={0}>
-                   Contacts
+                <CustomTabPanel value={value} index={0} className="panel">
+                    Contacts
                 </CustomTabPanel>
-                <CustomTabPanel value={value} index={1}>
-                   Invitation                    
+                <CustomTabPanel value={value} index={1} className="panel">
+                    Invitation
                 </CustomTabPanel>
             </Box>
             <Divider />
-
         </div>
     );
 
@@ -148,6 +171,7 @@ function ResponsiveDrawer(props) {
                 }}
                 className='bar'
             >
+
                 <Toolbar >
                     <IconButton
                         color="inherit"
@@ -162,7 +186,9 @@ function ResponsiveDrawer(props) {
                         WebChat
                     </Typography>
                 </Toolbar>
+                <div className='typing'>{typing}</div>
             </AppBar>
+
             <Box
                 component="nav"
                 sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
@@ -170,7 +196,6 @@ function ResponsiveDrawer(props) {
             >
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <Drawer
-
                     container={container}
                     variant="temporary"
                     open={mobileOpen}
@@ -183,12 +208,10 @@ function ResponsiveDrawer(props) {
                         display: { xs: 'block', sm: 'none' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
                     }}
-
                 >
                     {drawer}
                 </Drawer>
                 <Drawer
-
                     variant="permanent"
                     sx={{
                         display: { xs: 'none', sm: 'block' },
@@ -202,27 +225,20 @@ function ResponsiveDrawer(props) {
             <Box
                 component="main"
                 sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-
             >
                 <Toolbar />
                 <div className='message-container'>
                     {chat.map((payload, index) => {
                         return (
-                            <>
-                                <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
-
-                                    <div className='username'>{payload.username}</div>
-                                    <div className='message-content'>
-                                        {payload.message}
-                                    </div>
-                                    <div className="date-time">{payload.Time}</div>
-
+                            <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
+                                <div className='username'>{payload.username}</div>
+                                <div className='message-content'>
+                                    {payload.message}
                                 </div>
-                                <br></br>
-                            </>
-                        )
+                                <div className="date-time">{payload.Time}</div>
+                            </div>
+                        );
                     })}
-
                 </div>
                 <Box display="flex" alignItems="center" justifyContent="center" className='message'>
 
@@ -233,13 +249,12 @@ function ResponsiveDrawer(props) {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                     />
-                    <button type="submit" onClick={sendChat}>Send</button>
+
+                    <button type="submit" className="submit-btn" onClick={sendChat}><SendIcon /></button>
                 </Box>
             </Box>
         </Box>
     );
 }
-
-
 
 export default ResponsiveDrawer;

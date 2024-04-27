@@ -9,6 +9,7 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(126, 5
 
 }
 .MuiDrawer-paper{
+    overflow: hidden;
 background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
 }
 .message{
@@ -92,4 +93,19 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
     font-size: small;
     font-style: italic;
     float: right;
+}
+.submit-btn{
+    background-color: rgba(240, 248, 255, 0);
+    border:none;
+    cursor: pointer;
+    color:white;
+}
+.panel{
+        height: 100%;
+        width:100%;
+        overflow: hidden;
+}
+.typing{
+    margin-top: -10px;;
+    color: rgb(0, 255, 183);
 }
