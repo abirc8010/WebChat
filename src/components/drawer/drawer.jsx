@@ -87,7 +87,7 @@ function ResponsiveDrawer(props) {
     useEffect(() => {
         const inputMsg = document.querySelector(".inputmsg");
         if (inputMsg) {
-            inputMsg.addEventListener("keypress", () => {
+            inputMsg.addEventListener("keydown", () => {
                 socket.emit("typing", { user: username, message: "is typing..." });
             });
             inputMsg.addEventListener("keyup", () => {
