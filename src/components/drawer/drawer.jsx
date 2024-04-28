@@ -85,28 +85,39 @@ function ResponsiveDrawer(props) {
     };
 
     useEffect(() => {
-        const inputMsg = document.querySelector(".inputmsg");
-        if (inputMsg) {
-            inputMsg.addEventListener("keydown", () => {
-                socket.emit("typing", { user: username, message: "is typing..." });
-            });
-            inputMsg.addEventListener("keyup", () => {
-                socket.emit("stopTyping", "");
-            });
-        }
-    }, [username]);
+    const inputMsg = document.querySelector(".inputmsg");
+    if (inputMsg) {
+        inputMsg.addEventListener("keydown", () => {
+            socket.emit("typing", { user: username, message: "is typing..." });
+        });
+        inputMsg.addEventListener("keyup", () => {
+            socket.emit("stopTyping", "");
+        });
+    }
+}, [username]);
 
-    useEffect(() => {
-        socket.on("notifyTyping", data => {
-            if (data.user !== username) {
-                setTyping(data.user + " " + data.message);
-            }
-        });
-        socket.on("notifyStopTyping", (data) => {
+useEffect(() => {
+    socket.on("notifyTyping", data => {
+        if (data.user !== username) {
+            setTyping(data.user + " " + data.message);
+        }
+    });
+
+    let typingTimeout;
+
+    socket.on("notifyStopTyping", () => {
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
             setTyping('');
-            console.log(data);
-        });
-    }, 5000);
+        }, 2000); 
+    });
+
+    return () => {
+        socket.off("notifyTyping");
+        socket.off("notifyStopTyping");
+    };
+}, [username]); 
+
 
     useEffect(() => {
         socket.on("chat", (payload) => {
