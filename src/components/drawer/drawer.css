@@ -1,11 +1,16 @@
 .bar{
 background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
-display: flex;
-justify-content: center;
-align-items: center;
+
+}
+.webchat{
+    width:80vw;
+    text-align: center;
+    align-items: center;
 }
 .drawer{
-background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(126, 54, 162))!important;
+    height:100%;
+    overflow: hidden;
+background-image: linear-gradient(to bottom right, rgb(210, 81, 182), rgb(161, 49, 174), rgb(122, 40, 163))!important;
 
 }
 .MuiDrawer-paper{
@@ -106,6 +111,18 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
         overflow: hidden;
 }
 .typing{
-    margin-top: -10px;;
+    padding-left: 20px;
+    margin-top: -10px;
     color: rgb(0, 255, 183);
+    width:100vw;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    text-align: center;
+    right: 80px;
+    top:50px;
+}
+.menu-icon{
+    position: absolute!important;
+    left: 0;
 }

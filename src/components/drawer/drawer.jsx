@@ -150,8 +150,8 @@ useEffect(() => {
 
     const drawer = (
         <div className='drawer'>
-            <Toolbar />
-            <Box sx={{ width: '100%' }}>
+            
+            <Box sx={{ width: '100%', height: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                         <Tab label="Contacts" {...a11yProps(0)} className='tab' />
@@ -159,9 +159,9 @@ useEffect(() => {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    Contacts
+                  Contacts
                 </CustomTabPanel>
-                <CustomTabPanel value={value} index={1} className="panel">
+                <CustomTabPanel value={value} index={1} className="panel" >
                     Invitation
                 </CustomTabPanel>
             </Box>
@@ -190,11 +190,12 @@ useEffect(() => {
                         edge="start"
                         onClick={handleDrawerToggle}
                         sx={{ mr: 2, display: { sm: 'none' } }}
+                        
                     >
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div" >
-                        WebChat
+                        <div className='webchat'>WebChat</div>
                     </Typography>
                 </Toolbar>
                 <div className='typing'>{typing}</div>
