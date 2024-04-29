@@ -19,10 +19,11 @@ body {
 
 
 .form-box {
+  margin-top:30px;
      border-radius: 10px;
      box-shadow: 0 4px 8px black;
      padding-top: 10px;
-  height:400px;
+  height:480px;
   width:300px;
   background-image: linear-gradient(135deg,rgb(207, 124, 150), rgb(138, 31, 79));
 
