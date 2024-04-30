@@ -35,14 +35,16 @@ function CustomTabPanel(props) {
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
             {...other}
-            sx={{ width: '50%' }}
+            sx={{
+                width: '50%',
+            }}
         >
             {value === index && (
                 <Box sx={{ p: 2 }}>
                     <Typography>{children}</Typography>
                 </Box>
             )}
-        </div>
+        </div >
     );
 }
 
@@ -168,12 +170,16 @@ function ResponsiveDrawer(props) {
 
     const drawer = (
         <div className='drawer'>
-            <Toolbar>WebChat {mobileOpen ? (<ArrowBackIosNewIcon onClick={handleDrawerToggle} />) : null} </Toolbar>
+            <Toolbar className='toolbar'><div className='webchat'>WebChat </div>{mobileOpen ? (<ArrowBackIosNewIcon onClick={handleDrawerToggle} />) : null} </Toolbar>
             <Box sx={{ width: '100%', height: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                        <Tab label="Contacts" {...a11yProps(0)} className='tab' />
-                        <Tab label="Invitation" {...a11yProps(1)} className='tab' />
+                    <Tabs
+                        value={value}
+                        onChange={handleChange}
+                        aria-label="basic tabs example"
+                    >
+                        <Tab label="Contacts" sx={{ color: value === 0 ? "green" : "rgba(255,255,255)" }} {...a11yProps(0)} className='tab' />
+                        <Tab label="Invitation" sx={{ color: value === 1 ? "green" : "rgba(255,255,255)" }} {...a11yProps(1)} className='tab' />
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
@@ -213,7 +219,7 @@ function ResponsiveDrawer(props) {
                         <ArrowForwardIosIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div" >
-                        <div className='webchat'>WebChat</div>
+
                     </Typography>
                 </Toolbar>
                 <div className='typing'>{typing}</div>

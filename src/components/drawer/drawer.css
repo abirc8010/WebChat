@@ -2,11 +2,6 @@
 background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
 
 }
-.webchat{
-    width:80vw;
-    text-align: center;
-    align-items: center;
-}
 .drawer{
     height:100%;
     overflow: hidden;
@@ -80,6 +75,7 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
 }
 .tab{
     width: 50% !important;
+    color:white;
 }
 .other-msg {
     color:white;
@@ -111,7 +107,8 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
 .panel{
         height: 100%;
         width:100%;
-        overflow: hidden;
+        overflow: scroll;
+        scrollbar-width: thin;
 }
 .typing{
     padding-left: 20px;
@@ -128,4 +125,15 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
 .menu-icon{
     position: absolute!important;
     left: 0;
+}
+.toolbar{
+    background-image: linear-gradient(180deg, rgb(232, 94, 227) 10%, rgb(109, 21, 152))!important;
+    text-align: center;
+}
+.webchat{
+    width: 100%;
+    height:100%;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 0.2rem;
 }

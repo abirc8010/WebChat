@@ -1,0 +1,11 @@
+.add{
+    background-image: linear-gradient(180deg, rgb(253, 172, 252), rgb(224, 147, 241))!important;
+  
+}
+.contact{
+    margin-left:-13px;
+    
+    background-image: linear-gradient(180deg, rgb(253, 172, 252), rgb(224, 147, 241))!important;
+   width:370px;
+   height:70px;
+}
