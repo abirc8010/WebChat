@@ -50,6 +50,9 @@ background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 2
     }
 }
 .username{
+    width:100%;
+    display:flex;
+    justify-content: space-between;
     color:rgb(0, 255, 183);
     text-decoration: underline;
     margin-bottom: 5px;

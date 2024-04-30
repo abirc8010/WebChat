@@ -62,7 +62,7 @@ export default function SignUp({ setValue }) {
         <>
             <Error openDialog={openErrorDialog} handleCloseDialog={handleErrorCloseDialog} />
             <Success openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} >
                 <TextField
                     label="Username"
                     sx={{ mb: 2 }}

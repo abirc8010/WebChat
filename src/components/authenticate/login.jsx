@@ -7,26 +7,30 @@ import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Notification from '../notification/notification';
+import Error from '../notification/error';
 import { auth } from '../../config/firebase';
-import { signInWithEmailAndPassword, signInWithPopup,GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 export default function SignUp({ setValue }) {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+    const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      const username = localStorage.getItem('user');
-      handleOpenDialog();
+      const u = await signInWithEmailAndPassword(auth, email, password);
+      const username = u.user.displayName;
+      localStorage.setItem('user', username);
+      handleOpenDialog(username);
       setTimeout(() => {
         navigate(`/chat?username=${username}`);
       }, 4000);
     }
     catch (error) {
-      console.log(error);
+         setOpenErrorDialog(true);
     }
   };
 
@@ -37,24 +41,28 @@ export default function SignUp({ setValue }) {
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
-   const handleGoogleSignIn = async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            const g=await signInWithPopup(auth, provider);
-            const username = g.user.displayName;
-            localStorage.setItem('user', username);
-             navigate(`/chat?username=${username}`);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const g = await signInWithPopup(auth, provider);
+      const username = g.user.displayName;
+      localStorage.setItem('user', username);
+      navigate(`/chat?username=${username}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleErrorCloseDialog = () => {
+    setOpenErrorDialog(false);
+  };
   return (
     <>
+      <Error openDialog={openErrorDialog} handleCloseDialog={handleErrorCloseDialog} />
       <form onSubmit={handleSubmit}>
         <div className="form-fields">
           <Notification openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
-          <TextField label="Email" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setEmail(e.target.value)} type="email" fullWidth />
-          <TextField label="Password" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} fullWidth InputProps={{ endAdornment: (<IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} edge="end">{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}</IconButton>) }} />
+          <TextField label="Email" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setEmail(e.target.value)} type="email" fullWidth required/>
+          <TextField label="Password" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} fullWidth InputProps={{ endAdornment: (<IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} edge="end">{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}</IconButton>) }} required/>
           <Button type="submit" sx={{ width: '60%', mb: 2 }} variant="contained" color="primary" fullWidth>Login</Button>
         </div>
       </form>

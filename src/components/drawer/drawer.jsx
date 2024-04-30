@@ -6,17 +6,17 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import Contacts from '../contacts/contact';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import MenuIcon from '@mui/icons-material/Menu';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
@@ -66,11 +66,29 @@ function ResponsiveDrawer(props) {
     const [message, setMessage] = useState('');
     const [chat, setChat] = useState([]);
     const [username, setUsername] = useState('');
-    const [showTime, setTime] = useState('');
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
     const handleChange = (event, newValue) => {
         setValue(newValue);
+    };
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleDelete = (messageId) => {
+        console.log("Deleting message with ID:", messageId);
+        const updatedChat = [...chat];
+        updatedChat.splice(messageId, 1);
+        console.log("Updated chat array:", updatedChat);
+        setChat(updatedChat);
+        handleClose();
     };
 
     const sendChat = (e) => {
@@ -85,38 +103,38 @@ function ResponsiveDrawer(props) {
     };
 
     useEffect(() => {
-    const inputMsg = document.querySelector(".inputmsg");
-    if (inputMsg) {
-        inputMsg.addEventListener("keydown", () => {
-            socket.emit("typing", { user: username, message: "is typing..." });
-        });
-        inputMsg.addEventListener("keyup", () => {
-            socket.emit("stopTyping", "");
-        });
-    }
-}, [username]);
-
-useEffect(() => {
-    socket.on("notifyTyping", data => {
-        if (data.user !== username) {
-            setTyping(data.user + " " + data.message);
+        const inputMsg = document.querySelector(".inputmsg");
+        if (inputMsg) {
+            inputMsg.addEventListener("keydown", () => {
+                socket.emit("typing", { user: username, message: "is typing..." });
+            });
+            inputMsg.addEventListener("keyup", () => {
+                socket.emit("stopTyping", "");
+            });
         }
-    });
+    }, [username]);
 
-    let typingTimeout;
+    useEffect(() => {
+        socket.on("notifyTyping", data => {
+            if (data.user !== username) {
+                setTyping(data.user + " " + data.message);
+            }
+        });
 
-    socket.on("notifyStopTyping", () => {
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => {
-            setTyping('');
-        }, 2000); 
-    });
+        let typingTimeout;
 
-    return () => {
-        socket.off("notifyTyping");
-        socket.off("notifyStopTyping");
-    };
-}, [username]); 
+        socket.on("notifyStopTyping", () => {
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                setTyping('');
+            }, 2000);
+        });
+
+        return () => {
+            socket.off("notifyTyping");
+            socket.off("notifyStopTyping");
+        };
+    }, [username]);
 
 
     useEffect(() => {
@@ -150,6 +168,7 @@ useEffect(() => {
 
     const drawer = (
         <div className='drawer'>
+            <Toolbar>WebChat {mobileOpen ? (<ArrowBackIosNewIcon onClick={handleDrawerToggle} />) : null} </Toolbar>
             <Box sx={{ width: '100%', height: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
@@ -158,7 +177,7 @@ useEffect(() => {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                  Contacts
+                    <Contacts />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     Invitation
@@ -189,9 +208,9 @@ useEffect(() => {
                         edge="start"
                         onClick={handleDrawerToggle}
                         sx={{ mr: 2, display: { sm: 'none' } }}
-                        
+
                     >
-                        <MenuIcon />
+                        <ArrowForwardIosIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div" >
                         <div className='webchat'>WebChat</div>
@@ -242,11 +261,26 @@ useEffect(() => {
                     {chat.map((payload, index) => {
                         return (
                             <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
-                                <div className='username'>{payload.username}</div>
+                                <div className='username'>{payload.username}
+                                    <div className="menu-icon-container">
+                                        <KeyboardArrowDownIcon onClick={handleClick} />
+                                    </div>
+                                </div>
                                 <div className='message-content'>
                                     {payload.message}
                                 </div>
                                 <div className="date-time">{payload.Time}</div>
+
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    keepMounted
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
+                                    <MenuItem onClick={() => handleDelete(index)}>
+                                        Delete
+                                    </MenuItem>
+                                </Menu>
                             </div>
                         );
                     })}

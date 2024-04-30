@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Login from '../authenticate/login';
 import Signup from "../authenticate/signup";
-import { auth } from '../../config/firebase'; 
+import { auth } from '../../config/firebase';
 
 import './home.css';
 
@@ -55,7 +55,7 @@ export default function InputWithIcon() {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
- 
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -82,13 +82,13 @@ export default function InputWithIcon() {
               <Tab label="Login" {...a11yProps(1)} className='tab' sx={{ color: 'rgb(255, 255, 255)' }} />
             </Tabs>
           </Box>
-          <CustomTabPanel value={value} index={0} className='tab-panel'>
-             <Signup setValue={setValue}/> 
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={1} className="tab-panel">
-         
-             <Login setValue={setValue} />
-          </CustomTabPanel>
+            <CustomTabPanel value={value} index={0}>
+              
+              <Signup setValue={setValue} className='tab-panel' />
+            </CustomTabPanel>
+            <CustomTabPanel value={value} index={1} >
+              <Login setValue={setValue} className="tab-panel" />
+            </CustomTabPanel>
         </Box>
       </div>
     </>

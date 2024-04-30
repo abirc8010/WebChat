@@ -26,7 +26,7 @@ body {
   height:480px;
   width:300px;
   background-image: linear-gradient(135deg,rgb(207, 124, 150), rgb(138, 31, 79));
-
+  
 }
 
 .text-field {
@@ -39,14 +39,9 @@ body {
   color: white;
   font-size: 30px;
   position: absolute;
-  top:2%;
+  top:2px;
   margin: 10px;
   font-weight: 900;
-}
-.tab-panel {
-  display: flex;
-  flex-direction: column;
-  justify-self: space-around;  
 }
 
 
