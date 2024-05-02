@@ -21,8 +21,14 @@ import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io("https://chat-server-umo8.onrender.com");
-
+const searchParams = new URLSearchParams(window.location.search);
+const usernameParam = searchParams.get('username');
+const socket = io("https://chat-server-umo8.onrender.com", {
+    auth: {
+        username: usernameParam
+    }
+});
+console.log(socket);
 const drawerWidth = 370;
 
 function CustomTabPanel(props) {
@@ -70,6 +76,7 @@ function ResponsiveDrawer(props) {
     const [username, setUsername] = useState('');
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
+    const [receiver, setReceiver] = useState('');
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -100,7 +107,8 @@ function ResponsiveDrawer(props) {
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("chat", { message, username, Time });
+        socket.emit("private message", { receiver, message, username, Time });
+        setChat([...chat, { receiver, message, username, Time }])
         setMessage('');
     };
 
@@ -143,11 +151,12 @@ function ResponsiveDrawer(props) {
         socket.on("chat", (payload) => {
             setChat([...chat, payload])
         })
+        socket.on("private message", (payload) => {
+            setChat([...chat, payload])
+        })
     });
 
     useEffect(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const usernameParam = searchParams.get('username');
         if (usernameParam) {
             setUsername(usernameParam);
         }
@@ -183,7 +192,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts />
+                    <Contacts setReceiver={setReceiver} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     Invitation

@@ -3,7 +3,7 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } 
 import { AddCircleOutline } from "@mui/icons-material";
 import "./contact.css";
 
-export default function Contact() {
+export default function Contact({setReceiver}) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
@@ -21,6 +21,7 @@ export default function Contact() {
         const newUser = { email, username };
         setUsers([...users, newUser]);
         console.log("Adding contact:", newUser);
+        
         handleClose();
     };
 
@@ -62,8 +63,8 @@ export default function Contact() {
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 {users.map((user, index) => (
-                    <div key={index}>
-                        <div className="contact"></div>
+                    <div    >
+                        <div className="contact" onClick={()=>{setReceiver(user.username)}}>{user.username}</div>
                     </div>
                 ))}
             </div>
