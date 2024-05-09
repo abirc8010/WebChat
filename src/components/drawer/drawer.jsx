@@ -7,6 +7,8 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 import Contacts from '../contacts/contact';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ContactsIcon from '@mui/icons-material/Contacts';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -72,7 +74,7 @@ function ResponsiveDrawer(props) {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
     const [message, setMessage] = useState('');
-    const [chat, setChat] = useState([]);
+    const [chats, setChats] = useState({});
     const [username, setUsername] = useState('');
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
@@ -91,24 +93,30 @@ function ResponsiveDrawer(props) {
         setAnchorEl(null);
     };
 
-    const handleDelete = (messageId) => {
-        console.log("Deleting message with ID:", messageId);
-        const updatedChat = [...chat];
-        updatedChat.splice(messageId, 1);
-        console.log("Updated chat array:", updatedChat);
-        setChat(updatedChat);
+    const handleDelete = (contact, messageId) => {
+        const updatedChats = { ...chats };
+        updatedChats[contact] = updatedChats[contact].filter((_, index) => index !== messageId);
+        setChats(updatedChats);
         handleClose();
     };
 
     const sendChat = (e) => {
         e.preventDefault();
+
         const date = new Date();
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
         socket.emit("private message", { receiver, message, username, Time });
-        setChat([...chat, { receiver, message, username, Time }])
+        const updatedChats = { ...chats };
+        if (!updatedChats[receiver]) {
+            updatedChats[receiver] = [];
+        }
+        updatedChats[receiver].push({ receiver, message, username, Time });
+
+        console.log(updatedChats);
+        setChats(updatedChats);
         setMessage('');
     };
 
@@ -149,12 +157,29 @@ function ResponsiveDrawer(props) {
 
     useEffect(() => {
         socket.on("chat", (payload) => {
-            setChat([...chat, payload])
-        })
+            const updatedChats = { ...chats };
+            if (!updatedChats[payload.receiver]) {
+                updatedChats[payload.receiver] = [];
+            }
+            updatedChats[payload.receiver].push(payload);
+            setChats(updatedChats);
+        });
         socket.on("private message", (payload) => {
-            setChat([...chat, payload])
-        })
-    });
+            setChats(prevChats => {
+                const updatedChats = { ...prevChats };
+                const recipient = payload.username;
+
+                if (!updatedChats[recipient]) {
+                    updatedChats[recipient] = [];
+                }
+
+                updatedChats[recipient] = [...updatedChats[recipient], payload];
+
+                return updatedChats;
+            });
+            socket.off("private message", handlePrivateMessage);
+        });
+    }, []);
 
     useEffect(() => {
         if (usernameParam) {
@@ -187,15 +212,26 @@ function ResponsiveDrawer(props) {
                         onChange={handleChange}
                         aria-label="basic tabs example"
                     >
-                        <Tab label="Contacts" sx={{ color: value === 0 ? "green" : "rgba(255,255,255)" }} {...a11yProps(0)} className='tab' />
-                        <Tab label="Invitation" sx={{ color: value === 1 ? "green" : "rgba(255,255,255)" }} {...a11yProps(1)} className='tab' />
+                        <Tab label={
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <span>Contacts</span>
+                                <ContactsIcon style={{ marginLeft: '5px' }} />
+                            </div>
+                        } sx={{ color: value === 0 ? "green" : "rgba(255,255,255)" }} {...a11yProps(0)} className='tab' />
+                        <Tab
+                            label={
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span>Groups</span>
+                                    <GroupsIcon style={{ marginLeft: '5px' }} />
+                                </div>
+                            } sx={{ color: value === 1 ? "green" : "rgba(255,255,255)" }} {...a11yProps(1)} className='tab' />
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
                     <Contacts setReceiver={setReceiver} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
-                    Invitation
+                    Groups
                 </CustomTabPanel>
             </Box>
             <Divider />
@@ -227,11 +263,12 @@ function ResponsiveDrawer(props) {
                     >
                         <ArrowForwardIosIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div" >
-
+                    <Typography variant="h6" component="div" >
+                        {receiver}
                     </Typography>
+
+                    <div className='typing'>{typing}</div>
                 </Toolbar>
-                <div className='typing'>{typing}</div>
             </AppBar>
 
             <Box
@@ -269,37 +306,38 @@ function ResponsiveDrawer(props) {
             </Box>
             <Box
                 component="main"
-                sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                sx={{ position: "absolute", backgroundImage: `url('chat.jpg')`, backgroundSize: "cover", flexGrow: 1, p: 3, width: "100%" }}
+                className="main-chat"
             >
                 <Toolbar />
                 <div className='message-container'>
-                    {chat.map((payload, index) => {
-                        return (
-                            <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
-                                <div className='username'>{payload.username}
-                                    <div className="menu-icon-container">
-                                        <KeyboardArrowDownIcon onClick={handleClick} />
-                                    </div>
+                    {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
+                        <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
+                            <div className='username'>{payload.username}
+                                <div className="menu-icon-container">
+                                    <KeyboardArrowDownIcon onClick={handleClick} />
                                 </div>
-                                <div className='message-content'>
-                                    {payload.message}
-                                </div>
-                                <div className="date-time">{payload.Time}</div>
-
-                                <Menu
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >
-                                    <MenuItem onClick={() => handleDelete(index)}>
-                                        Delete
-                                    </MenuItem>
-                                </Menu>
                             </div>
-                        );
-                    })}
+                            <div className='message-content'>
+                                {payload.message}
+                            </div>
+                            <div className="date-time">{payload.Time}</div>
+
+                            <Menu
+                                anchorEl={anchorEl}
+                                keepMounted
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={() => handleDelete(receiver, index)}>
+                                    Delete
+                                </MenuItem>
+                            </Menu>
+                        </div>
+                    ))}
                 </div>
+
+                <br /><br />
                 <Box display="flex" alignItems="center" justifyContent="center" className='message'>
 
                     <input

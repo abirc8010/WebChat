@@ -82,8 +82,7 @@ export default function InputWithIcon() {
               <Tab label="Login" {...a11yProps(1)} className='tab' sx={{ color: 'rgb(255, 255, 255)' }} />
             </Tabs>
           </Box>
-            <CustomTabPanel value={value} index={0}>
-              
+            <CustomTabPanel value={value} index={0}>              
               <Signup setValue={setValue} className='tab-panel' />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1} >

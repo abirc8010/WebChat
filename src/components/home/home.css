@@ -4,7 +4,8 @@ body {
   background-color: black;
 }
 .box {
-    background-image: linear-gradient(5deg, rgb(169, 82, 169), rgb(157, 12, 41));
+    background-image: url('https://wallpapercave.com/wp/wp8759884.jpg');
+    background-size: cover;
     height: 100%;
     width: 100%;
     display: flex;
@@ -25,7 +26,7 @@ body {
      padding-top: 10px;
   height:480px;
   width:300px;
-  background-image: linear-gradient(135deg,rgb(207, 124, 150), rgb(138, 31, 79));
+      background-image: linear-gradient(135deg,rgb(73, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969));
   
 }
 
@@ -36,8 +37,12 @@ body {
   width: 270px!important;
 }
 .heading {
-  color: white;
-  font-size: 30px;
+   background-image: linear-gradient(135deg,rgb(102, 33, 238), rgba(74, 12, 232, 0.969), rgba(235, 10, 235, 0.969)); 
+        -webkit-background-clip: text;
+        background-clip: text;
+         color: transparent;
+         font-weight: 900;
+  font-size: 40px;
   position: absolute;
   top:2px;
   margin: 10px;

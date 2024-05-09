@@ -17,7 +17,7 @@ export default function Contact({setReceiver}) {
     };
 
     const handleAddContact = () => {
-        const username = email.split('@')[0]; // Extract username from email
+        const username = email.split('@')[0]; 
         const newUser = { email, username };
         setUsers([...users, newUser]);
         console.log("Adding contact:", newUser);
@@ -31,18 +31,18 @@ export default function Contact({setReceiver}) {
 
     return (
         <>
-            <Button variant="contained" color="primary" endIcon={<AddCircleOutline />} onClick={handleClickOpen} sx={{mb:2}}>
+            <Button variant="contained"  color="primary" endIcon={<AddCircleOutline />} onClick={handleClickOpen} sx={{mb:2}}>
                 Add Contact
             </Button>
 
             <Dialog open={open} onClose={handleClose}>
                 <div className="add">
-                    <DialogTitle>Add Contact</DialogTitle>
+                    <DialogTitle sx={{color:"white"}}>Add Contact</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus
                             margin="dense"
-                            label="Email Address"
+                            label="Username"
                             type="email"
                             fullWidth
                             value={email}
@@ -64,7 +64,7 @@ export default function Contact({setReceiver}) {
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 {users.map((user, index) => (
                     <div    >
-                        <div className="contact" onClick={()=>{setReceiver(user.username)}}>{user.username}</div>
+                        <div className="contact" onClick={()=>{setReceiver(user.username);console.log(user);}}>{user.username}</div>
                     </div>
                 ))}
             </div>
