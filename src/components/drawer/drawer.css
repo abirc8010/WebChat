@@ -69,16 +69,31 @@
     height:85vh;
   }
 }
+.my-msg,.other-msg{
+      --r: 1em;  /* the radius */
+  --t: 1.5em; /* the size of the tail */
+  
+  max-width: 300px;
+  padding: 1em;
+  border-inline: var(--t) solid #0000;
+  border-radius: calc(var(--r) + var(--t))/var(--r);
+  mask: 
+    radial-gradient(100% 100% at var(--_p) 0,#0000 99%,#000 102%) 
+      var(--_p) 100%/var(--t) var(--t) no-repeat,
+    linear-gradient(#000 0 0) padding-box;
+  background: linear-gradient(135deg,#FE6D00,#1384C5) border-box;
+}
 .my-msg {
+      --_p: 100%;
+      border-bottom-right-radius: 0 0;
     padding: 1px 8px 5px 8px;
-    border-radius: 10px 0px 10px 0px;
         font-size: medium;
     font-weight: bold;
     background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
     min-width: 200px;
     max-width:270px;
     align-self: flex-end; 
-    margin-bottom: 10px;
+    margin-bottom: 18px;
      display:inline-block;
   overflow-wrap: break-word;
     color:white;
@@ -89,13 +104,14 @@
 }
 .other-msg {
     color:white;
+      --_p: 0;
+  border-bottom-left-radius: 0 0;
        padding:1px 8px 8px 8px;
-    border-radius: 10px 0 10px 0;
     font-size: medium;
     font-weight: bold;
     min-width: 200px;
     max-width:270px;
-    margin-bottom: 10px;
+    margin-bottom: 18px;
      display:inline-block;
    background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
   overflow-wrap: break-word;

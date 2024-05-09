@@ -25,6 +25,7 @@ import io from 'socket.io-client';
 
 const searchParams = new URLSearchParams(window.location.search);
 const usernameParam = searchParams.get('username');
+console.log(usernameParam);
 const socket = io("https://chat-server-umo8.onrender.com", {
     auth: {
         username: usernameParam
@@ -248,9 +249,11 @@ function ResponsiveDrawer(props) {
                 sx={{
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                     ml: { sm: `${drawerWidth}px` },
+                    backgroundImage: 'linear-gradient(135deg,rgb(97, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969) 90%)',
                 }}
                 className='bar'
             >
+
 
                 <Toolbar >
                     <IconButton
@@ -312,7 +315,7 @@ function ResponsiveDrawer(props) {
                 <Toolbar />
                 <div className='message-container'>
                     {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
-                        <div key={index} className={payload.username === username ? 'my-msg' : 'other-msg'}>
+                        <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'}>
                             <div className='username'>{payload.username}
                                 <div className="menu-icon-container">
                                     <KeyboardArrowDownIcon onClick={handleClick} />
