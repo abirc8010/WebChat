@@ -22,10 +22,18 @@ import MenuItem from '@mui/material/MenuItem';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+function everythingAfterEquals(input) {
+    let index = input.indexOf("=");
+    if (index !== -1) {
+        return input.substring(index + 1).trim();
+    } else {
+        return ""; 
+    }
+}
 
-const searchParams = new URLSearchParams(window.location.search);
-const usernameParam = searchParams.get('username');
-console.log(usernameParam);
+console.log(window.location);
+const usernameParam =  everythingAfterEquals(window.location.search);
+
 const socket = io("https://chat-server-umo8.onrender.com", {
     auth: {
         username: usernameParam
