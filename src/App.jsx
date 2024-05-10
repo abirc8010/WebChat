@@ -5,14 +5,15 @@ import ResponsiveDrawer from "./components/drawer/drawer"
 import { useState } from "react"
 function App() {
   const [openDialog, setOpenDialog] = useState(true);
+  const [currentUser,setCurrentUser] = useState('');
   const handleCloseDialog = () => setOpenDialog(false);
   return (
     <>
     <BrowserRouter>
     <Routes>
     <Route path="/error" element={<Error openDialog={openDialog} handleCloseDialog={handleCloseDialog}/>}/>
-      <Route path="/" element={<Home/>}/>    
-    <Route path="/chat" element={<ResponsiveDrawer/>}/>
+      <Route path="/" element={<Home setCurrentUser={setCurrentUser}/>}/>    
+    <Route path="/chat" element={<ResponsiveDrawer currentUser={currentUser}/>}/>
       </Routes>
       </BrowserRouter>
     </>

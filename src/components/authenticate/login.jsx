@@ -10,7 +10,7 @@ import Notification from '../notification/notification';
 import Error from '../notification/error';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-export default function SignUp({ setValue }) {
+export default function SignUp({ setValue , setCurrentUser}) {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -23,9 +23,10 @@ export default function SignUp({ setValue }) {
     try {
       const u = await signInWithEmailAndPassword(auth, email, password);
       const username = u.user.displayName;
-      localStorage.setItem('user', username);
       handleOpenDialog(username);
       setTimeout(() => {
+        setCurrentUser(username);
+        localStorage.setItem('currentUser',u.user.displayName);
         navigate(`/chat?username=${username}`);
       }, 4000);
     }

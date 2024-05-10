@@ -4,15 +4,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { Button, TextField } from '@mui/material';
-import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
 import Login from '../authenticate/login';
 import Signup from "../authenticate/signup";
-import { auth } from '../../config/firebase';
 
 import './home.css';
 
@@ -49,21 +42,8 @@ function a11yProps(index) {
   };
 }
 
-export default function InputWithIcon() {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleOpenDialog();
-    setTimeout(() => {
-      navigate(`/chat?username=${username}`);
-    }, 4000);
-  };
+export default function({setCurrentUser}) {
+  
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -86,7 +66,7 @@ export default function InputWithIcon() {
               <Signup setValue={setValue} className='tab-panel' />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1} >
-              <Login setValue={setValue} className="tab-panel" />
+              <Login setValue={setValue} setCurrentUser={setCurrentUser} className="tab-panel" />
             </CustomTabPanel>
         </Box>
       </div>

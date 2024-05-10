@@ -22,24 +22,14 @@ import MenuItem from '@mui/material/MenuItem';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-function everythingAfterEquals(input) {
-    let index = input.indexOf("=");
-    if (index !== -1) {
-        return input.substring(index + 1).trim();
-    } else {
-        return ""; 
-    }
-}
-
-console.log(window.location);
-const usernameParam =  everythingAfterEquals(window.location.search);
-
-const socket = io("https://chat-server-umo8.onrender.com", {
-    auth: {
-        username: usernameParam
-    }
-});
-console.log(socket);
+   const searchParams = new URLSearchParams(window.location.search);
+    const usernameParam = searchParams.get('username');
+    console.log("usernameparam:", usernameParam);
+    const socket = io("https://chat-server-umo8.onrender.com", {
+        auth: {
+            username: usernameParam
+        }
+    });
 const drawerWidth = 370;
 
 function CustomTabPanel(props) {
@@ -79,6 +69,7 @@ function a11yProps(index) {
 }
 
 function ResponsiveDrawer(props) {
+ 
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
@@ -174,6 +165,7 @@ function ResponsiveDrawer(props) {
             setChats(updatedChats);
         });
         socket.on("private message", (payload) => {
+            console.log(payload);
             setChats(prevChats => {
                 const updatedChats = { ...prevChats };
                 const recipient = payload.username;
@@ -186,13 +178,17 @@ function ResponsiveDrawer(props) {
 
                 return updatedChats;
             });
-            socket.off("private message", handlePrivateMessage);
         });
+        return () => {
+            socket.off("chat");
+            socket.off("private message");
+        };
     }, []);
 
     useEffect(() => {
         if (usernameParam) {
             setUsername(usernameParam);
+            console.log("Username:", usernameParam);
         }
     }, []);
 
@@ -237,7 +233,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts setReceiver={setReceiver} />
+                    <Contacts setReceiver={setReceiver} chats={chats} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     Groups
@@ -274,6 +270,7 @@ function ResponsiveDrawer(props) {
                     >
                         <ArrowForwardIosIcon />
                     </IconButton>
+                    <img src="you.webp" className='avatar' />
                     <Typography variant="h6" component="div" >
                         {receiver}
                     </Typography>
