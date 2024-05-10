@@ -22,9 +22,9 @@ import MenuItem from '@mui/material/MenuItem';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-   window.location.reload();
    const searchParams = new URLSearchParams(window.location.search);
     const usernameParam = searchParams.get('username');
+    
     console.log("usernameparam:", usernameParam);
     const socket = io("https://chat-server-umo8.onrender.com", {
         auth: {
@@ -71,6 +71,8 @@ function a11yProps(index) {
 
 function ResponsiveDrawer(props) {
  
+ if(!usernameParam)
+      window.location.reload();
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
