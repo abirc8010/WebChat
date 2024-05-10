@@ -8,6 +8,7 @@
     justify-content: start;
     align-items: center;
     color:white;
+    flex-wrap: wrap;
     cursor: pointer;
     margin-left:-13px;
       width:370px;
@@ -18,10 +19,23 @@
    font-size:20px;
 }
 .user-detail{
-    padding-top: 8px;
     height: 100%;
     width:75%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .contact:hover{
     opacity:0.8;
+}
+.last-message{
+    height: 32px;
+    width:auto;
+    font-size: 15px;
+}
+.user-info{
+    padding-top:8px;
+    width:100%;
+    display: flex;
+    justify-content: space-between;
 }

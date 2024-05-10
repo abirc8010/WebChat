@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import { AddCircleOutline, Message } from "@mui/icons-material";
+import NotificationBadge from './notification';
 import "./contact.css";
 
-export default function Contact({ setReceiver ,chats}) {
+export default function Contact({ setReceiver, chats, setChatCount, chatCount, receiver }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
@@ -15,7 +16,12 @@ export default function Contact({ setReceiver ,chats}) {
     const handleClose = () => {
         setOpen(false);
     };
-
+    const setChatCountZero = (receiver) => {
+        setChatCount(prevChatCount => ({
+            ...prevChatCount,
+            [receiver]: 0
+        }));
+    };
     const handleAddContact = () => {
         const username = email.split('@')[0];
         const newUser = { email, username };
@@ -29,8 +35,18 @@ export default function Contact({ setReceiver ,chats}) {
         setEmail(event.target.value);
     };
 
+    const getLastMessage = (receiver) => {
+        const messages = chats[receiver];
+        if (messages && messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            return lastMessage.message.length > 20 ? lastMessage.message.substring(0, 15) + "..." : lastMessage.message;
+        }
+        return "";
+    };
+
     return (
         <>
+            <TextField id="outlined-basic" label="Search" outlined="outlined" sx={{ width: "100%", mb: 2, backgroundColor: `#6f8af2!important` }} />
             <Button variant="contained" color="primary" endIcon={<AddCircleOutline />} onClick={handleClickOpen} sx={{ mb: 2 }}>
                 Add Contact
             </Button>
@@ -69,11 +85,18 @@ export default function Contact({ setReceiver ,chats}) {
                 </div>
                 {users.map((user, index) => (
                     <div>
-                        <div className="contact" onClick={() => { setReceiver(user.username); console.log(user); }}>
-                        <img src={`other${index % 2 + 1}.png`} className="avatar" />
+                        <div className="contact" onClick={() => { setReceiver(user.username); setChatCountZero(user.username) }}>
+
+                            <img src={`other${index % 2 + 1}.png`} className="avatar" />
                             <div className="user-detail">
-                                {user.username}
+                                <div className="user-info">
+                                    {user.username}
+                                    {chatCount[user.username] > 0 && <NotificationBadge count={chatCount[user.username]} />}
+                                </div>
+                                <div className="last-message">{getLastMessage(user.username)}</div>
                             </div>
+
+
                         </div>
                     </div>
                 ))}

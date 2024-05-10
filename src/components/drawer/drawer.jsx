@@ -18,19 +18,22 @@ import Typography from '@mui/material/Typography';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Menu from '@mui/material/Menu';
+import SettingsDialog from '../settings/setting';
+import SettingsIcon from '@mui/icons-material/Settings';
 import MenuItem from '@mui/material/MenuItem';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-   const searchParams = new URLSearchParams(window.location.search);
-    const usernameParam = searchParams.get('username');
-    
-    console.log("usernameparam:", usernameParam);
-    const socket = io("https://chat-server-umo8.onrender.com", {
-        auth: {
-            username: usernameParam
-        }
-    });
+
+const searchParams = new URLSearchParams(window.location.search);
+const usernameParam = searchParams.get('username');
+
+console.log("usernameparam:", usernameParam);
+const socket = io("https://chat-server-umo8.onrender.com", {
+    auth: {
+        username: usernameParam
+    }
+});
 const drawerWidth = 370;
 
 function CustomTabPanel(props) {
@@ -70,18 +73,36 @@ function a11yProps(index) {
 }
 
 function ResponsiveDrawer(props) {
- 
- if(!usernameParam)
-      window.location.reload();
+
+    if (!usernameParam)
+        window.location.reload();
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
     const [message, setMessage] = useState('');
     const [chats, setChats] = useState({});
+    const [chatCount, setChatCount] = useState({});
     const [username, setUsername] = useState('');
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
     const [receiver, setReceiver] = useState('');
+    const [openConfig, setOpenConfig] = useState(false);
+    const [ImgUrl, setImgUrl] = useState('chat.jpg');
+
+    const updateChatCount = (receiver) => {
+        setChatCount(prevChatCount => ({
+            ...prevChatCount,
+            [receiver]: (prevChatCount[receiver] || 0) + 1
+        }));
+    };
+
+    const handleSettingsOpen = () => {
+        setOpenConfig(true);
+    };
+
+    const handleSettingsClose = () => {
+        setOpenConfig(false);
+    };
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -168,7 +189,15 @@ function ResponsiveDrawer(props) {
             setChats(updatedChats);
         });
         socket.on("private message", (payload) => {
-            console.log(payload);
+            setChatCount(prevChatCount => {
+                const newCount = (prevChatCount[payload.username] || 0) + 1;
+                console.log("ChatCount:", newCount); // Log the updated chat count
+                return {
+                    ...prevChatCount,
+                    [payload.username]: newCount
+                };
+            });
+
             setChats(prevChats => {
                 const updatedChats = { ...prevChats };
                 const recipient = payload.username;
@@ -182,6 +211,7 @@ function ResponsiveDrawer(props) {
                 return updatedChats;
             });
         });
+
         return () => {
             socket.off("chat");
             socket.off("private message");
@@ -212,7 +242,22 @@ function ResponsiveDrawer(props) {
 
     const drawer = (
         <div className='drawer'>
-            <Toolbar className='toolbar'><div className='webchat'>WebChat </div>{mobileOpen ? (<ArrowBackIosNewIcon onClick={handleDrawerToggle} />) : null} </Toolbar>
+            <Toolbar className='toolbar'>
+                <SettingsIcon
+                    aria-label="settings"
+                    onClick={handleSettingsOpen}
+                    edge="end"
+                    color="primary"
+                    sx={{ cursor: 'pointer' }}
+                />
+                <div className='webchat' style={{ backgroundImage: 'linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))' }}>
+                    WebChat
+                </div>
+                {mobileOpen ? (<ArrowBackIosNewIcon
+                    onClick={handleDrawerToggle} />)
+                    : null
+                }
+            </Toolbar>
             <Box sx={{ width: '100%', height: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs
@@ -236,7 +281,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts setReceiver={setReceiver} chats={chats} />
+                    <Contacts setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     Groups
@@ -249,120 +294,123 @@ function ResponsiveDrawer(props) {
     const container = screen !== undefined ? () => screen().document.body : undefined;
 
     return (
-        <Box sx={{ display: 'flex' }} >
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                sx={{
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    ml: { sm: `${drawerWidth}px` },
-                    backgroundImage: 'linear-gradient(135deg,rgb(97, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969) 90%)',
-                }}
-                className='bar'
-            >
+        <>
+            <SettingsDialog openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} />
+            <Box sx={{ display: 'flex' }} >
+                <CssBaseline />
+                <AppBar
+                    position="fixed"
+                    sx={{
+                        width: { sm: `calc(100% - ${drawerWidth}px)` },
+                        ml: { sm: `${drawerWidth}px` },
+                        backgroundImage: 'linear-gradient(135deg,rgb(97, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969) 90%)',
+                    }}
+                    className='bar'
+                >
 
 
-                <Toolbar >
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
+                    <Toolbar >
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            sx={{ mr: 2, display: { sm: 'none' } }}
 
+                        >
+                            <ArrowForwardIosIcon />
+                        </IconButton>
+                        <img src="you.webp" className='avatar' />
+                        <Typography variant="h6" component="div" >
+                            {receiver}
+                        </Typography>
+
+                        <div className='typing'>{typing}</div>
+                    </Toolbar>
+                </AppBar>
+
+                <Box
+                    component="nav"
+                    sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+                    aria-label="mailbox folders"
+                >
+                    {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+                    <Drawer
+                        container={container}
+                        variant="temporary"
+                        open={mobileOpen}
+                        onTransitionEnd={handleDrawerTransitionEnd}
+                        onClose={handleDrawerClose}
+                        ModalProps={{
+                            keepMounted: true, // Better open performance on mobile.
+                        }}
+                        sx={{
+                            display: { xs: 'block', sm: 'none' },
+                            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        }}
                     >
-                        <ArrowForwardIosIcon />
-                    </IconButton>
-                    <img src="you.webp" className='avatar' />
-                    <Typography variant="h6" component="div" >
-                        {receiver}
-                    </Typography>
-
-                    <div className='typing'>{typing}</div>
-                </Toolbar>
-            </AppBar>
-
-            <Box
-                component="nav"
-                sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-                aria-label="mailbox folders"
-            >
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                <Drawer
-                    container={container}
-                    variant="temporary"
-                    open={mobileOpen}
-                    onTransitionEnd={handleDrawerTransitionEnd}
-                    onClose={handleDrawerClose}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}
-                    sx={{
-                        display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                    }}
+                        {drawer}
+                    </Drawer>
+                    <Drawer
+                        variant="permanent"
+                        sx={{
+                            display: { xs: 'none', sm: 'block' },
+                            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        }}
+                        open
+                    >
+                        {drawer}
+                    </Drawer>
+                </Box>
+                <Box
+                    component="main"
+                    sx={{ position: "absolute", backgroundImage: `url(${ImgUrl})`, backgroundSize: "cover", flexGrow: 1, p: 3, width: "100%" }}
+                    className="main-chat"
                 >
-                    {drawer}
-                </Drawer>
-                <Drawer
-                    variant="permanent"
-                    sx={{
-                        display: { xs: 'none', sm: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                    }}
-                    open
-                >
-                    {drawer}
-                </Drawer>
-            </Box>
-            <Box
-                component="main"
-                sx={{ position: "absolute", backgroundImage: `url('chat.jpg')`, backgroundSize: "cover", flexGrow: 1, p: 3, width: "100%" }}
-                className="main-chat"
-            >
-                <Toolbar />
-                <div className='message-container'>
-                    {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
-                        <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'}>
-                            <div className='username'>{payload.username}
-                                <div className="menu-icon-container">
-                                    <KeyboardArrowDownIcon onClick={handleClick} />
+                    <Toolbar />
+                    <div className='message-container'>
+                        {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
+                            <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'}>
+                                <div className='username'>{payload.username}
+                                    <div className="menu-icon-container">
+                                        <KeyboardArrowDownIcon onClick={handleClick} />
+                                    </div>
                                 </div>
+                                <div className='message-content'>
+                                    {payload.message}
+                                </div>
+                                <div className="date-time">{payload.Time}</div>
+
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    keepMounted
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
+                                    <MenuItem onClick={() => handleDelete(receiver, index)}>
+                                        Delete
+                                    </MenuItem>
+                                </Menu>
                             </div>
-                            <div className='message-content'>
-                                {payload.message}
-                            </div>
-                            <div className="date-time">{payload.Time}</div>
+                        ))}
+                    </div>
 
-                            <Menu
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                            >
-                                <MenuItem onClick={() => handleDelete(receiver, index)}>
-                                    Delete
-                                </MenuItem>
-                            </Menu>
-                        </div>
-                    ))}
-                </div>
+                    <br /><br />
+                    <Box display="flex" alignItems="center" justifyContent="center" className='message'>
 
-                <br /><br />
-                <Box display="flex" alignItems="center" justifyContent="center" className='message'>
+                        <input
+                            type="text"
+                            placeholder="Enter your message"
+                            className='inputmsg'
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                        />
 
-                    <input
-                        type="text"
-                        placeholder="Enter your message"
-                        className='inputmsg'
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                    />
-
-                    <button type="submit" className="submit-btn" onClick={sendChat}><SendIcon /></button>
+                        <button type="submit" className="submit-btn" onClick={sendChat}><SendIcon /></button>
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </>
     );
 }
 
