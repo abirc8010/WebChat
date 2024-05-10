@@ -22,6 +22,7 @@ import MenuItem from '@mui/material/MenuItem';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+   window.location.reload();
    const searchParams = new URLSearchParams(window.location.search);
     const usernameParam = searchParams.get('username');
     console.log("usernameparam:", usernameParam);
