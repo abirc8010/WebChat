@@ -30,14 +30,7 @@
         width: 100%;
     }
 }
-.inputmsg{
-    padding-left: 10px;
-    border-radius: 20px;
-    height:35px;
-    border:none;
-    width: calc(70% - 100px);
-    margin-right: 10px;
-}
+
 
 @media (max-width: 600px) {
     .inputmsg {
@@ -58,7 +51,8 @@
     display: flex;
     flex-direction: column;
      overflow-y: auto; 
-     height: 80vh;
+     height: 75vh;
+       overflow-y: auto; 
 }
 @media (max-width: 600px) {
   /* Calculate width */

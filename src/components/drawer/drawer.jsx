@@ -5,7 +5,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import SendIcon from '@mui/icons-material/Send';
 import Contacts from '../contacts/contact';
 import GroupsIcon from '@mui/icons-material/Groups';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -21,6 +20,8 @@ import Menu from '@mui/material/Menu';
 import SettingsDialog from '../settings/setting';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuItem from '@mui/material/MenuItem';
+import InputArea from '../inputarea/InputArea';
+import { useRef } from 'react';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
@@ -88,7 +89,11 @@ function ResponsiveDrawer(props) {
     const [receiver, setReceiver] = useState('');
     const [openConfig, setOpenConfig] = useState(false);
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
+    const messageContainerRef = useRef(null);
 
+    useEffect(() => {
+        messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }, [chats[receiver]]);
     const updateChatCount = (receiver) => {
         setChatCount(prevChatCount => ({
             ...prevChatCount,
@@ -281,7 +286,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} />
+                    <Contacts setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     Groups
@@ -368,7 +373,7 @@ function ResponsiveDrawer(props) {
                     className="main-chat"
                 >
                     <Toolbar />
-                    <div className='message-container'>
+                    <div className='message-container' ref={messageContainerRef}>
                         {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
                             <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'}>
                                 <div className='username'>{payload.username}
@@ -396,17 +401,10 @@ function ResponsiveDrawer(props) {
                     </div>
 
                     <br /><br />
-                    <Box display="flex" alignItems="center" justifyContent="center" className='message'>
+                    <Box display="flex" alignItems="center" justifyContent="baseline" className='message'>
 
-                        <input
-                            type="text"
-                            placeholder="Enter your message"
-                            className='inputmsg'
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-
-                        <button type="submit" className="submit-btn" onClick={sendChat}><SendIcon /></button>
+                        <InputArea setMessage={setMessage} message={message} sendChat={sendChat}/>
+                  
                     </Box>
                 </Box>
             </Box>

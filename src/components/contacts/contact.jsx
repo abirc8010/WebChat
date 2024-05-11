@@ -4,7 +4,7 @@ import { AddCircleOutline, Message } from "@mui/icons-material";
 import NotificationBadge from './notification';
 import "./contact.css";
 
-export default function Contact({ setReceiver, chats, setChatCount, chatCount, receiver }) {
+export default function Contact({ setReceiver, chats, setChatCount, chatCount, receiver,handleDrawerClose ,mobileOpen}) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
@@ -85,13 +85,13 @@ export default function Contact({ setReceiver, chats, setChatCount, chatCount, r
                 </div>
                 {users.map((user, index) => (
                     <div>
-                        <div className="contact" onClick={() => { setReceiver(user.username); setChatCountZero(user.username) }}>
+                        <div className="contact" onClick={() => { setReceiver(user.username); setChatCountZero(user.username);handleDrawerClose(); }}>
 
                             <img src={`other${index % 2 + 1}.png`} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
                                     {user.username}
-                                    {chatCount[user.username] > 0 && <NotificationBadge count={chatCount[user.username]} />}
+                                    {user.username!=receiver && chatCount[user.username] > 0 && <NotificationBadge count={chatCount[user.username]} />}
                                 </div>
                                 <div className="last-message">{getLastMessage(user.username)}</div>
                             </div>
