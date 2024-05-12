@@ -143,13 +143,16 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver,use
 
       {/* Dialogs for emoji, GIFs, and stickers */}
       <Dialog open={openEmojiDialog} onClose={handleCloseEmojiDialog} fullWidth maxWidth="sm">
+        <div className='add'>
         <DialogContent title="Select an Emoji">
           {/* Emoji picker content goes here */}
-          <p>This is the Emoji picker dialog. Replace it with your emoji picker content.</p>
+          <p>This is the Emoji picker dialog.</p>
         </DialogContent>
+        </div>
       </Dialog>
 
       <Dialog open={openGifsDialog} onClose={handleCloseGifsDialog} fullWidth maxWidth="sm">
+        <div className='add'>
         <DialogContent title="Search for GIFs">
           {/* GIF search content goes here */}
           <TextField
@@ -174,9 +177,11 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver,use
             ))}
           </div>
         </DialogContent>
+        </div>
       </Dialog>
 
       <Dialog open={openStickersDialog} onClose={handleCloseStickersDialog} fullWidth maxWidth="sm">
+        <div className='add'>
         <DialogContent title="Search for Stickers">
           {/* Sticker search content goes here */}
           <TextField
@@ -205,6 +210,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver,use
             ))}
           </div>
         </DialogContent>
+        </div>
       </Dialog>
     </div>
   );
