@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import "./notification.css";
+import "./badge.css";
 const NotificationBadge = ({ count }) => {
     return (
         <div className="notification-badge">

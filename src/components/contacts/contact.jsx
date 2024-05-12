@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import { AddCircleOutline, Message } from "@mui/icons-material";
-import NotificationBadge from './notification';
+import NotificationBadge from './badge';
 import "./contact.css";
 
 export default function Contact({ setReceiver, chats, setChatCount, chatCount, receiver,handleDrawerClose ,mobileOpen}) {

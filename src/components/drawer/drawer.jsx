@@ -196,7 +196,7 @@ function ResponsiveDrawer(props) {
         socket.on("private message", (payload) => {
             setChatCount(prevChatCount => {
                 const newCount = (prevChatCount[payload.username] || 0) + 1;
-                console.log("ChatCount:", newCount); // Log the updated chat count
+                console.log("ChatCount:", newCount); 
                 return {
                     ...prevChatCount,
                     [payload.username]: newCount
@@ -381,9 +381,11 @@ function ResponsiveDrawer(props) {
                                         <KeyboardArrowDownIcon onClick={handleClick} />
                                     </div>
                                 </div>
-                                <div className='message-content'>
-                                    {payload.message}
-                                </div>
+                                {payload.url ? (
+                                    <img src={payload.url} alt="Sticker or GIF" style={{width:"100px"}}/>
+                                ) : (
+                                    <div className='message-content'>{payload.message}</div>
+                                )}
                                 <div className="date-time">{payload.Time}</div>
 
                                 <Menu
@@ -403,8 +405,8 @@ function ResponsiveDrawer(props) {
                     <br /><br />
                     <Box display="flex" alignItems="center" justifyContent="baseline" className='message'>
 
-                        <InputArea setMessage={setMessage} message={message} sendChat={sendChat}/>
-                  
+                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat}  username={username} setChats={setChats} chats={chats} socket={socket}/>
+
                     </Box>
                 </Box>
             </Box>

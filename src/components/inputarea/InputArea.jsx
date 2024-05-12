@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import MoodIcon from '@mui/icons-material/Mood';
 import SendIcon from '@mui/icons-material/Send';
@@ -8,10 +8,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
 import { Button } from '@mui/material';
 import './InputArea.css';
-
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
-
-const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
+const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver,username,setChats,chats }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
   const [openGifsDialog, setOpenGifsDialog] = useState(false);
@@ -19,6 +17,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [selectedUrl, setSelectedUrl] = useState('');
 
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,12 +32,15 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
     switch (option) {
       case 'emoji':
         setOpenEmojiDialog(true);
+        setSearchType('emoji');
         break;
       case 'gifs':
         setOpenGifsDialog(true);
+        setSearchType('gifs');
         break;
       case 'stickers':
         setOpenStickersDialog(true);
+        setSearchType('stickers');
         break;
       default:
         break;
@@ -77,6 +79,34 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
     }
   };
 
+  const handleSendChat = (selectedUrl) => {
+    console.log(selectedUrl);
+    if (selectedUrl) {
+        const date = new Date();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
+       
+        const message = selectedUrl;
+        const url=selectedUrl;
+         socket.emit("private message", { receiver, message, username, Time,url });
+        const updatedChats = { ...chats };
+        if (!updatedChats[receiver]) {
+            updatedChats[receiver] = [];
+        }
+        updatedChats[receiver].push({ receiver, message, username, Time ,url});
+
+        console.log(updatedChats);
+        setChats(updatedChats);
+        setMessage('');
+        handleCloseEmojiDialog();
+        handleCloseGifsDialog();
+        handleCloseStickersDialog();
+         setSearchResults([]);
+    }
+  };
+
   return (
     <div className='input-container'>
       {/* Text field for message input */}
@@ -106,9 +136,9 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
         open={Boolean(anchorEl)}
         onClose={handleCloseMenu}
       >
-        <MenuItem onClick={() => { handleMenuOptionClick('emoji'); setSearchType('emoji'); }}>Emoji</MenuItem>
-        <MenuItem onClick={() => { handleMenuOptionClick('gifs'); setSearchType('gifs'); }}>GIFs</MenuItem>
-        <MenuItem onClick={() => { handleMenuOptionClick('stickers'); setSearchType('stickers'); }}>Stickers</MenuItem>
+        <MenuItem onClick={() => { handleMenuOptionClick('emoji'); }}>Emoji</MenuItem>
+        <MenuItem onClick={() => { handleMenuOptionClick('gifs'); }}>GIFs</MenuItem>
+        <MenuItem onClick={() => { handleMenuOptionClick('stickers'); }}>Stickers</MenuItem>
       </Menu>
 
       {/* Dialogs for emoji, GIFs, and stickers */}
@@ -139,6 +169,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
                 src={result.images.original.url}
                 alt={`GIF ${index}`}
                 className="gif-item"
+                onClick={() => {  handleSendChat(result.images.original.url);}}
               />
             ))}
           </div>
@@ -165,6 +196,11 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
                 src={result.images.original.url}
                 alt={`Sticker ${index}`}
                 className="sticker-item"
+                onClick={
+                  () =>{
+                   handleSendChat(result.images.original.url);
+                   }
+                }
               />
             ))}
           </div>
@@ -173,6 +209,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat }) => {
     </div>
   );
 };
+
 const DialogContent = ({ title, children }) => {
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>
