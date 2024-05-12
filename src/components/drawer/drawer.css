@@ -12,10 +12,6 @@
          background-image: linear-gradient(135deg,rgb(73, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969));
   
 }
-.MuiDialog-paper{
-      background-image: linear-gradient(135deg,rgb(97, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969)90%)!important;
-    
-}
 .message{
     padding-left: 30px;
     position: fixed;
