@@ -13,15 +13,17 @@
   
 }
 .message{
+
     padding-left: 30px;
     position: fixed;
     bottom: 0;
-   background-image: linear-gradient(180deg, rgba(232, 94, 227, 0), rgb(116, 12, 169))!important;
+   background-image: linear-gradient(180deg, rgba(203, 58, 198, 0.072), rgb(116, 12, 169))!important;
     width: 80%;
-    height: 50px;
+    height: 70px;
     margin-left: 20%;
     right:0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -32,11 +34,7 @@
 }
 
 
-@media (max-width: 600px) {
-    .inputmsg {
-        width: 100%;
-    }
-}
+
 .username{
     width:100%;
     display:flex;
@@ -55,7 +53,7 @@
        overflow-y: auto; 
 }
 @media (max-width: 600px) {
-  /* Calculate width */
+  /* Calculating width */
   .message-container {
     width: 100%;
     margin-left: 0;
@@ -82,7 +80,7 @@
     padding: 1px 8px 5px 8px;
         font-size: medium;
     font-weight: bold;
-    background-image: linear-gradient(to bottom right, rgb(80, 80, 202), rgb(32, 21, 152));
+    background-image: linear-gradient(to bottom right, rgb(32, 32, 145), rgb(52, 44, 146));
     min-width: 200px;
     max-width:270px;
     align-self: flex-end; 
@@ -106,7 +104,7 @@
     max-width:270px;
     margin-bottom: 18px;
      display:inline-block;
-   background-image: linear-gradient(to bottom right, rgb(232, 94, 227), rgb(109, 21, 152))!important;
+   background-image: linear-gradient(to bottom right, rgb(108, 14, 55), rgb(152, 21, 97))!important;
   overflow-wrap: break-word;
 }
 .message-container::-webkit-scrollbar {
@@ -167,4 +165,36 @@
     height:50px;
     border-radius:50%;
     margin-right:10px;
+}
+.reply{
+    position: fixed;
+    border-radius: 10px;
+    color:white;
+     background-image: linear-gradient(180deg,rgb(118, 72, 234), rgba(83, 28, 221, 0.894), rgba(240, 55, 240, 0)); 
+   padding-left: 20px;
+   padding-top: 10px;
+    height: 150px;
+    width:58%;
+    margin-right: 30px;
+    margin-bottom: 40px;
+}
+.show-reply {
+    padding:5px 0 2px 5px;
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 5px;
+    background-color: rgb(87, 9, 140);
+    border-top: 4px solid blue;
+    border-left: 4px solid blue;
+    border-right: 4px solid blue;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .reply {
+        width: 78%;
+        margin-right: 30px;
+    }
 }

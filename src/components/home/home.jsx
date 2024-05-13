@@ -55,15 +55,15 @@ export default function({setCurrentUser}) {
     <>
       <div className="box" >
         <div className='heading'>WebChat</div>
-        <Box className="form-box">
+        <Box className="auth-tab">
           <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
               <Tab label="Sign Up" {...a11yProps(0)} className='tab' sx={{ color: 'rgb(255, 255, 255)' }} />
               <Tab label="Login" {...a11yProps(1)} className='tab' sx={{ color: 'rgb(255, 255, 255)' }} />
             </Tabs>
           </Box>
-            <CustomTabPanel value={value} index={0}>              
-              <Signup setValue={setValue} className='tab-panel' />
+            <CustomTabPanel value={value} index={0} >              
+              <Signup setValue={setValue} />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1} >
               <Login setValue={setValue} setCurrentUser={setCurrentUser} className="tab-panel" />

@@ -89,6 +89,7 @@ function ResponsiveDrawer(props) {
     const [receiver, setReceiver] = useState('');
     const [openConfig, setOpenConfig] = useState(false);
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
+    const [reply, setReply] = useState([]);
     const messageContainerRef = useRef(null);
 
     useEffect(() => {
@@ -128,21 +129,25 @@ function ResponsiveDrawer(props) {
         setChats(updatedChats);
         handleClose();
     };
-
+    const handleReply = (payload) => {
+        setReply(payload);
+        console.log("Replying to:", payload.message);
+    }
     const sendChat = (e) => {
         e.preventDefault();
-
         const date = new Date();
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("private message", { receiver, message, username, Time });
+        socket.emit("private message", { receiver, message, username, Time ,reply});
+
+        setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
             updatedChats[receiver] = [];
         }
-        updatedChats[receiver].push({ receiver, message, username, Time });
+        updatedChats[receiver].push({ receiver, message, username, Time ,reply});
 
         console.log(updatedChats);
         setChats(updatedChats);
@@ -196,7 +201,7 @@ function ResponsiveDrawer(props) {
         socket.on("private message", (payload) => {
             setChatCount(prevChatCount => {
                 const newCount = (prevChatCount[payload.username] || 0) + 1;
-                console.log("ChatCount:", newCount); 
+                console.log("ChatCount:", newCount);
                 return {
                     ...prevChatCount,
                     [payload.username]: newCount
@@ -375,14 +380,30 @@ function ResponsiveDrawer(props) {
                     <Toolbar />
                     <div className='message-container' ref={messageContainerRef}>
                         {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
-                            <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'}>
+                            <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
                                 <div className='username'>{payload.username}
                                     <div className="menu-icon-container">
                                         <KeyboardArrowDownIcon onClick={handleClick} />
                                     </div>
                                 </div>
+                                {payload.reply.url?(
+                                    
+                                      <div className='show-reply'>
+                                          <div>{payload.reply.username}</div>
+                                          Sticker
+                                       </div>
+                                      
+                                ):
+                                    (payload.reply.message?(
+                                       <div className='show-reply'>
+                                          <div>{payload.reply.username}</div>
+                                          {payload.reply.message}
+                                       </div>
+                                    ):null
+                                    )
+                                }
                                 {payload.url ? (
-                                    <img src={payload.url} alt="Sticker or GIF" style={{width:"100px"}}/>
+                                    <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px" }} />
                                 ) : (
                                     <div className='message-content'>{payload.message}</div>
                                 )}
@@ -397,15 +418,32 @@ function ResponsiveDrawer(props) {
                                     <MenuItem onClick={() => handleDelete(receiver, index)}>
                                         Delete
                                     </MenuItem>
+                                    <MenuItem onClick={() => handleReply(payload)}>
+                                        Reply
+                                    </MenuItem>
                                 </Menu>
                             </div>
                         ))}
                     </div>
 
                     <br /><br />
-                    <Box display="flex" alignItems="center" justifyContent="baseline" className='message'>
 
-                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat}  username={username} setChats={setChats} chats={chats} socket={socket}/>
+
+                    <Box className='message'>
+                        {reply.message ? (
+                            <>
+                                <div className='reply'>
+                                    <div style={{ color: "rgb(0,255,183)", textDecoration: "underline" }}>
+                                        {reply.username}
+                                    </div>
+                                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {reply.message}
+                                    </div>
+                                </div>
+                            </>
+                        ) : null}
+
+                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} username={username} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} />
 
                     </Box>
                 </Box>

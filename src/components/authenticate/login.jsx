@@ -57,19 +57,19 @@ export default function SignUp({ setValue , setCurrentUser}) {
     setOpenErrorDialog(false);
   };
   return (
-    <>
+    <div className="form-box">
       <Error openDialog={openErrorDialog} handleCloseDialog={handleErrorCloseDialog} />
-      <form onSubmit={handleSubmit}>
-        <div className="form-fields">
+      <form onSubmit={handleSubmit} style={{display:"flex",justifyContent:"center",flexDirection:"column",alignItems:"center"}}>
+        
           <Notification openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
           <TextField label="Email" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setEmail(e.target.value)} type="email" fullWidth required/>
           <TextField label="Password" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} fullWidth InputProps={{ endAdornment: (<IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} edge="end">{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}</IconButton>) }} required/>
-          <Button type="submit" sx={{ width: '60%', mb: 2 }} variant="contained" color="primary" fullWidth>Login</Button>
-        </div>
+          <Button type="submit" sx={{ width: '50%', mb: 3,mt:2 }} variant="contained" color="primary" fullWidth>Login</Button>
+    
       </form>
-      <Typography variant="h6" sx={{ mt: -1, mb: 1, color: "white" }}>-------- OR --------</Typography>
+      <Typography variant="h6" sx={{ mt: -1, mb: 2, color: "white" }}>-------- OR --------</Typography>
       <button className="login-with-google-btn" onClick={handleGoogleSignIn}>Sign In with google</button>
-      <div style={{ color: "white", width: "200px", marginTop: "10px" }}>Don't have an account? <div style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => { setValue(0) }}>SignUp</div></div>
-    </>
+      <div style={{ color: "white", width: "200px", marginTop: "20px" }}>Don't have an account? <div style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => { setValue(0) }}>SignUp</div></div>
+    </div>
   );
 }

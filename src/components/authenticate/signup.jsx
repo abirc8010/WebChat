@@ -59,10 +59,10 @@ export default function SignUp({ setValue }) {
         }
     };
     return (
-        <>
+        <div className="form-box">
             <Error openDialog={openErrorDialog} handleCloseDialog={handleErrorCloseDialog} />
             <Success openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
-            <form onSubmit={handleSubmit} >
+            <form onSubmit={handleSubmit} style={{display:"flex",justifyContent:"center",flexDirection:"column",alignItems:"center"}}>
                 <TextField
                     label="Username"
                     sx={{ mb: 2 }}
@@ -103,12 +103,12 @@ export default function SignUp({ setValue }) {
                 <div className='btn'>
                     <Button
                         type="submit"
-                        sx={{ width: '60%', mb: 2 }}
+                        sx={{ width: '100px', mb: 2 }}
                         variant="contained"
                         color="primary"
                         fullWidth
                     >
-                        SignUp
+                        Sign Up
                     </Button>
                 </div>
             </form>
@@ -117,6 +117,6 @@ export default function SignUp({ setValue }) {
             <div style={{ color: "white", width: "200px", marginTop: "10px" }}>
                 Already have an account? <div style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => { setValue(1) }}>Login</div>
             </div>
-        </>
+        </div>
     );
 }
