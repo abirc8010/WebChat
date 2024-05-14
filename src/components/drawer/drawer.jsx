@@ -36,7 +36,6 @@ const socket = io("https://chat-server-umo8.onrender.com", {
     }
 });
 const drawerWidth = 370;
-
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -91,6 +90,36 @@ function ResponsiveDrawer(props) {
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
     const [reply, setReply] = useState([]);
     const messageContainerRef = useRef(null);
+    useEffect(() => {
+        console.log("Working on history...");
+        socket.emit("getHistory", { username: usernameParam });
+        socket.on("history", async (payload) => {
+            const { sender, receiver, messages } = payload;
+
+            const key = receiver !== usernameParam ? receiver : sender;
+
+            // Update chat history in the `chats` object with key based on receiver or sender
+            setChats(prevChats => {
+                // Create a new chat object by appending the messages and sender's username
+                const updatedChat = messages.map(message => ({
+                    ...message,
+                    username: message.sender // Assuming `sender` contains the username
+                }));
+
+                // Merge the new chat data with the existing chats
+                return {
+                    ...prevChats,
+                    [key]: updatedChat
+                };
+            });
+
+            console.log("History:", chats); // Moved inside the socket.on callback
+        });
+
+        return () => {
+            socket.off("getHistory");
+        };
+    }, []);
 
     useEffect(() => {
         messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
@@ -140,14 +169,14 @@ function ResponsiveDrawer(props) {
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("private message", { receiver, message, username, Time ,reply});
+        socket.emit("private message", { receiver, message, username, Time, reply });
 
         setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
             updatedChats[receiver] = [];
         }
-        updatedChats[receiver].push({ receiver, message, username, Time ,reply});
+        updatedChats[receiver].push({ receiver, message, username, Time, reply });
 
         console.log(updatedChats);
         setChats(updatedChats);
@@ -291,7 +320,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     Groups
@@ -386,20 +415,20 @@ function ResponsiveDrawer(props) {
                                         <KeyboardArrowDownIcon onClick={handleClick} />
                                     </div>
                                 </div>
-                                {payload.reply.url?(
-                                    
-                                      <div className='show-reply'>
-                                          <div>{payload.reply.username}</div>
-                                          Sticker
-                                       </div>
-                                      
-                                ):
-                                    (payload.reply.message?(
-                                       <div className='show-reply'>
-                                          <div>{payload.reply.username}</div>
-                                          {payload.reply.message}
-                                       </div>
-                                    ):null
+                                {payload.reply.url ? (
+
+                                    <div className='show-reply'>
+                                        <div>{payload.reply.username}</div>
+                                        Sticker
+                                    </div>
+
+                                ) :
+                                    (payload.reply.message ? (
+                                        <div className='show-reply'>
+                                            <div>{payload.reply.username}</div>
+                                            {payload.reply.message}
+                                        </div>
+                                    ) : null
                                     )
                                 }
                                 {payload.url ? (
