@@ -1,0 +1,18 @@
+.profile-pic{
+    width:200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: red;
+}
+.setting{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.picture{
+    object-fit: fill;
+       width:200px;
+    height: 200px;
+    border-radius: 50%;
+}

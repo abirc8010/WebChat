@@ -6,7 +6,6 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Contacts from '../contacts/contact';
-import GroupsIcon from '@mui/icons-material/Groups';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
@@ -89,6 +88,7 @@ function ResponsiveDrawer(props) {
     const [openConfig, setOpenConfig] = useState(false);
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
     const [reply, setReply] = useState([]);
+      const [profilePicture, setProfilePicture] = useState('');
     const messageContainerRef = useRef(null);
     useEffect(() => {
         console.log("Working on history...");
@@ -282,13 +282,6 @@ function ResponsiveDrawer(props) {
     const drawer = (
         <div className='drawer'>
             <Toolbar className='toolbar'>
-                <SettingsIcon
-                    aria-label="settings"
-                    onClick={handleSettingsOpen}
-                    edge="end"
-                    color="primary"
-                    sx={{ cursor: 'pointer' }}
-                />
                 <div className='webchat' style={{ backgroundImage: 'linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))' }}>
                     WebChat
                 </div>
@@ -313,17 +306,17 @@ function ResponsiveDrawer(props) {
                         <Tab
                             label={
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <span>Groups</span>
-                                    <GroupsIcon style={{ marginLeft: '5px' }} />
+                                    <span>Settings</span>
+                                    <SettingsIcon style={{ marginLeft: '5px' }} />
                                 </div>
                             } sx={{ color: value === 1 ? "green" : "rgba(255,255,255)" }} {...a11yProps(1)} className='tab' />
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username}  profilePicture={profilePicture}/>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
-                    Groups
+                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture}/>
                 </CustomTabPanel>
             </Box>
             <Divider />
@@ -334,7 +327,7 @@ function ResponsiveDrawer(props) {
 
     return (
         <>
-            <SettingsDialog openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} />
+
             <Box sx={{ display: 'flex' }} >
                 <CssBaseline />
                 <AppBar
@@ -359,7 +352,7 @@ function ResponsiveDrawer(props) {
                         >
                             <ArrowForwardIosIcon />
                         </IconButton>
-                        <img src="you.webp" className='avatar' />
+                        <img src={profilePicture} className='avatar' />
                         <Typography variant="h6" component="div" >
                             {receiver}
                         </Typography>

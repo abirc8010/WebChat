@@ -1,117 +1,152 @@
-import React, { useState } from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
+import { IconButton } from '@mui/material';
+import { PhotoCamera } from '@mui/icons-material';
 import "./settings.css";
-const SettingsDialog = ({ openConfig, onClose, setImgUrl }) => {
+
+const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setProfilePicture,profilePicture }) => {
     const [selectedBackground, setSelectedBackground] = useState('');
+    
+    // Inside the SettingsDialog component
+    useEffect(() => {
+        if (socket) {
+            // Emit event to request user's profile picture from the server
+            socket.emit('getUserProfilePicture', { username });
+            // Listen for the response from the server
+            socket.on('userProfilePicture', (data) => {
+                console.log(data);
+                    setProfilePicture(data.profilePicture);
+                
+            });
+        }
+    }, [socket, username]);
 
-    const handleChange = (background) => {
-        setSelectedBackground(background);
-
-        setImgUrl(selectedBackground);
+    // Function to handle profile picture change
+    const handleProfilePictureChange = (event) => {
+        const file = event.target.files[0];
+        console.log(socket);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setProfilePicture(reader.result);
+                // Emit profile picture data to the server using Socket.IO
+                if (socket) {
+                    const fileData = reader.result.split(',')[1]; // Remove data URL prefix
+                    console.log(typeof(fileData));
+                    socket.emit("uploadProfilePicture", { username, fileData });
+                }
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     return (
-        <Dialog open={openConfig} onClose={onClose} >
-            <div className='add'>
-                <DialogTitle >Settings</DialogTitle>
-                <DialogContent >
-                    <p>Select chat background:</p>
-                    <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                            <img
-                                src="chat2.jpg"
-                                style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedBackground === "Background1" ? '2px solid blue' : 'none'
-                                }}
-                                onClick={() => handleChange("chat2.jpg")}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <img
-                                src="chat.jpg"
-                                alt="Chat Background"
-                                style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedBackground === "Background1" ? '2px solid blue' : 'none'
-                                }}
-                                onClick={() => handleChange("chat.jpg")}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <img
-                                src="chat5.jpg"
-                                alt="Chat Background"
-                                style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
-                                }}
-                                onClick={() => handleChange("chat5.jpg")}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <img
-                                src="chat4.jpg"
-                                alt="Chat Background"
-                                style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
-                                }}
-                                onClick={() => handleChange("chat4.jpg")}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <img
-                                src="chat1.jpg"
-                                alt="Chat Background"
-                                style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
-                                }}
-                                onClick={() => handleChange("chat1.jpg")}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <img
-                                src="chat3.jpg"
-                                alt="Chat Background"
-                                style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedBackground === "Background3" ? '2px solid blue' : 'none'
-                                }}
-                                onClick={() => handleChange("chat3.jpg")}
-                            />
+        <div className="setting">
+            <div className="profile-pic" style={{ position: 'relative' }}>
+                <img src={profilePicture} className='picture' alt="Profile Picture" />
+                <IconButton
+                    style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: 'white', borderRadius: '50%' }}
+                    component="label"
+                >
+                    <PhotoCamera />
+                    {/* Input field for selecting profile picture */}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleProfilePictureChange} />
+                </IconButton>
+            </div>
+            <div style={{ padding: "10px 20px 20px 20px" }}>
+                <div>
+                    <p style={{ marginBottom: "10px", color: "white" }}>Select chat background:</p>
+                    <Grid container spacing={2} sx={{ padding: "10px 10px 10px 10px" }}>
+                        <Grid container spacing={2} sx={{ padding: "10px 10px 10px 10px" }}>
+                            <Grid item xs={4}>
+                                <img
+                                    src="chat2.jpg"
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        objectFit: 'cover',
+                                        cursor: 'pointer',
+                                        border: selectedBackground === "Background1" ? '2px solid blue' : 'none'
+                                    }}
+                                    onClick={() => handleChange("chat2.jpg")}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <img
+                                    src="chat.jpg"
+                                    alt="Chat Background"
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        objectFit: 'cover',
+                                        cursor: 'pointer',
+                                        border: selectedBackground === "Background1" ? '2px solid blue' : 'none'
+                                    }}
+                                    onClick={() => handleChange("chat.jpg")}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <img
+                                    src="chat5.jpg"
+                                    alt="Chat Background"
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        objectFit: 'cover',
+                                        cursor: 'pointer',
+                                        border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
+                                    }}
+                                    onClick={() => handleChange("chat5.jpg")}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <img
+                                    src="chat4.jpg"
+                                    alt="Chat Background"
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        objectFit: 'cover',
+                                        cursor: 'pointer',
+                                        border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
+                                    }}
+                                    onClick={() => handleChange("chat4.jpg")}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <img
+                                    src="chat1.jpg"
+                                    alt="Chat Background"
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        objectFit: 'cover',
+                                        cursor: 'pointer',
+                                        border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
+                                    }}
+                                    onClick={() => handleChange("chat1.jpg")}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <img
+                                    src="chat3.jpg"
+                                    alt="Chat Background"
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        objectFit: 'cover',
+                                        cursor: 'pointer',
+                                        border: selectedBackground === "Background3" ? '2px solid blue' : 'none'
+                                    }}
+                                    onClick={() => handleChange("chat3.jpg")}
+                                />
+                            </Grid>
                         </Grid>
                     </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Close</Button>
-                </DialogActions>
+                </div>
             </div>
-        </Dialog>
+        </div>
     );
 };
 

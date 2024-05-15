@@ -4,7 +4,7 @@ import { AddCircleOutline, Message } from "@mui/icons-material";
 import NotificationBadge from './badge';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username }) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username,profilePicture }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
@@ -103,7 +103,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <div className="contact" onClick={() => { setReceiver("You"); }}><img src={`you.webp`} className="avatar" />
+                    <div className="contact" onClick={() => { setReceiver("You"); }}><img src={profilePicture} className="avatar" />
                         <div className="user-detail">You</div>
                     </div>
                 </div>
