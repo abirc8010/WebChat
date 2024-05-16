@@ -7,9 +7,11 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
 import { Button } from '@mui/material';
+import MicrophoneIcon from '@mui/icons-material/Mic';
+import StopIcon from '@mui/icons-material/Stop';
 import './InputArea.css';
-const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
-const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, username, setChats, chats, setReply,reply }) => {
+
+const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, username, setChats, chats, setReply, reply }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
   const [openGifsDialog, setOpenGifsDialog] = useState(false);
@@ -18,6 +20,43 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [searchType, setSearchType] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUrl, setSelectedUrl] = useState('');
+  const [listening, setListening] = useState(false); // State to track whether speech recognition is active
+  const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
+
+  // Function to handle starting and stopping speech recognition
+  const toggleSpeechRecognition = () => {
+    if (!listening) {
+      // Start speech recognition
+      speechRecognition.start();
+      setListening(true);
+    } else {
+      // Stop speech recognition
+      speechRecognition.stop();
+      setListening(false);
+    }
+  };
+
+  useEffect(() => {
+    // Check if the SpeechRecognition API is available in the browser
+    if ('webkitSpeechRecognition' in window) {
+      // Create a new SpeechRecognition object
+      const recognition = new webkitSpeechRecognition();
+      recognition.continuous = false; // Stop listening after a single speech input
+      recognition.lang = 'en-US'; // Language for speech recognition
+
+      // Event listener for receiving speech recognition results
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setMessage(transcript);
+      };
+
+      // Save the SpeechRecognition object to state
+      setSpeechRecognition(recognition);
+    } else {
+      // SpeechRecognition API not available, handle accordingly (e.g., display error message)
+      console.error('Speech recognition not supported in this browser');
+    }
+  }, []); // Run only once on component mount
 
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -90,13 +129,13 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       const message = selectedUrl;
       const url = selectedUrl;
-      socket.emit("private message", { receiver, message, username, Time, url,reply });
+      socket.emit("private message", { receiver, message, username, Time, url, reply });
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
       }
-      updatedChats[receiver].push({ receiver, message, username, Time, url,reply });
-       setReply([]);
+      updatedChats[receiver].push({ receiver, message, username, Time, url, reply });
+      setReply([]);
       console.log(updatedChats);
       setChats(updatedChats);
       setMessage('');
@@ -118,10 +157,15 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           onChange={(e) => setMessage(e.target.value)}
           InputProps={{
             endAdornment: (
-              <>                      
-              <InputAdornment position="end">
-                <MoodIcon sx={{ cursor: "pointer" }} onClick={handleClickMenu} />
-              </InputAdornment>
+              <>
+                <InputAdornment position="end">
+                  {/* Mood icon */}
+                  <MoodIcon sx={{ cursor: "pointer" }} onClick={handleClickMenu} />
+                  {/* Microphone icon for speech recognition */}
+                  <span className="microphone-icon" onClick={toggleSpeechRecognition} style={{marginLeft:"10px",display:"flex",justifyContent:"center",alignItems:"center"}}>
+                    {listening ? <StopIcon sx={{cursor:"pointer"}}/> : <MicrophoneIcon sx={{cursor:"pointer"}} />}
+                  </span>
+                </InputAdornment>
               </>
             ),
           }}
@@ -145,6 +189,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
         </Menu>
 
         {/* Dialogs for emoji, GIFs, and stickers */}
+        {/* Emoji dialog */}
         <Dialog open={openEmojiDialog} onClose={handleCloseEmojiDialog} fullWidth maxWidth="sm">
           <div className='add'>
             <DialogContent title="Select an Emoji">
@@ -154,6 +199,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           </div>
         </Dialog>
 
+        {/* GIFs dialog */}
         <Dialog open={openGifsDialog} onClose={handleCloseGifsDialog} fullWidth maxWidth="sm">
           <div className='add'>
             <DialogContent title="Search for GIFs">
@@ -183,6 +229,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           </div>
         </Dialog>
 
+        {/* Stickers dialog */}
         <Dialog open={openStickersDialog} onClose={handleCloseStickersDialog} fullWidth maxWidth="sm">
           <div className='add'>
             <DialogContent title="Search for Stickers">

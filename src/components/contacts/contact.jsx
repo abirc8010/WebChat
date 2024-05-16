@@ -1,6 +1,7 @@
+// Import useState and useEffect from React
 import React, { useState, useEffect } from "react";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
-import { AddCircleOutline, Message } from "@mui/icons-material";
+import { AddCircleOutline } from "@mui/icons-material";
 import NotificationBadge from './badge';
 import "./contact.css";
 
@@ -8,28 +9,42 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
+    const [profilePictures, setProfilePictures] = useState({});
 
     useEffect(() => {
         socket.emit("getContactList", username);
-        console.log("Adding event listener for contact list")
         socket.on("contactList", (data) => {
             if (data.error) {
-                // Handle error, for example, display error message
                 console.error("Error:", data.error);
                 return;
             }
-
-            // Access the contact list from the data object
             const contactList = data.contacts;
             setUsers(contactList);
-            // Now you can use the contact list as needed
+            // Fetch profile pictures for all users in the contact list
+            contactList.forEach(user => {
+                console.log("Fetching profile picture for user:", user);
+                socket.emit('getPicture', { username: user });
+            });
         });
-
-        // Clean up event listener when component unmounts
         return () => {
             socket.off("contactList");
         };
-    }, [username]); // Add username to the dependency array if it's used in the effect
+    }, [username, socket]);
+
+    // Listen for profile picture updates from the server
+    useEffect(() => {
+        socket.on("Picture", (data) => {
+            console.log("Received profile picture:", data);
+            setProfilePictures(prevState => ({
+                ...prevState,
+                [data.username]: data.profilePicture
+            }));
+        });
+
+        return () => {
+            socket.off("Picture");
+        };
+    }, [socket]);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -38,22 +53,22 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     const handleClose = () => {
         setOpen(false);
     };
+
     const setChatCountZero = (receiver) => {
         setChatCount(prevChatCount => ({
             ...prevChatCount,
             [receiver]: 0
         }));
     };
-        const handleAddContact = () => {
-            const user = email.split('@')[0];
-            const newUser = user;
-            setUsers([...users, newUser]);
-            const contactUsername = user;
-            console.log("Adding contact:", newUser, username);
-            console.log(socket);
-            socket.emit("addContact", { contactUsername, username });
-            handleClose();
-        };
+
+    const handleAddContact = () => {
+        const user = email.split('@')[0];
+        const newUser = user;
+        setUsers([...users, newUser]);
+        const contactUsername = user;
+        socket.emit("addContact", { contactUsername, username });
+        handleClose();
+    };
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
@@ -108,9 +123,9 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                     </div>
                 </div>
                 {users.map((user, index) => (
-                    <div>
+                    <div key={index}>
                         <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose(); }}>
-                            <img src={`other${index % 2 + 1}.png`} className="avatar" />
+                            <img src={profilePictures[user]} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
                                     {user}
@@ -121,7 +136,6 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                         </div>
                     </div>
                 ))}
-
             </div>
         </>
     );

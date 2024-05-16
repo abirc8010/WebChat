@@ -15,11 +15,14 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
             socket.emit('getUserProfilePicture', { username });
             // Listen for the response from the server
             socket.on('userProfilePicture', (data) => {
-                console.log(data);
+                console.log(data.profilePicture);
                     setProfilePicture(data.profilePicture);
                 
             });
         }
+         return () => {
+            socket.on("userProfilePicture");
+        };
     }, [socket, username]);
 
     // Function to handle profile picture change
@@ -69,7 +72,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                                         cursor: 'pointer',
                                         border: selectedBackground === "Background1" ? '2px solid blue' : 'none'
                                     }}
-                                    onClick={() => handleChange("chat2.jpg")}
+                                    onClick={() => setImgUrl("chat2.jpg")}
                                 />
                             </Grid>
                             <Grid item xs={4}>
@@ -83,7 +86,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                                         cursor: 'pointer',
                                         border: selectedBackground === "Background1" ? '2px solid blue' : 'none'
                                     }}
-                                    onClick={() => handleChange("chat.jpg")}
+                                    onClick={() => setImgUrl("chat.jpg")}
                                 />
                             </Grid>
                             <Grid item xs={4}>
@@ -97,7 +100,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                                         cursor: 'pointer',
                                         border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
                                     }}
-                                    onClick={() => handleChange("chat5.jpg")}
+                                    onClick={() => setImgUrl("chat5.jpg")}
                                 />
                             </Grid>
                             <Grid item xs={4}>
@@ -111,7 +114,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                                         cursor: 'pointer',
                                         border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
                                     }}
-                                    onClick={() => handleChange("chat4.jpg")}
+                                    onClick={() => setImgUrl("chat4.jpg")}
                                 />
                             </Grid>
                             <Grid item xs={4}>
@@ -125,7 +128,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                                         cursor: 'pointer',
                                         border: selectedBackground === "Background2" ? '2px solid blue' : 'none'
                                     }}
-                                    onClick={() => handleChange("chat1.jpg")}
+                                    onClick={() => setImgUrl("chat1.jpg")}
                                 />
                             </Grid>
                             <Grid item xs={4}>
@@ -139,7 +142,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                                         cursor: 'pointer',
                                         border: selectedBackground === "Background3" ? '2px solid blue' : 'none'
                                     }}
-                                    onClick={() => handleChange("chat3.jpg")}
+                                    onClick={() => setImgUrl("chat3.jpg")}
                                 />
                             </Grid>
                         </Grid>
