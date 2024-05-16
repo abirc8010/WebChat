@@ -5,7 +5,7 @@ import { AddCircleOutline } from "@mui/icons-material";
 import NotificationBadge from './badge';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username,profilePicture }) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username,profilePicture,setPic }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
@@ -118,13 +118,13 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <div className="contact" onClick={() => { setReceiver("You"); }}><img src={profilePicture} className="avatar" />
+                    <div className="contact" onClick={() => { setReceiver("You");setPic(profilePicture) }}><img src={profilePicture} className="avatar" />
                         <div className="user-detail">You</div>
                     </div>
                 </div>
                 {users.map((user, index) => (
                     <div key={index}>
-                        <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose(); }}>
+                        <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose();setPic(profilePictures[user]) }}>
                             <img src={profilePictures[user]} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">

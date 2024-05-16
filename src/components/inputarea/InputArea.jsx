@@ -10,7 +10,7 @@ import { Button } from '@mui/material';
 import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import './InputArea.css';
-
+const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
 const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, username, setChats, chats, setReply, reply }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
@@ -22,7 +22,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [selectedUrl, setSelectedUrl] = useState('');
   const [listening, setListening] = useState(false); // State to track whether speech recognition is active
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
-
+ 
   // Function to handle starting and stopping speech recognition
   const toggleSpeechRecognition = () => {
     if (!listening) {

@@ -89,6 +89,7 @@ function ResponsiveDrawer(props) {
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
     const [reply, setReply] = useState([]);
       const [profilePicture, setProfilePicture] = useState('');
+    const [pic,setPic]=useState('');
     const messageContainerRef = useRef(null);
     useEffect(() => {
         console.log("Working on history...");
@@ -313,7 +314,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username}  profilePicture={profilePicture}/>
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username}  profilePicture={profilePicture} setPic={setPic}/>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture}/>
@@ -352,7 +353,7 @@ function ResponsiveDrawer(props) {
                         >
                             <ArrowForwardIosIcon />
                         </IconButton>
-                        <img src={profilePicture} className='avatar' />
+                        <img src={pic} className='avatar' />
                         <Typography variant="h6" component="div" >
                             {receiver}
                         </Typography>
