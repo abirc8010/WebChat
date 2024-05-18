@@ -11,7 +11,7 @@ import './home.css';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
-
+ 
   return (
     <div
       role="tabpanel"
@@ -42,7 +42,7 @@ function a11yProps(index) {
   };
 }
 
-export default function({setCurrentUser}) {
+export default function({setCurrentUser,setAuthenticUser}) {
   
   const [value, setValue] = React.useState(0);
 
@@ -66,7 +66,7 @@ export default function({setCurrentUser}) {
               <Signup setValue={setValue} />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1} >
-              <Login setValue={setValue} setCurrentUser={setCurrentUser} className="tab-panel" />
+              <Login setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} className="tab-panel" />
             </CustomTabPanel>
         </Box>
       </div>

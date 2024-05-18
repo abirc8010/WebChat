@@ -5,11 +5,10 @@ import { AddCircleOutline } from "@mui/icons-material";
 import NotificationBadge from './badge';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username,profilePicture,setPic}) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username,profilePicture,setPic,users,setUsers}) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [profilePictures, setProfilePictures] = useState({});
-    const [users, setUsers] = useState([]);
     useEffect(() => {
         socket.emit("getContactList", username);
         socket.on("contactList", (data) => {

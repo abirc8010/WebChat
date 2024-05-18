@@ -10,7 +10,7 @@ import Notification from '../notification/notification';
 import Error from '../notification/error';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-export default function SignUp({ setValue , setCurrentUser}) {
+export default function SignUp({ setValue , setCurrentUser,setAuthenticUser}) {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -27,6 +27,9 @@ export default function SignUp({ setValue , setCurrentUser}) {
       setTimeout(() => {
         setCurrentUser(username);
         localStorage.setItem('currentUser',u.user.displayName);
+
+       localStorage.setItem('auth', true);
+        setAuthenticUser(true);
         navigate(`/chat?username=${username}`);
       }, 4000);
     }
@@ -48,6 +51,8 @@ export default function SignUp({ setValue , setCurrentUser}) {
       const g = await signInWithPopup(auth, provider);
       const username = g.user.displayName;
       localStorage.setItem('user', username);
+       localStorage.setItem('auth', true);
+      setAuthenticUser(true);
       navigate(`/chat?username=${username}`);
     } catch (error) {
       console.log(error);

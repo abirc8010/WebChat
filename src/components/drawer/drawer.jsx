@@ -106,6 +106,7 @@ function ResponsiveDrawer(props) {
     const [reply, setReply] = useState([]);
     const [profilePicture, setProfilePicture] = useState('');
     const [pic, setPic] = useState('');
+    const [users,setUsers]=useState([]);
     const messageContainerRef = useRef(null);
     useEffect(() => {
         console.log("Working on history...");
@@ -351,7 +352,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} profilePicture={profilePicture} setPic={setPic}  />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers}/>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} />
