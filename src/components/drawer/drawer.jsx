@@ -71,20 +71,25 @@ function a11yProps(index) {
     };
 }
 function showDesktopNotification(message) {
-    if (Notification.permission === "granted") {
-        new Notification("New Message", {
-            body: message,
-        });
-    } else if (Notification.permission !== "denied") {
-        Notification.requestPermission().then(function (permission) {
-            if (permission === "granted") {
-                new Notification("New Message", {
-                    body: message,
-                });
-            }
-        });
+    if ('Notification' in window && navigator.serviceWorker) {
+        if (Notification.permission === "granted") {
+            new Notification("New Message", {
+                body: message,
+            });
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(function (permission) {
+                if (permission === "granted") {
+                    new Notification("New Message", {
+                        body: message,
+                    });
+                }
+            });
+        }
+    } else {
+        alert('Browser does not support notifications or service workers.');
     }
 }
+
 
 
 function ResponsiveDrawer(props) {
@@ -151,7 +156,7 @@ function ResponsiveDrawer(props) {
     useEffect(() => {
         if (socket) {
             // Emit event to request user's profile picture from the server
-            socket.emit('getUserProfilePicture', { username });
+            socket.emit('getUserProfilePicture', { usernameParam });
             // Listen for the response from the server
             socket.on('userProfilePicture', (data) => {
                 console.log(data.profilePicture);
