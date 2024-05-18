@@ -29,7 +29,7 @@ const searchParams = new URLSearchParams(window.location.search);
 const usernameParam = searchParams.get('username');
 
 console.log("usernameparam:", usernameParam);
-const socket = io("https://chat-server-umo8.onrender.com", {
+const socket = io(import.meta.env.VITE_SERVER_URL, {
     auth: {
         username: usernameParam
     }
@@ -70,6 +70,22 @@ function a11yProps(index) {
         'aria-controls': `simple-tabpanel-${index}`,
     };
 }
+function showDesktopNotification(message) {
+    if (Notification.permission === "granted") {
+        new Notification("New Message", {
+            body: message,
+        });
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(function (permission) {
+            if (permission === "granted") {
+                new Notification("New Message", {
+                    body: message,
+                });
+            }
+        });
+    }
+}
+
 
 function ResponsiveDrawer(props) {
 
@@ -84,12 +100,12 @@ function ResponsiveDrawer(props) {
     const [username, setUsername] = useState('');
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
-    const [receiver, setReceiver] = useState('');
+    const [receiver, setReceiver] = useState('You');
     const [openConfig, setOpenConfig] = useState(false);
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
     const [reply, setReply] = useState([]);
-      const [profilePicture, setProfilePicture] = useState('');
-    const [pic,setPic]=useState('');
+    const [profilePicture, setProfilePicture] = useState('');
+    const [pic, setPic] = useState('');
     const messageContainerRef = useRef(null);
     useEffect(() => {
         console.log("Working on history...");
@@ -131,6 +147,21 @@ function ResponsiveDrawer(props) {
             [receiver]: (prevChatCount[receiver] || 0) + 1
         }));
     };
+    useEffect(() => {
+        if (socket) {
+            // Emit event to request user's profile picture from the server
+            socket.emit('getUserProfilePicture', { username });
+            // Listen for the response from the server
+            socket.on('userProfilePicture', (data) => {
+                console.log(data.profilePicture);
+                setProfilePicture(data.profilePicture);
+                setPic(data.profilePicture);
+            });
+        }
+        return () => {
+            socket.on("userProfilePicture");
+        };
+    }, [socket, username]);
 
     const handleSettingsOpen = () => {
         setOpenConfig(true);
@@ -250,6 +281,12 @@ function ResponsiveDrawer(props) {
 
                 return updatedChats;
             });
+
+            // Check if payload.username is not in users, then add it
+            if (!users.includes(payload.username)) {
+                 socket.emit('getPicture', { username: payload.username });
+            }
+              showDesktopNotification(`You have a new message from ${payload.username}`);
         });
 
         return () => {
@@ -314,10 +351,10 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username}  profilePicture={profilePicture} setPic={setPic}/>
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} profilePicture={profilePicture} setPic={setPic}  />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
-                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture}/>
+                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} />
                 </CustomTabPanel>
             </Box>
             <Divider />

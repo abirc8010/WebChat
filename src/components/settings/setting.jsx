@@ -7,24 +7,7 @@ import "./settings.css";
 
 const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setProfilePicture,profilePicture }) => {
     const [selectedBackground, setSelectedBackground] = useState('');
-    
-    // Inside the SettingsDialog component
-    useEffect(() => {
-        if (socket) {
-            // Emit event to request user's profile picture from the server
-            socket.emit('getUserProfilePicture', { username });
-            // Listen for the response from the server
-            socket.on('userProfilePicture', (data) => {
-                console.log(data.profilePicture);
-                    setProfilePicture(data.profilePicture);
-                
-            });
-        }
-         return () => {
-            socket.on("userProfilePicture");
-        };
-    }, [socket, username]);
-
+   
     // Function to handle profile picture change
     const handleProfilePictureChange = (event) => {
         const file = event.target.files[0];
