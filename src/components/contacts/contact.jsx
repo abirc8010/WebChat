@@ -18,6 +18,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
             }
             const contactList = data.contacts;
             setUsers(contactList);
+            console.log("Added contacts",users);
             // Fetch profile pictures for all users in the contact list
             contactList.forEach(user => {
                 console.log("Fetching profile picture for user:", user);
@@ -27,7 +28,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
         return () => {
             socket.off("contactList");
         };
-    }, [username, socket]);
+    }, [username, users,socket]);
 
     // Listen for profile picture updates from the server
     useEffect(() => {

@@ -269,7 +269,8 @@ function ResponsiveDrawer(props) {
         socket.on("private message", (payload) => {
 
             // Check if payload.username is not in users, then add it
-            if (!users.includes(payload.username)) {                
+            if (!users.includes(payload.username)) {        
+                console.log("payload.username:",payload.username,users);        
                setUsers(prevUsers => [...prevUsers, payload.username]);
                 socket.emit("addContact", { contactUsername:payload.username, username:usernameParam });
                
