@@ -124,7 +124,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 {users.map((user, index) => (
                     <div key={index}>
                         <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose();setPic(profilePictures[user]) }}>
-                            <img src={profilePictures[user]} className="avatar" />
+                            <img src={profilePictures[user]?profilePictures[user]:"you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
                                     {user}

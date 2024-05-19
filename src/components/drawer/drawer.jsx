@@ -267,6 +267,14 @@ function ResponsiveDrawer(props) {
             setChats(updatedChats);
         });
         socket.on("private message", (payload) => {
+
+            // Check if payload.username is not in users, then add it
+            if (!users.includes(payload.username)) {                
+               setUsers(prevUsers => [...prevUsers, payload.username]);
+                socket.emit("addContact", { contactUsername:payload.username, username:usernameParam });
+               
+                socket.emit('getPicture', { username: payload.username });
+            }
             setChatCount(prevChatCount => {
                 const newCount = (prevChatCount[payload.username] || 0) + 1;
                 console.log("ChatCount:", newCount);
@@ -289,12 +297,6 @@ function ResponsiveDrawer(props) {
                 return updatedChats;
             });
 
-            // Check if payload.username is not in users, then add it
-            if (!users.includes(payload.username)) {
-                socket.emit('getPicture', { username: payload.username });                
-               setUsers([...users, payload.username]);
-                socket.emit("addContact", { contactUsername, username });
-            }
             showDesktopNotification(`You have a new message from ${payload.username}`);
         });
 
@@ -360,7 +362,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={usernameParam} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} />
