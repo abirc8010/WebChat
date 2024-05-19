@@ -109,9 +109,9 @@ function ResponsiveDrawer(props) {
     const [openConfig, setOpenConfig] = useState(false);
     const [ImgUrl, setImgUrl] = useState('chat.jpg');
     const [reply, setReply] = useState([]);
-    const [profilePicture, setProfilePicture] = useState('');
-    const [pic, setPic] = useState('');
-    const [users,setUsers]=useState([]);
+    const [profilePicture, setProfilePicture] = useState('you.webp');
+    const [pic, setPic] = useState('you.webp');
+    const [users, setUsers] = useState([]);
     const messageContainerRef = useRef(null);
     useEffect(() => {
         console.log("Working on history...");
@@ -154,18 +154,19 @@ function ResponsiveDrawer(props) {
         }));
     };
     useEffect(() => {
-        if (socket) {
+        if (socket && usernameParam) {
             // Emit event to request user's profile picture from the server
-            socket.emit('getUserProfilePicture', { usernameParam });
+            socket.emit('getUserProfilePicture', { username: usernameParam });
             // Listen for the response from the server
+            console.log("Username:", usernameParam);
             socket.on('userProfilePicture', (data) => {
-                console.log(data.profilePicture);
+                console.log("Pic of user", data);
                 setProfilePicture(data.profilePicture);
                 setPic(data.profilePicture);
             });
         }
         return () => {
-            socket.on("userProfilePicture");
+            socket.off("userProfilePicture");
         };
     }, [socket, username]);
 
@@ -290,9 +291,11 @@ function ResponsiveDrawer(props) {
 
             // Check if payload.username is not in users, then add it
             if (!users.includes(payload.username)) {
-                 socket.emit('getPicture', { username: payload.username });
+                socket.emit('getPicture', { username: payload.username });                
+               setUsers([...users, payload.username]);
+                socket.emit("addContact", { contactUsername, username });
             }
-              showDesktopNotification(`You have a new message from ${payload.username}`);
+            showDesktopNotification(`You have a new message from ${payload.username}`);
         });
 
         return () => {
@@ -357,7 +360,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers}/>
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={username} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} />

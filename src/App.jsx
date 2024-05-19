@@ -17,7 +17,7 @@ function App() {
     <Routes>
     <Route path="/error" element={<Error openDialog={openDialog} handleCloseDialog={handleCloseDialog}/>}/>
       <Route path="/" element={<Home setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser}/>}/>    
-   {authenticUser?(<Route path="/chat" element={<ResponsiveDrawer currentUser={currentUser}/>}/>):null}
+   <Route path="/chat" element={<ResponsiveDrawer currentUser={currentUser}/>}/>
       </Routes>
       </BrowserRouter>
     </>
