@@ -4,15 +4,6 @@ import Error from "./components/notification/error";
 import ResponsiveDrawer from "./components/drawer/drawer";
 import { useState ,useEffect} from "react";
 
-function PrivateRoute({ isAuthenticated, currentUser, ...rest }) {
-  return isAuthenticated ? (
-    <Navigate to={`/chat?username=${currentUser}`} replace state={{ from: rest.location }} />
-  ) : (
-    <Navigate to="/" replace state={{ from: rest.location }} />
-  );
-}
-
-
 function App() {
   const [authenticUser, setAuthenticUser] = useState(false);
   const [openDialog, setOpenDialog] = useState(true);
@@ -38,7 +29,7 @@ function App() {
             path="/"
             element={
               authenticUser ? (
-                <ResponsiveDrawer currentUser={currentUser} />
+                <ResponsiveDrawer currentUser={currentUser} setAuthenticUser={setAuthenticUser}/>
               ) : (
                 <Home setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} />
               )

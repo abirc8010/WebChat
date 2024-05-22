@@ -3,12 +3,15 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { IconButton } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import "./settings.css";
-
-const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setProfilePicture,profilePicture }) => {
+const SettingsDialog = ({ socket, openConfig, onClose, setImgUrl, username, setProfilePicture, profilePicture,setAuthenticUser }) => {
     const [selectedBackground, setSelectedBackground] = useState('');
-   
-    // Function to handle profile picture change
+
+    const handleLogout = () => {
+        localStorage.removeItem('currentUser');
+        setAuthenticUser(false);
+    }
     const handleProfilePictureChange = (event) => {
         const file = event.target.files[0];
         console.log(socket);
@@ -19,7 +22,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                 // Emit profile picture data to the server using Socket.IO
                 if (socket) {
                     const fileData = reader.result.split(',')[1]; // Remove data URL prefix
-                    console.log(typeof(fileData));
+                    console.log(typeof (fileData));
                     socket.emit("uploadProfilePicture", { username, fileData });
                 }
             };
@@ -40,7 +43,7 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleProfilePictureChange} />
                 </IconButton>
             </div>
-            <div style={{ padding: "10px 20px 20px 20px" }}>
+            <div style={{ padding: "10px 20px -1px 20px" }}>
                 <div>
                     <p style={{ marginBottom: "10px", color: "white" }}>Select chat background:</p>
                     <Grid container spacing={2} sx={{ padding: "10px 10px 10px 10px" }}>
@@ -132,6 +135,15 @@ const SettingsDialog = ({ socket,openConfig, onClose, setImgUrl, username,setPro
                     </Grid>
                 </div>
             </div>
+            <Button
+                variant="contained"
+                color="primary"
+                startIcon={<ExitToAppIcon />}
+                sx={{padding:"5px 5px 5px 8px"}}   
+                onClick={handleLogout}            
+            >
+                Logout
+            </Button>
         </div>
     );
 };

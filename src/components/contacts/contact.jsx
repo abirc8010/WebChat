@@ -18,31 +18,25 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
             }
             const contactList = data.contacts;
             setUsers(contactList);
-            console.log("Added contacts",users);
             // Fetch profile pictures for all users in the contact list
             contactList.forEach(user => {
-                console.log("Fetching profile picture for user:", user);
                 socket.emit('getPicture', { username: user });
             });
         });
         return () => {
             socket.off("contactList");
         };
-    }, [username, users,socket]);
+    }, [username,users,socket]);
 
     // Listen for profile picture updates from the server
     useEffect(() => {
         socket.on("Picture", (data) => {
-            console.log("Received profile picture:", data);
             setProfilePictures(prevState => ({
                 ...prevState,
                 [data.username]: data.profilePicture
             }));
         });
 
-        return () => {
-            socket.off("Picture");
-        };
     }, [socket]);
 
     const handleClickOpen = () => {
@@ -119,12 +113,12 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
                     <div className="contact" onClick={() => { setReceiver("You");setPic(profilePicture) }}><img src={profilePicture} className="avatar" />
-                        <div className="user-detail">You</div>
+                        <div className="user-detail"> {username} (You)</div>
                     </div>
                 </div>
                 {users.map((user, index) => (
                     <div key={index}>
-                        <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose();setPic(profilePictures[user]) }}>
+                        <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose();setPic(profilePictures[user]?profilePictures[user]:"you.webp") ;console.log("Picture of user",user,profilePicture[user]);}}>
                             <img src={profilePictures[user]?profilePictures[user]:"you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">

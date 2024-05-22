@@ -158,8 +158,8 @@ function ResponsiveDrawer(props) {
             socket.on('userProfilePicture', (data) => {
                 console.log("Pic of user", data);
                 setProfilePicture(data.profilePicture);
-                setPic(data.profilePicture);
             });
+            
         }
         return () => {
             socket.off("userProfilePicture");
@@ -362,7 +362,7 @@ function ResponsiveDrawer(props) {
                     <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={usernameParam} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
-                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} />
+                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />
                 </CustomTabPanel>
             </Box>
             <Divider />
