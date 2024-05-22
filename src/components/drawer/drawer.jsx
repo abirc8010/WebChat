@@ -25,7 +25,7 @@ import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
     const usernameParam = localStorage.getItem("currentUser");
-    const socket = io("localhost:5000", {
+    const socket = io(import.meta.env.VITE_SERVER_URL, {
         auth: {
             username: usernameParam
         }
