@@ -25,15 +25,6 @@ import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const searchParams = new URLSearchParams(window.location.search);
-const usernameParam = searchParams.get('username');
-
-console.log("usernameparam:", usernameParam);
-const socket = io(import.meta.env.VITE_SERVER_URL, {
-    auth: {
-        username: usernameParam
-    }
-});
 const drawerWidth = 370;
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -94,8 +85,13 @@ function showDesktopNotification(message) {
 
 function ResponsiveDrawer(props) {
 
-    if (!usernameParam)
-        window.location.reload();
+    const usernameParam=props.currentUser;
+    const socket = io(import.meta.env.VITE_SERVER_URL, {
+        auth: {
+            username: usernameParam
+        }
+    });
+    console.log("usernameparam:", usernameParam);
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
@@ -269,11 +265,11 @@ function ResponsiveDrawer(props) {
         socket.on("private message", (payload) => {
 
             // Check if payload.username is not in users, then add it
-            if (!users.includes(payload.username)) {        
-                console.log("payload.username:",payload.username,users);        
-               setUsers(prevUsers => [...prevUsers, payload.username]);
-                socket.emit("addContact", { contactUsername:payload.username, username:usernameParam });
-               
+            if (!users.includes(payload.username)) {
+                console.log("payload.username:", payload.username, users);
+                setUsers(prevUsers => [...prevUsers, payload.username]);
+                socket.emit("addContact", { contactUsername: payload.username, username: usernameParam });
+
                 socket.emit('getPicture', { username: payload.username });
             }
             setChatCount(prevChatCount => {

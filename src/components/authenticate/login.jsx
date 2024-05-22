@@ -10,14 +10,14 @@ import Notification from '../notification/notification';
 import Error from '../notification/error';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-export default function SignUp({ setValue , setCurrentUser,setAuthenticUser}) {
+export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
 
-    const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -26,15 +26,12 @@ export default function SignUp({ setValue , setCurrentUser,setAuthenticUser}) {
       handleOpenDialog(username);
       setTimeout(() => {
         setCurrentUser(username);
-        localStorage.setItem('currentUser',u.user.displayName);
-
-       localStorage.setItem('auth', true);
+        localStorage.setItem('currentUser', username);
         setAuthenticUser(true);
-        navigate(`/chat?username=${username}`);
       }, 4000);
     }
     catch (error) {
-         setOpenErrorDialog(true);
+      setOpenErrorDialog(true);
     }
   };
 
@@ -50,10 +47,9 @@ export default function SignUp({ setValue , setCurrentUser,setAuthenticUser}) {
     try {
       const g = await signInWithPopup(auth, provider);
       const username = g.user.displayName;
-      localStorage.setItem('user', username);
-       localStorage.setItem('auth', true);
+      setCurrentUser(username);
       setAuthenticUser(true);
-      navigate(`/chat?username=${username}`);
+       localStorage.setItem('currentUser', username);
     } catch (error) {
       console.log(error);
     }
@@ -64,13 +60,13 @@ export default function SignUp({ setValue , setCurrentUser,setAuthenticUser}) {
   return (
     <div className="form-box">
       <Error openDialog={openErrorDialog} handleCloseDialog={handleErrorCloseDialog} />
-      <form onSubmit={handleSubmit} style={{display:"flex",justifyContent:"center",flexDirection:"column",alignItems:"center"}}>
-        
-          <Notification openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
-          <TextField label="Email" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setEmail(e.target.value)} type="email" fullWidth required/>
-          <TextField label="Password" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} fullWidth InputProps={{ endAdornment: (<IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} edge="end">{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}</IconButton>) }} required/>
-          <Button type="submit" sx={{ width: '50%', mb: 3,mt:2 }} variant="contained" color="primary" fullWidth>Login</Button>
-    
+      <form onSubmit={handleSubmit} style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
+
+        <Notification openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
+        <TextField label="Email" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setEmail(e.target.value)} type="email" fullWidth required />
+        <TextField label="Password" sx={{ mb: 2, width: '100%' }} className="text-field" onChange={(e) => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} fullWidth InputProps={{ endAdornment: (<IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} edge="end">{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}</IconButton>) }} required />
+        <Button type="submit" sx={{ width: '50%', mb: 3, mt: 2 }} variant="contained" color="primary" fullWidth>Login</Button>
+
       </form>
       <Typography variant="h6" sx={{ mt: -1, mb: 2, color: "white" }}>-------- OR --------</Typography>
       <button className="login-with-google-btn" onClick={handleGoogleSignIn}>Sign In with google</button>
