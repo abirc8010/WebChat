@@ -26,7 +26,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
         return () => {
             socket.off("contactList");
         };
-    }, [username,users,socket]);
+    }, [socket]);
 
     // Listen for profile picture updates from the server
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
             }));
         });
 
-    }, [socket]);
+    }, []);
 
     const handleClickOpen = () => {
         setOpen(true);

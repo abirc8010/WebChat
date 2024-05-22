@@ -24,7 +24,13 @@ import { useRef } from 'react';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-
+    const usernameParam = localStorage.getItem("currentUser");
+    const socket = io("localhost:5000", {
+        auth: {
+            username: usernameParam
+        }
+    });
+    console.log("usernameparam:", usernameParam);
 const drawerWidth = 370;
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -84,21 +90,14 @@ function showDesktopNotification(message) {
 
 
 function ResponsiveDrawer(props) {
-
-    const usernameParam=props.currentUser;
-    const socket = io(import.meta.env.VITE_SERVER_URL, {
-        auth: {
-            username: usernameParam
-        }
-    });
-    console.log("usernameparam:", usernameParam);
+    console.log("Now");
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
     const [message, setMessage] = useState('');
     const [chats, setChats] = useState({});
     const [chatCount, setChatCount] = useState({});
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useState(usernameParam);
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
     const [receiver, setReceiver] = useState('You');
@@ -204,8 +203,8 @@ function ResponsiveDrawer(props) {
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("private message", { receiver, message, username, Time, reply });
-
+        socket.emit("send privateMessage", { receiver, message, username, Time, reply });
+       
         setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
@@ -228,7 +227,7 @@ function ResponsiveDrawer(props) {
                 socket.emit("stopTyping", "");
             });
         }
-    }, [username]);
+    }, [usernameParam,socket]);
 
     useEffect(() => {
         socket.on("notifyTyping", data => {
@@ -262,9 +261,12 @@ function ResponsiveDrawer(props) {
             updatedChats[payload.receiver].push(payload);
             setChats(updatedChats);
         });
+            if (socket && usernameParam) {
         socket.on("private message", (payload) => {
 
             // Check if payload.username is not in users, then add it
+
+                console.log("payload.username:", payload);
             if (!users.includes(payload.username)) {
                 console.log("payload.username:", payload.username, users);
                 setUsers(prevUsers => [...prevUsers, payload.username]);
@@ -296,12 +298,13 @@ function ResponsiveDrawer(props) {
 
             showDesktopNotification(`You have a new message from ${payload.username}`);
         });
-
-        return () => {
-            socket.off("chat");
+            }
+         return () => {
             socket.off("private message");
+            socket.off("chat");
         };
-    }, []);
+
+    }, [chats]);
 
     useEffect(() => {
         if (usernameParam) {
