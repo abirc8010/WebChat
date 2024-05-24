@@ -24,13 +24,15 @@ import { useRef } from 'react';
 import './drawer.css';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-    const usernameParam = localStorage.getItem("currentUser");
-    const socket = io(import.meta.env.VITE_SERVER_URL, {
-        auth: {
-            username: usernameParam
-        }
-    });
-    console.log("usernameparam:", usernameParam);
+const userEmail = localStorage.getItem("currentUser");
+const userName = localStorage.getItem("currentUsername");
+const socket = io(import.meta.env.VITE_SERVER_URL, {
+    auth: {
+        email: userEmail,
+        current_username: userName
+    }
+});
+console.log("userEmail:", userName);
 const drawerWidth = 370;
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -90,14 +92,15 @@ function showDesktopNotification(message) {
 
 
 function ResponsiveDrawer(props) {
-    console.log("Now");
+    if (!userEmail || !userName)
+        window.location.reload();
     const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
     const [message, setMessage] = useState('');
     const [chats, setChats] = useState({});
     const [chatCount, setChatCount] = useState({});
-    const [username, setUsername] = useState(usernameParam);
+    const [username, setUsername] = useState(userName);
     const [value, setValue] = React.useState(0);
     const [typing, setTyping] = useState('');
     const [receiver, setReceiver] = useState('You');
@@ -107,21 +110,33 @@ function ResponsiveDrawer(props) {
     const [profilePicture, setProfilePicture] = useState('you.webp');
     const [pic, setPic] = useState('you.webp');
     const [users, setUsers] = useState([]);
+    const [contacts, setContacts] = useState({});
+    const [displayReceiver, setDisplayReceiver] = useState('You');
     const messageContainerRef = useRef(null);
     useEffect(() => {
+        socket.emit("getUsernameByEmail", userEmail);
+        socket.on('usernameByEmail', (data) => {
+            setUsername(data.username);
+        });
+        return () => {
+            socket.off("userProfilePicture");
+        };
+    }, [socket, userEmail]);
+
+    useEffect(() => {
         console.log("Working on history...");
-        socket.emit("getHistory", { username: usernameParam });
+        socket.emit("getHistory", { email: userEmail });
         socket.on("history", async (payload) => {
             const { sender, receiver, messages } = payload;
 
-            const key = receiver !== usernameParam ? receiver : sender;
+            const key = receiver !== userEmail ? receiver : sender;
 
             // Update chat history in the `chats` object with key based on receiver or sender
             setChats(prevChats => {
                 // Create a new chat object by appending the messages and sender's username
                 const updatedChat = messages.map(message => ({
                     ...message,
-                    username: message.sender // Assuming `sender` contains the username
+                    email: message.sender // Assuming `sender` contains the username
                 }));
 
                 // Merge the new chat data with the existing chats
@@ -149,21 +164,22 @@ function ResponsiveDrawer(props) {
         }));
     };
     useEffect(() => {
-        if (socket && usernameParam) {
+        if (socket && userEmail) {
             // Emit event to request user's profile picture from the server
-            socket.emit('getUserProfilePicture', { username: usernameParam });
+            socket.emit('getUserProfilePicture', { email: userEmail });
             // Listen for the response from the server
-            console.log("Username:", usernameParam);
+
             socket.on('userProfilePicture', (data) => {
                 console.log("Pic of user", data);
                 setProfilePicture(data.profilePicture);
+                setPic(data.profilePicture);
             });
-            
+
         }
         return () => {
             socket.off("userProfilePicture");
         };
-    }, [socket, username]);
+    }, [socket, userEmail]);
 
     const handleSettingsOpen = () => {
         setOpenConfig(true);
@@ -203,53 +219,23 @@ function ResponsiveDrawer(props) {
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        socket.emit("send privateMessage", { receiver, message, username, Time, reply });
-       
+        socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply });
+
         setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
             updatedChats[receiver] = [];
         }
-        updatedChats[receiver].push({ receiver, message, username, Time, reply });
+        updatedChats[receiver].push({ receiver, message, email: userEmail, Time, reply });
 
         console.log(updatedChats);
         setChats(updatedChats);
         setMessage('');
     };
 
-    useEffect(() => {
-        const inputMsg = document.querySelector(".inputmsg");
-        if (inputMsg) {
-            inputMsg.addEventListener("keydown", () => {
-                socket.emit("typing", { user: username, message: "is typing..." });
-            });
-            inputMsg.addEventListener("keyup", () => {
-                socket.emit("stopTyping", "");
-            });
-        }
-    }, [usernameParam,socket]);
+   
 
-    useEffect(() => {
-        socket.on("notifyTyping", data => {
-            if (data.user !== username) {
-                setTyping(data.user + " " + data.message);
-            }
-        });
-
-        let typingTimeout;
-
-        socket.on("notifyStopTyping", () => {
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                setTyping('');
-            }, 2000);
-        });
-
-        return () => {
-            socket.off("notifyTyping");
-            socket.off("notifyStopTyping");
-        };
-    }, [username]);
+  
 
 
     useEffect(() => {
@@ -261,55 +247,55 @@ function ResponsiveDrawer(props) {
             updatedChats[payload.receiver].push(payload);
             setChats(updatedChats);
         });
-            if (socket && usernameParam) {
-        socket.on("private message", (payload) => {
-
-            // Check if payload.username is not in users, then add it
-
-                console.log("payload.username:", payload);
-            if (!users.includes(payload.username)) {
-                console.log("payload.username:", payload.username, users);
-                setUsers(prevUsers => [...prevUsers, payload.username]);
-                socket.emit("addContact", { contactUsername: payload.username, username: usernameParam });
-
-                socket.emit('getPicture', { username: payload.username });
-            }
-            setChatCount(prevChatCount => {
-                const newCount = (prevChatCount[payload.username] || 0) + 1;
-                console.log("ChatCount:", newCount);
-                return {
-                    ...prevChatCount,
-                    [payload.username]: newCount
-                };
-            });
-
-            setChats(prevChats => {
-                const updatedChats = { ...prevChats };
-                const recipient = payload.username;
-
-                if (!updatedChats[recipient]) {
-                    updatedChats[recipient] = [];
+        if (socket && userEmail) {
+            socket.on("private message", (payload) => {
+                if (!Object.keys(contacts).includes(payload.email)) {
+                    console.log("Working", payload);
+                    setUsers(prevUsers => [...prevUsers, payload.email]);
+                    socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
+                    const newContact = { username: "", profilePicture: "you.webp" };
+                    setContacts(prevState => ({
+                        ...prevState,
+                        [payload.email]: newContact
+                    }));
+                    socket.emit('getPicture', { email: payload.email });
                 }
 
-                updatedChats[recipient] = [...updatedChats[recipient], payload];
+                setChatCount(prevChatCount => {
+                    const newCount = (prevChatCount[payload.email] || 0) + 1;
+                    console.log("ChatCount:", newCount);
+                    return {
+                        ...prevChatCount,
+                        [payload.email]: newCount
+                    };
+                });
 
-                return updatedChats;
+                setChats(prevChats => {
+                    const updatedChats = { ...prevChats };
+                    const recipient = payload.email;
+
+                    if (!updatedChats[recipient]) {
+                        updatedChats[recipient] = [];
+                    }
+
+                    updatedChats[recipient] = [...updatedChats[recipient], payload];
+
+                    return updatedChats;
+                });
+
+                showDesktopNotification(`You have a new message from ${payload.email}`);
             });
-
-            showDesktopNotification(`You have a new message from ${payload.username}`);
-        });
-            }
-         return () => {
+        }
+        return () => {
             socket.off("private message");
             socket.off("chat");
         };
 
-    }, [chats]);
+    }, []);
 
     useEffect(() => {
-        if (usernameParam) {
-            setUsername(usernameParam);
-            console.log("Username:", usernameParam);
+        if (userEmail) {
+            setUsername(userEmail);
         }
     }, []);
 
@@ -362,10 +348,10 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} username={usernameParam} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
-                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} username={usernameParam} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />
+                    <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} userEmail={userEmail} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />
                 </CustomTabPanel>
             </Box>
             <Divider />
@@ -403,10 +389,9 @@ function ResponsiveDrawer(props) {
                         </IconButton>
                         <img src={pic} className='avatar' />
                         <Typography variant="h6" component="div" >
-                            {receiver}
-                        </Typography>
-
+                            {displayReceiver}
                         <div className='typing'>{typing}</div>
+                        </Typography>
                     </Toolbar>
                 </AppBar>
 
@@ -451,8 +436,8 @@ function ResponsiveDrawer(props) {
                     <Toolbar />
                     <div className='message-container' ref={messageContainerRef}>
                         {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
-                            <div key={index} className={payload.username === usernameParam ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
-                                <div className='username'>{payload.username}
+                            <div key={index} className={payload.email === userEmail ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
+                                <div className='username'>{payload.email === userEmail ? 'You' : contacts[payload.email].username}
                                     <div className="menu-icon-container">
                                         <KeyboardArrowDownIcon onClick={handleClick} />
                                     </div>
@@ -514,7 +499,7 @@ function ResponsiveDrawer(props) {
                             </>
                         ) : null}
 
-                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} username={username} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} />
+                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} userEmail={userEmail} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} setTyping={setTyping}/>
 
                     </Box>
                 </Box>

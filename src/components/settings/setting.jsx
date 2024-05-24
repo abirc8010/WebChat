@@ -5,11 +5,12 @@ import { IconButton } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import "./settings.css";
-const SettingsDialog = ({ socket, openConfig, onClose, setImgUrl, username, setProfilePicture, profilePicture,setAuthenticUser }) => {
+const SettingsDialog = ({ socket, openConfig, onClose, setImgUrl, userEmail, setProfilePicture, profilePicture,setAuthenticUser }) => {
     const [selectedBackground, setSelectedBackground] = useState('');
 
     const handleLogout = () => {
         localStorage.removeItem('currentUser');
+         localStorage.removeItem('currentUserName');
         setAuthenticUser(false);
     }
     const handleProfilePictureChange = (event) => {
@@ -23,7 +24,7 @@ const SettingsDialog = ({ socket, openConfig, onClose, setImgUrl, username, setP
                 if (socket) {
                     const fileData = reader.result.split(',')[1]; // Remove data URL prefix
                     console.log(typeof (fileData));
-                    socket.emit("uploadProfilePicture", { username, fileData });
+                    socket.emit("uploadProfilePicture", { email:userEmail, fileData });
                 }
             };
             reader.readAsDataURL(file);

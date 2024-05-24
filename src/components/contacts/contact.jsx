@@ -1,43 +1,46 @@
-// Import useState and useEffect from React
 import React, { useState, useEffect } from "react";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import { AddCircleOutline } from "@mui/icons-material";
 import NotificationBadge from './badge';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username,profilePicture,setPic,users,setUsers}) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail,contacts,setContacts,setDisplayReceiver }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
-    const [profilePictures, setProfilePictures] = useState({});
+
     useEffect(() => {
-        socket.emit("getContactList", username);
+        socket.emit("getContactList", userEmail);
         socket.on("contactList", (data) => {
             if (data.error) {
                 console.error("Error:", data.error);
                 return;
             }
-            const contactList = data.contacts;
-            setUsers(contactList);
-            // Fetch profile pictures for all users in the contact list
-            contactList.forEach(user => {
-                socket.emit('getPicture', { username: user });
+            const contactsData = data.contacts.reduce((acc, curr) => {
+                acc[curr] = { username: "", profilePicture: "" };
+                return acc;
+            }, {});
+            setContacts(contactsData);
+            // Fetch profile pictures and usernames for all users in the contact list
+            data.contacts.forEach(user => {
+                socket.emit('getPicture', { email: user });
             });
         });
         return () => {
             socket.off("contactList");
         };
-    }, [socket]);
+    }, []);
 
     // Listen for profile picture updates from the server
     useEffect(() => {
         socket.on("Picture", (data) => {
-            setProfilePictures(prevState => ({
+            setContacts(prevState => ({
                 ...prevState,
-                [data.username]: data.profilePicture
+                [data.email]: { ...prevState[data.email], username:data.username,profilePicture: data.profilePicture }
             }));
         });
-
     }, []);
+
+   
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -55,12 +58,12 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     };
 
     const handleAddContact = () => {
-        const user = email.split('@')[0];
-        const newUser = user;
-        setUsers([...users, newUser]);
-        const contactUsername = user;
-        socket.emit("addContact", { contactUsername, username });
-         socket.emit('getPicture', { username: contactUsername });
+        const newContact = { username: "", profilePicture: "" };
+        setContacts(prevState => ({
+            ...prevState,
+            [email]: newContact
+        }));
+        socket.emit("addContact", { contactEmail: email, email: userEmail });
         handleClose();
     };
 
@@ -112,20 +115,20 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <div className="contact" onClick={() => { setReceiver("You");setPic(profilePicture) }}><img src={profilePicture} className="avatar" />
+                    <div className="contact" onClick={() => { setReceiver("You"); setPic(profilePicture) }}><img src={profilePicture} className="avatar" />
                         <div className="user-detail"> {username} (You)</div>
                     </div>
                 </div>
-                {users.map((user, index) => (
-                    <div key={index}>
-                        <div className="contact" onClick={() => { setReceiver(user); setChatCountZero(user); handleDrawerClose();setPic(profilePictures[user]?profilePictures[user]:"you.webp") ;console.log("Picture of user",user,profilePicture[user]);}}>
-                            <img src={profilePictures[user]?profilePictures[user]:"you.webp"} className="avatar" />
+                {Object.entries(contacts).map(([email, data]) => (
+                    <div key={email}>
+                        <div className="contact" onClick={() => { setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username)}}>
+                            <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
-                                    {user}
-                                    {user !== receiver && chatCount[user] > 0 && <NotificationBadge count={chatCount[user]} />}
+                                    {data.username || email}
+                                    {email !== receiver && chatCount[email] > 0 && <NotificationBadge count={chatCount[email]} />}
                                 </div>
-                                <div className="last-message">{getLastMessage(user)}</div>
+                                <div className="last-message">{getLastMessage(email)}</div>
                             </div>
                         </div>
                     </div>

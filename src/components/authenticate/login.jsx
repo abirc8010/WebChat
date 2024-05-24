@@ -22,12 +22,14 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
     e.preventDefault();
     try {
       const u = await signInWithEmailAndPassword(auth, email, password);
-      const username = u.user.displayName;
-      handleOpenDialog(username);
+       console.log(u);
+      handleOpenDialog(email);
       setTimeout(() => {
-        setCurrentUser(username);
-        localStorage.setItem('currentUser', username);
-        setAuthenticUser(true);
+        setCurrentUser(email);
+        console.log(email);
+        localStorage.setItem('currentUser', email);
+         localStorage.setItem('currentUsername', u.user.displayName);
+       setAuthenticUser(true);
       }, 4000);
     }
     catch (error) {
@@ -46,10 +48,12 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
     const provider = new GoogleAuthProvider();
     try {
       const g = await signInWithPopup(auth, provider);
-      const username = g.user.displayName;
-      setCurrentUser(username);
-      setAuthenticUser(true);
-       localStorage.setItem('currentUser', username);
+      const userEmail =g.user.email
+      console.log(userEmail);
+      setCurrentUser(userEmail);
+     setAuthenticUser(true);
+       localStorage.setItem('currentUser', userEmail);
+         localStorage.setItem('currentUsername', u.user.displayName);
     } catch (error) {
       console.log(error);
     }

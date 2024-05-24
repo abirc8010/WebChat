@@ -11,7 +11,7 @@ import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import './InputArea.css';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
-const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, username, setChats, chats, setReply, reply }) => {
+const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply,setTyping }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
   const [openGifsDialog, setOpenGifsDialog] = useState(false);
@@ -22,7 +22,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [selectedUrl, setSelectedUrl] = useState('');
   const [listening, setListening] = useState(false); // State to track whether speech recognition is active
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
- 
+
   // Function to handle starting and stopping speech recognition
   const toggleSpeechRecognition = () => {
     if (!listening) {
@@ -35,6 +35,44 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       setListening(false);
     }
   };
+  useEffect(() => {
+    const inputMsg = document.querySelector(".inputmsg");
+    if (inputMsg) {
+      inputMsg.addEventListener("keydown", () => {
+        socket.emit("typing", { receiver });
+      });
+      inputMsg.addEventListener("keyup", () => {
+        socket.emit("stopTyping", "");
+      });
+    }
+  }, []);
+    useEffect(() => {
+        // Event listener for receiving typing notification
+        const handleTyping = (data) => {
+            if (data.receiver !== userEmail) {
+                setTyping(`is typing`);
+            }
+        };
+
+        // Event listener for receiving stopTyping notification
+        const handleStopTyping = () => {
+            // Clear the typing message after 2 seconds
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                setTyping('');
+            }, 2000);
+        };
+
+        // Attach event listeners
+        socket.on("notifyTyping", handleTyping);
+        socket.on("notifyStopTyping", handleStopTyping);
+
+        // Detach event listeners when component unmounts
+        return () => {
+            socket.off("notifyTyping", handleTyping);
+            socket.off("notifyStopTyping", handleStopTyping);
+        };
+    }, []); // Include socket dependency to prevent re-subscribing on each render
 
   useEffect(() => {
     // Check if the SpeechRecognition API is available in the browser
@@ -46,8 +84,9 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       // Event listener for receiving speech recognition results
       recognition.onresult = (event) => {
+        // Concatenate the transcript to the existing message
         const transcript = event.results[0][0].transcript;
-        setMessage(transcript);
+        setMessage(prevMessage => prevMessage + ' ' + transcript);
       };
 
       // Save the SpeechRecognition object to state
@@ -57,6 +96,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       console.error('Speech recognition not supported in this browser');
     }
   }, []); // Run only once on component mount
+
 
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -119,7 +159,6 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   };
 
   const handleSendChat = (selectedUrl) => {
-    console.log(selectedUrl);
     if (selectedUrl) {
       const date = new Date();
       let day = date.getDate();
@@ -129,14 +168,13 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       const message = selectedUrl;
       const url = selectedUrl;
-      socket.emit("private message", { receiver, message, username, Time, url, reply });
+      socket.emit("send privateMessage", { receiver, message:"Sticker", email:userEmail, Time, url, reply });
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
       }
-      updatedChats[receiver].push({ receiver, message, username, Time, url, reply });
+      updatedChats[receiver].push({ receiver, message:"Sticker", email:userEmail, Time, url, reply });
       setReply([]);
-      console.log(updatedChats);
       setChats(updatedChats);
       setMessage('');
       handleCloseEmojiDialog();
@@ -162,8 +200,8 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                   {/* Mood icon */}
                   <MoodIcon sx={{ cursor: "pointer" }} onClick={handleClickMenu} />
                   {/* Microphone icon for speech recognition */}
-                  <span className="microphone-icon" onClick={toggleSpeechRecognition} style={{marginLeft:"10px",display:"flex",justifyContent:"center",alignItems:"center"}}>
-                    {listening ? <StopIcon sx={{cursor:"pointer"}}/> : <MicrophoneIcon sx={{cursor:"pointer"}} />}
+                  <span className="microphone-icon" onClick={toggleSpeechRecognition} style={{ marginLeft: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    {listening ? <StopIcon sx={{ cursor: "pointer" }} /> : <MicrophoneIcon sx={{ cursor: "pointer" }} />}
                   </span>
                 </InputAdornment>
               </>
