@@ -43,18 +43,19 @@ function a11yProps(index) {
 }
 
 export default function({setCurrentUser,setAuthenticUser}) {
-  
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-
   return (
     <>
+     
       <div className="box" >
-        <div className='heading'>WebChat</div>
+     
+        <div className='heading'><img src="logo.jpg" style={{height:"40px",width:"40px",marginRight:"10px"}}></img>WebChat</div>
+       
         <Box className="auth-tab">
           <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
@@ -62,13 +63,14 @@ export default function({setCurrentUser,setAuthenticUser}) {
               <Tab label="Login" {...a11yProps(1)} className='tab' sx={{ color: 'rgb(255, 255, 255)' }} />
             </Tabs>
           </Box>
-            <CustomTabPanel value={value} index={0} >              
-              <Signup setValue={setValue} />
-            </CustomTabPanel>
-            <CustomTabPanel value={value} index={1} >
-              <Login setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} className="tab-panel" />
-            </CustomTabPanel>
+          <CustomTabPanel value={value} index={0} >              
+            <Signup setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1} >
+            <Login setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} className="tab-panel" />
+          </CustomTabPanel>
         </Box>
+       
       </div>
     </>
   );

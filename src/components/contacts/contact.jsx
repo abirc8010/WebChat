@@ -4,9 +4,11 @@ import { AddCircleOutline } from "@mui/icons-material";
 import NotificationBadge from './badge';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail,contacts,setContacts,setDisplayReceiver }) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
+    const [searchText, setSearchText] = useState("");
+    const [filteredContacts, setFilteredContacts] = useState([]);
 
     useEffect(() => {
         socket.emit("getContactList", userEmail);
@@ -35,12 +37,22 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
         socket.on("Picture", (data) => {
             setContacts(prevState => ({
                 ...prevState,
-                [data.email]: { ...prevState[data.email], username:data.username,profilePicture: data.profilePicture }
+                [data.email]: { ...prevState[data.email], username: data.username, profilePicture: data.profilePicture }
             }));
         });
     }, []);
 
-   
+    useEffect(() => {
+        const filtered = Object.entries(contacts);
+        if (searchText) {
+            const filteredContacts = filtered.filter(([email, data]) =>
+                data.username.toLowerCase().includes(searchText.toLowerCase())
+            );
+            setFilteredContacts(filteredContacts);
+        } else {
+            setFilteredContacts(filtered);
+        }
+    }, [searchText, contacts]);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -82,7 +94,14 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
     return (
         <>
-            <TextField id="outlined-basic" label="Search" outlined="outlined" sx={{ width: "100%", mb: 2, backgroundColor: `#6f8af2!important` }} />
+            <TextField
+                id="outlined-basic"
+                label="Search"
+                outlined="outlined"
+                sx={{ width: "100%", mb: 2, backgroundColor: `#6f8af2!important` }}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+            />
             <Button variant="contained" color="primary" endIcon={<AddCircleOutline />} onClick={handleClickOpen} sx={{ mb: 2 }}>
                 Add Contact
             </Button>
@@ -115,13 +134,14 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <div className="contact" onClick={() => { setReceiver("You"); setPic(profilePicture) }}><img src={profilePicture} className="avatar" />
+                    <div className="contact" onClick={() => { setReceiver("You"); setPic(profilePicture) }}>
+                        <img src={profilePicture} className="avatar" />
                         <div className="user-detail"> {username} (You)</div>
                     </div>
                 </div>
-                {Object.entries(contacts).map(([email, data]) => (
+                {filteredContacts.map(([email, data]) => (
                     <div key={email}>
-                        <div className="contact" onClick={() => { setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username)}}>
+                        <div className="contact" onClick={() => { setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username) }}>
                             <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">

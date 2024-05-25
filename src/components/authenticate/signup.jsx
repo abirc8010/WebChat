@@ -9,8 +9,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Success from '../notification/success';
 import Error from '../notification/error';
 import { auth } from '../../config/firebase';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup,GoogleAuthProvider} from 'firebase/auth';
-export default function SignUp({ setValue }) {
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+export default function SignUp({ setValue, setAuthenticUser, setCurrentUser }) {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -24,10 +24,10 @@ export default function SignUp({ setValue }) {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             await updateProfile(userCredential.user, {
                 displayName: username
-            });         
-                localStorage.setItem('user', username);
+            });
+            localStorage.setItem('user', username);
 
-            handleOpenDialog();   
+            handleOpenDialog();
             setTimeout(() => {
                 setValue(1);
                 handleCloseDialog();
@@ -50,10 +50,13 @@ export default function SignUp({ setValue }) {
     const handleGoogleSignIn = async () => {
         const provider = new GoogleAuthProvider();
         try {
-            const g=await signInWithPopup(auth, provider);
-            const username = g.user.displayName;
-            localStorage.setItem('user', username);
-             navigate(`/chat?username=${username}`);
+            const g = await signInWithPopup(auth, provider);
+            const userEmail = g.user.email
+            console.log(g.user.displayName);
+            setCurrentUser(userEmail);
+            setAuthenticUser(true);
+            localStorage.setItem('currentUser', userEmail);
+            localStorage.setItem('currentUsername', g.user.displayName);
         } catch (error) {
             console.log(error);
         }
@@ -62,7 +65,7 @@ export default function SignUp({ setValue }) {
         <div className="form-box">
             <Error openDialog={openErrorDialog} handleCloseDialog={handleErrorCloseDialog} />
             <Success openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
-            <form onSubmit={handleSubmit} style={{display:"flex",justifyContent:"center",flexDirection:"column",alignItems:"center"}}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
                 <TextField
                     label="Username"
                     sx={{ mb: 2 }}

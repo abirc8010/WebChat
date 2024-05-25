@@ -56,7 +56,11 @@ body {
          color: transparent;
          font-weight: 900;
   font-size: 40px;
+  font-weight: bold;
   position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   top:2px;
   margin: 10px;
   font-weight: 900;

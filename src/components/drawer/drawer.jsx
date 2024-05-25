@@ -233,9 +233,9 @@ function ResponsiveDrawer(props) {
         setMessage('');
     };
 
-   
 
-  
+
+
 
 
     useEffect(() => {
@@ -255,9 +255,10 @@ function ResponsiveDrawer(props) {
                     socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
                     const newContact = { username: "", profilePicture: "you.webp" };
                     setContacts(prevState => ({
-                        ...prevState,
-                        [payload.email]: newContact
+                        [payload.email]: newContact, ...prevState
+
                     }));
+
                     socket.emit('getPicture', { email: payload.email });
                 }
 
@@ -317,8 +318,8 @@ function ResponsiveDrawer(props) {
     const drawer = (
         <div className='drawer'>
             <Toolbar className='toolbar'>
-                <div className='webchat' style={{ backgroundImage: 'linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))' }}>
-                    WebChat
+                <div className='webchat' style={{ backgroundImage: 'linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))', fontWeight: "900" }}>
+                    <img src="logo.jpg" style={{ width: "40px", height: "40px", marginRight: "10px", borderRadius: "30%" }}></img>   WebChat
                 </div>
                 {mobileOpen ? (<ArrowBackIosNewIcon
                     onClick={handleDrawerToggle} />)
@@ -390,7 +391,7 @@ function ResponsiveDrawer(props) {
                         <img src={pic} className='avatar' />
                         <Typography variant="h6" component="div" >
                             {displayReceiver}
-                        <div className='typing'>{typing}</div>
+                            <div className='typing'>{typing}</div>
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -436,52 +437,68 @@ function ResponsiveDrawer(props) {
                     <Toolbar />
                     <div className='message-container' ref={messageContainerRef}>
                         {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
-                            <div key={index} className={payload.email === userEmail ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
-                                <div className='username'>{payload.email === userEmail ? 'You' : contacts[payload.email].username}
-                                    <div className="menu-icon-container">
-                                        <KeyboardArrowDownIcon onClick={handleClick} />
-                                    </div>
-                                </div>
-                                {payload.reply.url ? (
+                            <>
+                                <div key={index} className={payload.email === userEmail ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
+                                    <div className='username'>
+                                        <div className='userAndProfile'>
+                                            {payload.email !== userEmail ? (
+                                                <div className="other-profile-picture">
+                                                    <img src={contacts[payload.email].profilePicture} style={{ width: "25px", height: "25px", borderRadius: "50%" }} alt="Profile" />
+                                                </div>
+                                            ) : (
+                                                <div className="my-profile-picture">
+                                                    <img src={profilePicture} style={{ width: "25px", height: "25px", borderRadius: "50%" }} alt="Profile" />
+                                                </div>
+                                            )}
 
-                                    <div className='show-reply'>
-                                        <div>{payload.reply.username}</div>
-                                        Sticker
+                                            {payload.email === userEmail ? 'You' : contacts[payload.email].username}
+                                        </div>
+                                        <div className="menu-icon-container">
+                                            <KeyboardArrowDownIcon onClick={handleClick} />
+                                        </div>
                                     </div>
+                                    {payload.reply.url ? (
 
-                                ) :
-                                    (payload.reply.message ? (
                                         <div className='show-reply'>
                                             <div>{payload.reply.username}</div>
-                                            {payload.reply.message}
+                                            Sticker
                                         </div>
-                                    ) : null
-                                    )
-                                }
-                                {payload.url ? (
-                                    <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px" }} />
-                                ) : (
-                                    <div className='message-content'>{payload.message}</div>
-                                )}
-                                <div className="date-time">{payload.Time}</div>
 
-                                <Menu
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >
-                                    <MenuItem onClick={() => handleDelete(receiver, index)}>
-                                        Delete
-                                    </MenuItem>
-                                    <MenuItem onClick={() => handleReply(payload)}>
-                                        Reply
-                                    </MenuItem>
-                                </Menu>
-                            </div>
+                                    ) :
+                                        (payload.reply.message ? (
+                                            <div className='show-reply'>
+                                                <div>{payload.reply.username}</div>
+                                                {payload.reply.message}
+                                            </div>
+                                        ) : null
+                                        )
+                                    }
+                                    {payload.url ? (
+                                        <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px" }} />
+                                    ) : (
+                                        <div className='message-content'>{payload.message}</div>
+                                    )}
+                                    <div className="date-time">{payload.Time}</div>
+
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={() => handleDelete(receiver, index)}>
+                                            Delete
+                                        </MenuItem>
+                                        <MenuItem onClick={() => handleReply(payload)}>
+                                            Reply
+                                        </MenuItem>
+                                    </Menu>
+
+                                </div>
+
+                            </>
                         ))}
-                    </div>
-
+                    </div >
                     <br /><br />
 
 
@@ -499,7 +516,7 @@ function ResponsiveDrawer(props) {
                             </>
                         ) : null}
 
-                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} userEmail={userEmail} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} setTyping={setTyping}/>
+                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} userEmail={userEmail} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} setTyping={setTyping} />
 
                     </Box>
                 </Box>
