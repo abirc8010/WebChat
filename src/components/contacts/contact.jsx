@@ -136,7 +136,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 <div>
                     <div className="contact" onClick={() => { setReceiver("You"); setPic(profilePicture) }}>
                         <img src={profilePicture} className="avatar" />
-                        <div className="user-detail"> {username} (You)</div>
+                        <div className="user-detail" > <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>You : {username} </div></div>
                     </div>
                 </div>
                 {filteredContacts.map(([email, data]) => (
@@ -145,7 +145,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                             <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
-                                    {data.username || email}
+                                    <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{data.username || email}</div>
                                     {email !== receiver && chatCount[email] > 0 && <NotificationBadge count={chatCount[email]} />}
                                 </div>
                                 <div className="last-message">{getLastMessage(email)}</div>

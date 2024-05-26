@@ -10,7 +10,7 @@ const SettingsDialog = ({ socket, openConfig, onClose, setImgUrl, userEmail, set
 
     const handleLogout = () => {
         localStorage.removeItem('currentUser');
-         localStorage.removeItem('currentUserName');
+         localStorage.removeItem('currentUsername');
         setAuthenticUser(false);
     }
     const handleProfilePictureChange = (event) => {

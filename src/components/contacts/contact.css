@@ -17,13 +17,19 @@
    border-top:1px solid rgba(255, 255, 255, 0.433);
    box-shadow:0 1px 0 rgba(255, 255, 255, 0.49);
    font-size:20px;
+     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .user-detail{
     height: 100%;
-    width:75%;
+    max-width:270px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .contact:hover{
     opacity:0.8;

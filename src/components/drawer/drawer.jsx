@@ -261,15 +261,16 @@ function ResponsiveDrawer(props) {
 
                     socket.emit('getPicture', { email: payload.email });
                 }
-
-                setChatCount(prevChatCount => {
-                    const newCount = (prevChatCount[payload.email] || 0) + 1;
-                    console.log("ChatCount:", newCount);
-                    return {
-                        ...prevChatCount,
-                        [payload.email]: newCount
-                    };
-                });
+                if (payload.email !== receiver) {
+                    setChatCount(prevChatCount => {
+                        const newCount = (prevChatCount[payload.email] || 0) + 1;
+                        console.log("ChatCount:", newCount);
+                        return {
+                            ...prevChatCount,
+                            [payload.email]: newCount
+                        };
+                    });
+                }
 
                 setChats(prevChats => {
                     const updatedChats = { ...prevChats };
@@ -319,7 +320,7 @@ function ResponsiveDrawer(props) {
         <div className='drawer'>
             <Toolbar className='toolbar'>
                 <div className='webchat' style={{ backgroundImage: 'linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))', fontWeight: "900" }}>
-                    <img src="logo.jpg" style={{ width: "40px", height: "40px", marginRight: "10px", borderRadius: "30%" }}></img>   WebChat
+                    <img src="logo.jpg" style={{ width: "40px", height: "40px", marginRight: "10px", borderRadius: "50%" }}></img>   WebChat
                 </div>
                 {mobileOpen ? (<ArrowBackIosNewIcon
                     onClick={handleDrawerToggle} />)
@@ -451,7 +452,7 @@ function ResponsiveDrawer(props) {
                                                 </div>
                                             )}
 
-                                            {payload.email === userEmail ? 'You' : contacts[payload.email].username}
+                                           <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{payload.email === userEmail ? 'You' : contacts[payload.email].username}</div>
                                         </div>
                                         <div className="menu-icon-container">
                                             <KeyboardArrowDownIcon onClick={handleClick} />

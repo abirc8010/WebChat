@@ -43,11 +43,12 @@
     margin-bottom: 5px;
     margin-top: 4px;
 }
-.userAndProfile{
-    width:70px;
+.userAndProfile {
+    width:100px;
     display: flex;
     justify-content: space-around;
 }
+
 .message-container {
    width: calc(100% - 560px);
    margin-left: 450px;
@@ -209,10 +210,4 @@
         width: 78%;
         margin-right: 30px;
     }
-}
-.other-profile-picture{
-    margin-right: -8px;
-}
-.my-profile-picture{
-    margin-right: -8px;
 }
