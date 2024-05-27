@@ -113,7 +113,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                         <TextField
                             autoFocus
                             margin="dense"
-                            label="Username"
+                            label="Email"
                             type="email"
                             fullWidth
                             value={email}
