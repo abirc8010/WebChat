@@ -37,7 +37,7 @@
 
 .username{
     width:100%;
-    display:flex;
+    display: flex;
     justify-content: space-between;
     color:rgb(0, 255, 183);
     margin-bottom: 5px;

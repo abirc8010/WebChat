@@ -9,7 +9,10 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     const [email, setEmail] = useState("");
     const [searchText, setSearchText] = useState("");
     const [filteredContacts, setFilteredContacts] = useState([]);
-
+    const [add, setAdd] = useState(false);
+    useEffect(() => {
+       socket.on("failed",()=>{setAdd(true)})
+    },[socket]);
     useEffect(() => {
         socket.emit("getContactList", userEmail);
         socket.on("contactList", (data) => {
@@ -120,6 +123,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                             onChange={handleEmailChange}
                             className="text-field"
                         />
+                      {(add)?<div>No user found!</div>:null}
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">

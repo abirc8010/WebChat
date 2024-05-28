@@ -41,7 +41,8 @@
 }
 .user-info{
     padding-top:8px;
-    width:100%;
+    width:270px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }

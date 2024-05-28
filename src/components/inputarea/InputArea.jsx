@@ -11,7 +11,7 @@ import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import './InputArea.css';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
-const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply,setTyping }) => {
+const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
   const [openGifsDialog, setOpenGifsDialog] = useState(false);
@@ -22,7 +22,18 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [selectedUrl, setSelectedUrl] = useState('');
   const [listening, setListening] = useState(false); // State to track whether speech recognition is active
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
+  const [numRows, setNumRows] = useState(1); // State to track the number of rows
 
+  const handleInput = (e) => {
+    setMessage(e.target.value); // Update the message state
+     if (window.innerWidth < 600) {
+    contentRows = Math.ceil(textarea.scrollHeight / 700); // Assuming each row height is 22px
+  } else {
+    contentRows = Math.ceil(textarea.scrollHeight / 400); // Assuming each row height is 32px for larger screens
+  }
+    setNumRows(contentRows > 5 ? 5 : contentRows); // Limiting to a maximum of 5 rows
+
+  };
   // Function to handle starting and stopping speech recognition
   const toggleSpeechRecognition = () => {
     if (!listening) {
@@ -46,33 +57,33 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       });
     }
   }, []);
-    useEffect(() => {
-        // Event listener for receiving typing notification
-        const handleTyping = (data) => {
-            if (data.receiver !== userEmail) {
-                setTyping(`is typing`);
-            }
-        };
+  useEffect(() => {
+    // Event listener for receiving typing notification
+    const handleTyping = (data) => {
+      if (data.receiver !== userEmail) {
+        setTyping(`is typing`);
+      }
+    };
 
-        // Event listener for receiving stopTyping notification
-        const handleStopTyping = () => {
-            // Clear the typing message after 2 seconds
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                setTyping('');
-            }, 2000);
-        };
+    // Event listener for receiving stopTyping notification
+    const handleStopTyping = () => {
+      // Clear the typing message after 2 seconds
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        setTyping('');
+      }, 2000);
+    };
 
-        // Attach event listeners
-        socket.on("notifyTyping", handleTyping);
-        socket.on("notifyStopTyping", handleStopTyping);
+    // Attach event listeners
+    socket.on("notifyTyping", handleTyping);
+    socket.on("notifyStopTyping", handleStopTyping);
 
-        // Detach event listeners when component unmounts
-        return () => {
-            socket.off("notifyTyping", handleTyping);
-            socket.off("notifyStopTyping", handleStopTyping);
-        };
-    }, []); // Include socket dependency to prevent re-subscribing on each render
+    // Detach event listeners when component unmounts
+    return () => {
+      socket.off("notifyTyping", handleTyping);
+      socket.off("notifyStopTyping", handleStopTyping);
+    };
+  }, []); // Include socket dependency to prevent re-subscribing on each render
 
   useEffect(() => {
     // Check if the SpeechRecognition API is available in the browser
@@ -168,12 +179,12 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       const message = selectedUrl;
       const url = selectedUrl;
-      socket.emit("send privateMessage", { receiver, message:"Sticker", email:userEmail, Time, url, reply });
+      socket.emit("send privateMessage", { receiver, message: "Sticker", email: userEmail, Time, url, reply });
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
       }
-      updatedChats[receiver].push({ receiver, message:"Sticker", email:userEmail, Time, url, reply });
+      updatedChats[receiver].push({ receiver, message: "Sticker", email: userEmail, Time, url, reply });
       setReply([]);
       setChats(updatedChats);
       setMessage('');
@@ -188,12 +199,12 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     <>
       <div className='input-container'>
         {/* Text field for message input */}
-        
+
         <TextField
           variant="outlined"
           placeholder="Enter your message"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onInput={handleInput} 
           InputProps={{
             endAdornment: (
               <>
@@ -208,11 +219,14 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
               </>
             ),
           }}
+          multiline   // Enable multiline
+          rows={numRows}    // Set number of rows to show initially
           className="input-msg"
+          sx={{ overflowY: 'auto' }}
         />
 
         {/* Send button */}
-        <button type="submit" className="submit-btn" onClick={sendChat}>
+        <button type="submit" className="submit-btn" onClick={(message) ? sendChat : null}>
           <SendIcon sx={{ fontSize: "30px" }} />
         </button>
 

@@ -5,6 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import  Button from '@mui/material/Button';
 import Contacts from '../contacts/contact';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import PropTypes from 'prop-types';
@@ -441,21 +443,10 @@ function ResponsiveDrawer(props) {
                             <>
                                 <div key={index} className={payload.email === userEmail ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
                                     <div className='username'>
-                                        <div className='userAndProfile'>
-                                            {payload.email !== userEmail ? (
-                                                <div className="other-profile-picture">
-                                                    <img src={contacts[payload.email].profilePicture} style={{ width: "25px", height: "25px", borderRadius: "50%" }} alt="Profile" />
-                                                </div>
-                                            ) : (
-                                                <div className="my-profile-picture">
-                                                    <img src={profilePicture} style={{ width: "25px", height: "25px", borderRadius: "50%" }} alt="Profile" />
-                                                </div>
-                                            )}
-
                                            <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{payload.email === userEmail ? 'You' : contacts[payload.email].username}</div>
-                                        </div>
+                                        
                                         <div className="menu-icon-container">
-                                            <KeyboardArrowDownIcon onClick={handleClick} />
+                                            <KeyboardArrowDownIcon onClick={handleClick} style={{cursor:"pointer"}}/>
                                         </div>
                                     </div>
                                     {payload.reply.url ? (
@@ -487,10 +478,10 @@ function ResponsiveDrawer(props) {
                                         open={Boolean(anchorEl)}
                                         onClose={handleClose}
                                     >
-                                        <MenuItem onClick={() => handleDelete(receiver, index)}>
+                                        <MenuItem onClick={() => {handleDelete(receiver, index),handleClose();}}>
                                             Delete
                                         </MenuItem>
-                                        <MenuItem onClick={() => handleReply(payload)}>
+                                        <MenuItem onClick={() => {handleReply(payload),handleClose();}}>
                                             Reply
                                         </MenuItem>
                                     </Menu>
@@ -508,10 +499,10 @@ function ResponsiveDrawer(props) {
                             <>
                                 <div className='reply'>
                                     <div style={{ color: "rgb(0,255,183)", textDecoration: "underline" }}>
-                                        {reply.username}
+                                        {reply.username}  
                                     </div>
-                                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {reply.message}
+                                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',display:"flex",justifyContent:"space-between",width:"100%" }}>
+                                      <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',maxWidth:"300px"}}>  {reply.message}</div><CloseIcon style={{cursor:"pointer" ,marginRight:"8px"}} onClick={()=>{setReply([]);}}/>
                                     </div>
                                 </div>
                             </>
