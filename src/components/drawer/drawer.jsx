@@ -25,6 +25,7 @@ import InputArea from '../inputarea/InputArea';
 import { useRef } from 'react';
 import './drawer.css';
 import ImageDialog from '../image_dialog/ImageDialog';
+import VideoDialog from '../video_dialog/VideoDialog';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 const userEmail = localStorage.getItem("currentUser");
@@ -118,6 +119,15 @@ function ResponsiveDrawer(props) {
     const messageContainerRef = useRef(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedImageUrl, setSelectedImageUrl] = useState('');
+    const [showVideoDialog, setShowVideoDialog] = useState(false);
+
+    const openVideoDialog = () => {
+        setShowVideoDialog(true);
+    };
+
+    const closeVideoDialog = () => {
+        setShowVideoDialog(false);
+    };
 
     const handleImageClick = (imageUrl) => {
         setSelectedImageUrl(imageUrl);
@@ -229,11 +239,13 @@ function ResponsiveDrawer(props) {
     }
     const sendChat = (e) => {
         e.preventDefault();
+     
         const date = new Date();
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
+        if(receiver!="You")
         socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply });
 
         setReply([]);
@@ -246,12 +258,8 @@ function ResponsiveDrawer(props) {
         console.log(updatedChats);
         setChats(updatedChats);
         setMessage('');
+        
     };
-
-
-
-
-
 
     useEffect(() => {
         socket.on("chat", (payload) => {
@@ -479,13 +487,28 @@ function ResponsiveDrawer(props) {
                                         )
                                     }
                                     {payload.url ? (
-                                        <>
-                                            <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px", cursor: "pointer" }}  onClick={()=>handleImageClick(payload.url)}/>
-
-                                        </>
+                                        payload.message === "video" ? (
+                                            <div style={{ position: "relative", display: "inline-block" }}>
+                                                <video src={payload.url} alt="video" style={{ width: "200px" }} />
+                                                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", cursor: "pointer" }} onClick={() => { setSelectedImageUrl(payload.url); openVideoDialog(); }}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
+                                                        <path d="M3 22v-20l18 10-18 10z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            payload.message === "pdf" ? (
+                                                <div>
+                                                    <embed src={payload.url} type="application/pdf" width="200" height="200" />
+                                                </div>
+                                            ) : (
+                                                <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px", cursor: "pointer" }} onClick={() => handleImageClick(payload.url)} />
+                                            )
+                                        )
                                     ) : (
                                         <div className='message-content'>{payload.message}</div>
                                     )}
+
                                     <div className="date-time">{payload.Time}</div>
 
                                     <Menu
@@ -530,6 +553,7 @@ function ResponsiveDrawer(props) {
                 </Box>
             </Box>
             <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
+            <VideoDialog open={showVideoDialog} videoUrl={selectedImageUrl} onClose={closeVideoDialog} />
         </>
     );
 }

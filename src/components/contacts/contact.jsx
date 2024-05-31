@@ -143,7 +143,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <div className="contact" onClick={() => { setDisplayReceiver("You"); setPic(profilePicture) }}>
+                    <div className="contact" onClick={() => { setDisplayReceiver("You"); setPic(profilePicture);setReceiver("You") }}>
                         <img src={profilePicture} className="avatar" />
                         <div className="user-detail" > <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>You : {username} </div></div>
                     </div>

@@ -3,6 +3,10 @@ import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import MoodIcon from '@mui/icons-material/Mood';
 import SendIcon from '@mui/icons-material/Send';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import PhotoIcon from '@mui/icons-material/Photo';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import InputAdornment from '@mui/material/InputAdornment';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -10,12 +14,13 @@ import Dialog from '@mui/material/Dialog';
 import { Button, IconButton } from '@mui/material';
 import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import './InputArea.css';
+import { UploadRounded } from '@mui/icons-material';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
 
 const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorPinEl, setAnchorPinEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
   const [openGifsDialog, setOpenGifsDialog] = useState(false);
   const [openStickersDialog, setOpenStickersDialog] = useState(false);
@@ -25,6 +30,14 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [selectedUrl, setSelectedUrl] = useState('');
   const [listening, setListening] = useState(false); // State to track whether speech recognition is active
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
+  const [uploadSelection,setUploadSelection] = useState('');
+  const handleClickPinMenu = (event) => {
+    setAnchorPinEl(event.currentTarget);
+  };
+
+  const handleClosePinMenu = () => {
+    setAnchorPinEl(null);
+  };
 
   const handleInput = (e) => {
     setMessage(e.target.value); // Update the message state
@@ -165,7 +178,8 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     }
   };
 
-  const handleSendChat = (type,selectedUrl) => {
+  const handleSendChat = (type, selectedUrl) => {
+   
     if (selectedUrl) {
       const date = new Date();
       let day = date.getDate();
@@ -173,14 +187,15 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       let year = date.getFullYear();
       const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
 
-      const message = selectedUrl;
+      const message = uploadSelection;
       const url = selectedUrl;
-      socket.emit("send privateMessage", { receiver, message: type, email: userEmail, Time, url, reply });
+      if(receiver!="You")
+      socket.emit("send privateMessage", { receiver, message: uploadSelection, email: userEmail, Time, url, reply });
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
       }
-      updatedChats[receiver].push({ receiver, message: "Sticker", email: userEmail, Time, url, reply });
+      updatedChats[receiver].push({ receiver, message: uploadSelection, email: userEmail, Time, url, reply });
       setReply([]);
       setChats(updatedChats);
       setMessage('');
@@ -195,19 +210,20 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     const file = event.target.files[0];
     if (!file) return; // If no file is selected, do nothing
 
+       console.log(uploadSelection);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset',import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-    formData.append("cloud_name",import.meta.env.VITE_CLOUDINARY_CLOUD_NAME); 
+    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/${uploadSelection}/upload`, {
         method: 'POST',
         body: formData,
       });
 
       const responseData = await response.json();
       const imageUrl = responseData.secure_url;
-      handleSendChat("Image",imageUrl);
+      handleSendChat(uploadSelection, imageUrl);
 
       // Further processing or storing the URL as needed
 
@@ -262,10 +278,11 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                         fontSize: '20px' // font size for very small screens
                       }
                     }}
+                    onClick={handleClickPinMenu}
                     component="label"
                   >
-                    <PhotoCameraIcon />
-                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
+                    <AttachFileIcon />
+                    {/* <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} /> */}
 
                   </IconButton>
                   <IconButton
@@ -319,6 +336,83 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           <MenuItem onClick={() => { handleMenuOptionClick('gifs'); }}>GIFs</MenuItem>
           <MenuItem onClick={() => { handleMenuOptionClick('stickers'); }}>Stickers</MenuItem>
         </Menu>
+        <Menu
+          anchorEl={anchorPinEl}
+          open={Boolean(anchorPinEl)}
+          onClose={handleClosePinMenu}
+        >
+          <MenuItem>
+
+            <IconButton
+              sx={{
+                cursor: "pointer",
+                fontSize: {
+                  xs: '20px', // font size for extra small screens
+                  sm: '25px', // font size for small screens
+                  md: '30px', // font size for medium screens
+                  lg: '31px'  // font size for large screens
+                },
+                '@media (max-width: 600px)': {
+                  fontSize: '20px' // font size for very small screens
+                }
+              }}
+              onClick={(event)=>{handleClickPinMenu(event);setUploadSelection('pdf')}}
+              component="label"
+            >
+
+              <PictureAsPdfIcon />
+              <input type="file" accept="pdf/*" style={{ display: 'none' }}   onChange={handleFileUpload}  />
+
+            </IconButton>
+
+          </MenuItem>
+          <MenuItem>
+            <IconButton
+              sx={{
+                cursor: "pointer",
+                fontSize: {
+                  xs: '20px', // font size for extra small screens
+                  sm: '25px', // font size for small screens
+                  md: '30px', // font size for medium screens
+                  lg: '31px'  // font size for large screens
+                },
+                '@media (max-width: 600px)': {
+                  fontSize: '20px' // font size for very small screens
+                }
+              }}
+             onClick={(event)=>{handleClickPinMenu(event);setUploadSelection('image')}}
+              component="label"
+            >
+
+
+              <PhotoIcon />
+              <input type="file" accept="image/*" style={{ display: 'none' }} onClick={()=>setUploadSelection('image')} onChange={handleFileUpload}  />
+
+            </IconButton>
+          </MenuItem>
+          <MenuItem>
+            <IconButton
+              sx={{
+                cursor: "pointer",
+                fontSize: {
+                  xs: '20px', // font size for extra small screens
+                  sm: '25px', // font size for small screens
+                  md: '30px', // font size for medium screens
+                  lg: '31px'  // font size for large screens
+                },
+                '@media (max-width: 600px)': {
+                  fontSize: '20px' // font size for very small screens
+                }
+              }}
+              onClick={(event)=>{handleClickPinMenu(event);setUploadSelection('video')}}
+              component="label"
+            >
+              <VideocamIcon />
+              <input type="file" accept="video/*" style={{ display: 'none' }} OnClick={()=> setUploadSelection("video")} onChange={handleFileUpload} />
+
+            </IconButton>
+          </MenuItem>
+        </Menu>
 
         {/* Dialogs for emoji, GIFs, and stickers */}
         {/* Emoji dialog */}
@@ -353,7 +447,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                     src={result.images.original.url}
                     alt={`GIF ${index}`}
                     className="gif-item"
-                    onClick={() => { handleSendChat("Sticker",result.images.original.url); }}
+                    onClick={() => { handleSendChat("Sticker", result.images.original.url); }}
                   />
                 ))}
               </div>
@@ -385,7 +479,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                     className="sticker-item"
                     onClick={
                       () => {
-                        handleSendChat("Sticker",result.images.original.url);
+                        handleSendChat("Sticker", result.images.original.url);
                       }
                     }
                   />
