@@ -46,3 +46,9 @@
     justify-content: space-between;
     align-items: center;
 }
+.Search_Box{
+    width:100%;
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+}

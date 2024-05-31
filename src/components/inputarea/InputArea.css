@@ -8,12 +8,8 @@
 .input-msg .MuiInputBase-input {
   height: 30px;
   border-radius: 10px;
-   
 }
 
-.input-msg .MuiOutlinedInput-root {
-  border-radius: 10px;
-}
 
 @media (min-width: 600px) {
   .input-msg {

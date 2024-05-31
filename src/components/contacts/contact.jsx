@@ -11,8 +11,17 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     const [filteredContacts, setFilteredContacts] = useState([]);
     const [add, setAdd] = useState(false);
     useEffect(() => {
-       socket.on("failed",()=>{setAdd(true)})
-    },[socket]);
+        socket.on("failed", () => { setAdd(true) });
+        socket.on("success", () => {
+            setAdd(false);
+              const newContact = { username: "", profilePicture: "" };
+            setContacts(prevState => ({
+                ...prevState,
+                [email]: newContact
+            }));
+               handleClose();
+        })
+    }, [socket]);
     useEffect(() => {
         socket.emit("getContactList", userEmail);
         socket.on("contactList", (data) => {
@@ -63,6 +72,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
     const handleClose = () => {
         setOpen(false);
+        setAdd(false);
     };
 
     const setChatCountZero = (receiver) => {
@@ -73,17 +83,13 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     };
 
     const handleAddContact = () => {
-        const newContact = { username: "", profilePicture: "" };
-        setContacts(prevState => ({
-            ...prevState,
-            [email]: newContact
-        }));
         socket.emit("addContact", { contactEmail: email, email: userEmail });
-        handleClose();
+     
     };
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
+        setAdd(false);
     };
 
     const getLastMessage = (receiver) => {
@@ -97,18 +103,17 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
     return (
         <>
+          <div className="Search_Box">
             <TextField
                 id="outlined-basic"
                 label="Search"
-                outlined="outlined"
-                sx={{ width: "100%", mb: 2, backgroundColor: `#6f8af2!important` }}
+                sx={{ width: "80%", mb: 2, backgroundColor: `#c7bdc1!important` }}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
             />
-            <Button variant="contained" color="primary" endIcon={<AddCircleOutline />} onClick={handleClickOpen} sx={{ mb: 2 }}>
-                Add Contact
-            </Button>
-
+        <AddCircleOutline onClick={handleClickOpen} sx={{ mb: 2,height:"40px",width:"40px" ,cursor:"pointer", color:"#7099db"}}/>
+            </div>
+              
             <Dialog open={open} onClose={handleClose}>
                 <div className="add">
                     <DialogTitle sx={{ color: "white" }}>Add Contact</DialogTitle>
@@ -123,7 +128,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                             onChange={handleEmailChange}
                             className="text-field"
                         />
-                      {(add)?<div>No user found!</div>:null}
+                        {(add) ? <div style={{color:"rgb(225,0,0)",fontWeight:"400"}}>No user found !</div> : null}
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">
@@ -138,9 +143,9 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
             <div className="users-list" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <div className="contact" onClick={() => { setReceiver("You"); setPic(profilePicture) }}>
+                    <div className="contact" onClick={() => { setDisplayReceiver("You"); setPic(profilePicture) }}>
                         <img src={profilePicture} className="avatar" />
-                        <div className="user-detail" > <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>You : {username} </div></div>
+                        <div className="user-detail" > <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>You : {username} </div></div>
                     </div>
                 </div>
                 {filteredContacts.map(([email, data]) => (
@@ -149,7 +154,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                             <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
-                                    <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{data.username || email}</div>
+                                    <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{data.username || email}</div>
                                     {email !== receiver && chatCount[email] > 0 && <NotificationBadge count={chatCount[email]} />}
                                 </div>
                                 <div className="last-message">{getLastMessage(email)}</div>
@@ -158,6 +163,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                     </div>
                 ))}
             </div>
+            <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
         </>
     );
 }

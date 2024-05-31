@@ -6,7 +6,7 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import  Button from '@mui/material/Button';
+import Button from '@mui/material/Button';
 import Contacts from '../contacts/contact';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import PropTypes from 'prop-types';
@@ -24,6 +24,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputArea from '../inputarea/InputArea';
 import { useRef } from 'react';
 import './drawer.css';
+import ImageDialog from '../image_dialog/ImageDialog';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 const userEmail = localStorage.getItem("currentUser");
@@ -115,6 +116,18 @@ function ResponsiveDrawer(props) {
     const [contacts, setContacts] = useState({});
     const [displayReceiver, setDisplayReceiver] = useState('You');
     const messageContainerRef = useRef(null);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedImageUrl, setSelectedImageUrl] = useState('');
+
+    const handleImageClick = (imageUrl) => {
+        setSelectedImageUrl(imageUrl);
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
     useEffect(() => {
         socket.emit("getUsernameByEmail", userEmail);
         socket.on('usernameByEmail', (data) => {
@@ -443,10 +456,10 @@ function ResponsiveDrawer(props) {
                             <>
                                 <div key={index} className={payload.email === userEmail ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
                                     <div className='username'>
-                                           <div style={{overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{payload.email === userEmail ? 'You' : contacts[payload.email].username}</div>
-                                        
+                                        <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{payload.email === userEmail ? 'You' : contacts[payload.email].username}</div>
+
                                         <div className="menu-icon-container">
-                                            <KeyboardArrowDownIcon onClick={handleClick} style={{cursor:"pointer"}}/>
+                                            <KeyboardArrowDownIcon onClick={handleClick} style={{ cursor: "pointer" }} />
                                         </div>
                                     </div>
                                     {payload.reply.url ? (
@@ -466,7 +479,10 @@ function ResponsiveDrawer(props) {
                                         )
                                     }
                                     {payload.url ? (
-                                        <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px" }} />
+                                        <>
+                                            <img src={payload.url} alt="Sticker or GIF" style={{ width: "200px", cursor: "pointer" }}  onClick={()=>handleImageClick(payload.url)}/>
+
+                                        </>
                                     ) : (
                                         <div className='message-content'>{payload.message}</div>
                                     )}
@@ -478,10 +494,10 @@ function ResponsiveDrawer(props) {
                                         open={Boolean(anchorEl)}
                                         onClose={handleClose}
                                     >
-                                        <MenuItem onClick={() => {handleDelete(receiver, index),handleClose();}}>
+                                        <MenuItem onClick={() => { handleDelete(receiver, index), handleClose(); }}>
                                             Delete
                                         </MenuItem>
-                                        <MenuItem onClick={() => {handleReply(payload),handleClose();}}>
+                                        <MenuItem onClick={() => { handleReply(payload), handleClose(); }}>
                                             Reply
                                         </MenuItem>
                                     </Menu>
@@ -499,10 +515,10 @@ function ResponsiveDrawer(props) {
                             <>
                                 <div className='reply'>
                                     <div style={{ color: "rgb(0,255,183)", textDecoration: "underline" }}>
-                                        {reply.username}  
+                                        {reply.username}
                                     </div>
-                                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',display:"flex",justifyContent:"space-between",width:"100%" }}>
-                                      <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',maxWidth:"300px"}}>  {reply.message}</div><CloseIcon style={{cursor:"pointer" ,marginRight:"8px"}} onClick={()=>{setReply([]);}}/>
+                                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: "300px" }}>  {reply.message}</div><CloseIcon style={{ cursor: "pointer", marginRight: "8px" }} onClick={() => { setReply([]); }} />
                                     </div>
                                 </div>
                             </>
@@ -513,6 +529,7 @@ function ResponsiveDrawer(props) {
                     </Box>
                 </Box>
             </Box>
+            <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
         </>
     );
 }

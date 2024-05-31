@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
+import axios from 'axios';
 import MoodIcon from '@mui/icons-material/Mood';
 import SendIcon from '@mui/icons-material/Send';
 import InputAdornment from '@mui/material/InputAdornment';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
-import { Button } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
 import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import './InputArea.css';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
+
 const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
@@ -22,16 +25,9 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [selectedUrl, setSelectedUrl] = useState('');
   const [listening, setListening] = useState(false); // State to track whether speech recognition is active
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
-  const [numRows, setNumRows] = useState(1); // State to track the number of rows
 
   const handleInput = (e) => {
     setMessage(e.target.value); // Update the message state
-     if (window.innerWidth < 600) {
-    contentRows = Math.ceil(textarea.scrollHeight / 700); // Assuming each row height is 22px
-  } else {
-    contentRows = Math.ceil(textarea.scrollHeight / 400); // Assuming each row height is 32px for larger screens
-  }
-    setNumRows(contentRows > 5 ? 5 : contentRows); // Limiting to a maximum of 5 rows
 
   };
   // Function to handle starting and stopping speech recognition
@@ -169,7 +165,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     }
   };
 
-  const handleSendChat = (selectedUrl) => {
+  const handleSendChat = (type,selectedUrl) => {
     if (selectedUrl) {
       const date = new Date();
       let day = date.getDate();
@@ -179,7 +175,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       const message = selectedUrl;
       const url = selectedUrl;
-      socket.emit("send privateMessage", { receiver, message: "Sticker", email: userEmail, Time, url, reply });
+      socket.emit("send privateMessage", { receiver, message: type, email: userEmail, Time, url, reply });
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
@@ -195,6 +191,32 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     }
   };
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return; // If no file is selected, do nothing
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset',import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    formData.append("cloud_name",import.meta.env.VITE_CLOUDINARY_CLOUD_NAME); 
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const responseData = await response.json();
+      const imageUrl = responseData.secure_url;
+      handleSendChat("Image",imageUrl);
+
+      // Further processing or storing the URL as needed
+
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+
   return (
     <>
       <div className='input-container'>
@@ -204,23 +226,80 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           variant="outlined"
           placeholder="Enter your message"
           value={message}
-          onInput={handleInput} 
+          onInput={handleInput}
           InputProps={{
             endAdornment: (
               <>
                 <InputAdornment position="end">
-                  {/* Mood icon */}
-                  <MoodIcon sx={{ cursor: "pointer" }} onClick={handleClickMenu} />
-                  {/* Microphone icon for speech recognition */}
-                  <span className="microphone-icon" onClick={toggleSpeechRecognition} style={{ marginLeft: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    {listening ? <StopIcon sx={{ cursor: "pointer" }} /> : <MicrophoneIcon sx={{ cursor: "pointer" }} />}
-                  </span>
+                  <IconButton
+                    sx={{
+                      cursor: "pointer",
+                      fontSize: {
+                        xs: '20px', // font size for extra small screens
+                        sm: '25px', // font size for small screens
+                        md: '30px', // font size for medium screens
+                        lg: '31px'  // font size for large screens
+                      },
+                      '@media (max-width: 600px)': {
+                        fontSize: '20px' // font size for very small screens
+                      }
+                    }}
+                    onClick={handleClickMenu} // Replace with your handleClickMenu function
+                  >
+                    <MoodIcon />
+                  </IconButton>
+                  <IconButton
+                    sx={{
+                      cursor: "pointer",
+                      marginLeft: "8px",
+                      fontSize: {
+                        xs: '20px', // font size for extra small screens
+                        sm: '25px', // font size for small screens
+                        md: '30px', // font size for medium screens
+                        lg: '31px'  // font size for large screens
+                      },
+                      '@media (max-width: 600px)': {
+                        fontSize: '20px' // font size for very small screens
+                      }
+                    }}
+                    component="label"
+                  >
+                    <PhotoCameraIcon />
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
+
+                  </IconButton>
+                  <IconButton
+
+                    onClick={toggleSpeechRecognition}
+                    sx={{
+                      cursor: "pointer",
+                      fontSize: {
+                        xs: '20px', // font size for extra small screens
+                        sm: '25px', // font size for small screens
+                        md: '30px', // font size for medium screens
+                        lg: '31px'  // font size for large screens
+                      },
+                      '@media (max-width: 600px)': {
+                        fontSize: '20px' // font size for very small screens
+                      }
+                    }}>
+                    <span
+                      className="microphone-icon"
+                    >
+                      {listening ? (
+                        <StopIcon />
+                      ) : (
+                        <MicrophoneIcon />
+                      )}
+                    </span>
+                  </IconButton>
                 </InputAdornment>
               </>
             ),
           }}
-          multiline   // Enable multiline
-          rows={numRows}    // Set number of rows to show initially
+          multiline
+          minRows={1}
+          maxRows={4}
           className="input-msg"
           sx={{ overflowY: 'auto' }}
         />
@@ -274,7 +353,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                     src={result.images.original.url}
                     alt={`GIF ${index}`}
                     className="gif-item"
-                    onClick={() => { handleSendChat(result.images.original.url); }}
+                    onClick={() => { handleSendChat("Sticker",result.images.original.url); }}
                   />
                 ))}
               </div>
@@ -306,7 +385,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                     className="sticker-item"
                     onClick={
                       () => {
-                        handleSendChat(result.images.original.url);
+                        handleSendChat("Sticker",result.images.original.url);
                       }
                     }
                   />
