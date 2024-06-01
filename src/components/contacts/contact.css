@@ -47,8 +47,12 @@
     align-items: center;
 }
 .Search_Box{
-    width:100%;
+    margin-left:-10px;
+    width:351px;
+    padding-top:10px;
     display:flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-evenly;
+    background-image: linear-gradient(135deg,rgb(128, 0, 128), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969)90%);
+  
 }

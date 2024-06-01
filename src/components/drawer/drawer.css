@@ -9,7 +9,7 @@
 .MuiDrawer-paper{
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0)!important;
-         background-image: linear-gradient(135deg,rgb(73, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969));
+         background-image: linear-gradient(135deg,rgb(73, 20, 180), rgb(61, 31, 138), rgb(128, 0, 128));
   
 }
 .message{

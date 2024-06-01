@@ -30,13 +30,13 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 const userEmail = localStorage.getItem("currentUser");
 const userName = localStorage.getItem("currentUsername");
-const socket = io(import.meta.env.VITE_SERVER_URL, {
+const socket = io(import.meta.env.SERVER_URL, {
     auth: {
         email: userEmail,
         current_username: userName
     }
 });
-console.log("userEmail:", userName);
+console.log("userEmail:", userEmail);
 const drawerWidth = 370;
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -120,7 +120,7 @@ function ResponsiveDrawer(props) {
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedImageUrl, setSelectedImageUrl] = useState('');
     const [showVideoDialog, setShowVideoDialog] = useState(false);
-
+    const [type, setType] = useState('private');
     const openVideoDialog = () => {
         setShowVideoDialog(true);
     };
@@ -246,14 +246,14 @@ function ResponsiveDrawer(props) {
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
         if(receiver!="You")
-        socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply });
-
+        socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply ,type});
+        
         setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
             updatedChats[receiver] = [];
         }
-        updatedChats[receiver].push({ receiver, message, email: userEmail, Time, reply });
+        updatedChats[receiver].push({ receiver, message, email: userEmail, Time, reply,type });
 
         console.log(updatedChats);
         setChats(updatedChats);
@@ -272,13 +272,16 @@ function ResponsiveDrawer(props) {
         });
         if (socket && userEmail) {
             socket.on("private message", (payload) => {
+                console.log(payload.email);
                 if (!Object.keys(contacts).includes(payload.email)) {
-                    console.log("Working", payload);
+                    console.log("email not found");
+                    
                     setUsers(prevUsers => [...prevUsers, payload.email]);
                     socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
                     const newContact = { username: "", profilePicture: "you.webp" };
                     setContacts(prevState => ({
-                        [payload.email]: newContact, ...prevState
+                        ...prevState,
+                        [payload.email]: newContact
 
                     }));
 
@@ -373,7 +376,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType}/>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} userEmail={userEmail} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />

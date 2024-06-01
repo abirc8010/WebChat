@@ -22,11 +22,12 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
     e.preventDefault();
     try {
       const u = await signInWithEmailAndPassword(auth, email, password);
-       console.log(u);
+  
       handleOpenDialog(email);
       setTimeout(() => {
         setCurrentUser(email);
         console.log(email);
+              localStorage.setItem('uid', u.user.uid);
         localStorage.setItem('currentUser', email);
          localStorage.setItem('currentUsername', u.user.displayName);
        setAuthenticUser(true);
@@ -51,9 +52,11 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
       const userEmail =g.user.email
       console.log(g.user.displayName);
       setCurrentUser(userEmail);
+      localStorage.setItem('uid', g.user.uid);
      setAuthenticUser(true);
-       localStorage.setItem('currentUser', userEmail);
-         localStorage.setItem('currentUsername', g.user.displayName);
+     console.log(g);
+     //  localStorage.setItem('currentUser', userEmail);
+        // localStorage.setItem('currentUsername', g.user.displayName);
     } catch (error) {
       console.log(error);
     }

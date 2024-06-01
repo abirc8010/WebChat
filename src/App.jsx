@@ -8,10 +8,12 @@ function App() {
   const [authenticUser, setAuthenticUser] = useState(false);
   const [openDialog, setOpenDialog] = useState(true);
   const [currentUser, setCurrentUser] = useState("");
+    const [uid, setUid] = useState("");
 
  useEffect(() => {
     const storedCurrentUser = localStorage.getItem("currentUser");
-    if (storedCurrentUser) {
+     const uid = localStorage.getItem("uid");
+    if (storedCurrentUser&&uid) {
       setCurrentUser(storedCurrentUser);
       setAuthenticUser(true);
     }
