@@ -11,6 +11,7 @@ const SettingsDialog = ({ socket, openConfig, onClose, setImgUrl, userEmail, set
     const handleLogout = () => {
         localStorage.removeItem('currentUser');
          localStorage.removeItem('currentUsername');
+              localStorage.removeItem('uid');
          window.location.reload();
         setAuthenticUser(false);
     }

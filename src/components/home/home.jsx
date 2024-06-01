@@ -42,7 +42,7 @@ function a11yProps(index) {
   };
 }
 
-export default function({setCurrentUser,setAuthenticUser}) {
+export default function({setCurrentUser,setAuthenticUser,setUid,uid}) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -64,10 +64,10 @@ export default function({setCurrentUser,setAuthenticUser}) {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0} >              
-            <Signup setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} />
+            <Signup setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} uid={uid} setUid={setUid} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1} >
-            <Login setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} className="tab-panel" />
+            <Login setValue={setValue} setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} className="tab-panel" uid={uid} setUid={setUid} />
           </CustomTabPanel>
         </Box>
        

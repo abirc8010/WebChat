@@ -36,7 +36,6 @@ const socket = io(import.meta.env.VITE_SERVER_URL, {
         current_username: userName
     }
 });
-console.log("userEmail:", userEmail);
 const drawerWidth = 370;
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -96,9 +95,20 @@ function showDesktopNotification(message) {
 
 
 function ResponsiveDrawer(props) {
+
+
+    const { screen } = props;
+    const {setAuthenticUser, setCurrentUser, currentUser, uid, setUid } = props;
+
+
+    if (currentUser && uid) {
+        console.log("Storing UID...", currentUser);
+        socket.emit("storeUid", { email: currentUser, uid });
+        setCurrentUser(null);
+        setUid(null);
+    }
     if (!userEmail || !userName)
         window.location.reload();
-    const { screen } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
     const [message, setMessage] = useState('');
@@ -121,6 +131,28 @@ function ResponsiveDrawer(props) {
     const [selectedImageUrl, setSelectedImageUrl] = useState('');
     const [showVideoDialog, setShowVideoDialog] = useState(false);
     const [type, setType] = useState('private');
+    const [storedUid, setStoredUid] = useState(localStorage.getItem('uid'));
+
+    useEffect(() => {
+        if (userEmail) {
+            console.log(userEmail);
+            if (uid || !uid && currentUser) {
+                socket.emit("uid", { userEmail, uid: storedUid });
+                socket.on("uidResult", ({ success }) => {
+                    if (!success) {
+                        localStorage.removeItem("uid");
+                        localStorage.removeItem("currentUser");
+                        setAuthenticUser(false);
+                    }
+                });
+            }
+        }
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [userEmail]);
+
     const openVideoDialog = () => {
         setShowVideoDialog(true);
     };
@@ -239,26 +271,26 @@ function ResponsiveDrawer(props) {
     }
     const sendChat = (e) => {
         e.preventDefault();
-     
+
         const date = new Date();
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
-        if(receiver!="You")
-        socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply ,type});
-        
+        if (receiver != "You")
+            socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply, type });
+
         setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
             updatedChats[receiver] = [];
         }
-        updatedChats[receiver].push({ receiver, message, email: userEmail, Time, reply,type });
+        updatedChats[receiver].push({ receiver, message, email: userEmail, Time, reply, type });
 
         console.log(updatedChats);
         setChats(updatedChats);
         setMessage('');
-        
+
     };
 
     useEffect(() => {
@@ -275,7 +307,7 @@ function ResponsiveDrawer(props) {
                 console.log(payload.email);
                 if (!Object.keys(contacts).includes(payload.email)) {
                     console.log("email not found");
-                    
+
                     setUsers(prevUsers => [...prevUsers, payload.email]);
                     socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
                     const newContact = { username: "", profilePicture: "you.webp" };
@@ -376,7 +408,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType}/>
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} userEmail={userEmail} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />

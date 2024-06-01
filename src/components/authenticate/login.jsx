@@ -10,7 +10,7 @@ import Notification from '../notification/notification';
 import Error from '../notification/error';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
+export default function SignUp({ setValue, setCurrentUser, setAuthenticUser,uid,setUid }) {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -30,6 +30,7 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
               localStorage.setItem('uid', u.user.uid);
         localStorage.setItem('currentUser', email);
          localStorage.setItem('currentUsername', u.user.displayName);
+          setUid(u.user.uid);
        setAuthenticUser(true);
       }, 4000);
     }
@@ -48,15 +49,17 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser }) {
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
+
       const g = await signInWithPopup(auth, provider);
       const userEmail =g.user.email
       console.log(g.user.displayName);
       setCurrentUser(userEmail);
       localStorage.setItem('uid', g.user.uid);
+         setUid(g.user.uid);
      setAuthenticUser(true);
      console.log(g);
-     //  localStorage.setItem('currentUser', userEmail);
-        // localStorage.setItem('currentUsername', g.user.displayName);
+      localStorage.setItem('currentUser', userEmail);
+         localStorage.setItem('currentUsername', g.user.displayName);
     } catch (error) {
       console.log(error);
     }

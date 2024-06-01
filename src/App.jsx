@@ -7,8 +7,8 @@ import { useState ,useEffect} from "react";
 function App() {
   const [authenticUser, setAuthenticUser] = useState(false);
   const [openDialog, setOpenDialog] = useState(true);
-  const [currentUser, setCurrentUser] = useState("");
-    const [uid, setUid] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+    const [uid, setUid] = useState(null);
 
  useEffect(() => {
     const storedCurrentUser = localStorage.getItem("currentUser");
@@ -32,9 +32,9 @@ function App() {
             path="/"
             element={
               authenticUser ? (
-                <ResponsiveDrawer currentUser={currentUser} setAuthenticUser={setAuthenticUser}/>
+                <ResponsiveDrawer currentUser={currentUser} setAuthenticUser={setAuthenticUser} uid={uid} setCurrentUser={setCurrentUser} setUid={setUid}/>
               ) : (
-                <Home setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} />
+                <Home setCurrentUser={setCurrentUser} setAuthenticUser={setAuthenticUser} setUid={setUid} uid={uid}/>
               )
             }
           />

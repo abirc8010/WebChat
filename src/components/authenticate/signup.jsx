@@ -10,7 +10,7 @@ import Success from '../notification/success';
 import Error from '../notification/error';
 import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-export default function SignUp({ setValue, setAuthenticUser, setCurrentUser }) {
+export default function SignUp({ setValue, setAuthenticUser, setCurrentUser ,uid,setUid}) {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -54,10 +54,12 @@ export default function SignUp({ setValue, setAuthenticUser, setCurrentUser }) {
             const userEmail = g.user.email
             console.log(g.user.displayName);
                      localStorage.setItem('uid', g.user.uid);
+                        setUid(g.user.uid);
             setCurrentUser(userEmail);
             setAuthenticUser(true);
             localStorage.setItem('currentUser', userEmail);
             localStorage.setItem('currentUsername', g.user.displayName);
+            
         } catch (error) {
             console.log(error);
         }
