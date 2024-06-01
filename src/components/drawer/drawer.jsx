@@ -30,7 +30,7 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 const userEmail = localStorage.getItem("currentUser");
 const userName = localStorage.getItem("currentUsername");
-const socket = io(import.meta.env.SERVER_URL, {
+const socket = io(import.meta.env.VITE_SERVER_URL, {
     auth: {
         email: userEmail,
         current_username: userName
