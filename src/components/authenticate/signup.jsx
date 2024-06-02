@@ -25,7 +25,6 @@ export default function SignUp({ setValue, setAuthenticUser, setCurrentUser ,uid
             await updateProfile(userCredential.user, {
                 displayName: username
             });
-            localStorage.setItem('user', username);
 
             handleOpenDialog();
             setTimeout(() => {

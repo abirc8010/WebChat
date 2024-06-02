@@ -30,10 +30,12 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 const userEmail = localStorage.getItem("currentUser");
 const userName = localStorage.getItem("currentUsername");
+const Useruid = localStorage.getItem("uid");
 const socket = io(import.meta.env.VITE_SERVER_URL, {
     auth: {
         email: userEmail,
-        current_username: userName
+        current_username: userName,
+        uid: Useruid
     }
 });
 const drawerWidth = 370;
@@ -98,11 +100,11 @@ function ResponsiveDrawer(props) {
 
 
     const { screen } = props;
-    const {setAuthenticUser, setCurrentUser, currentUser, uid, setUid } = props;
+    const { setAuthenticUser, setCurrentUser, currentUser, uid, setUid } = props;
 
 
     if (currentUser && uid) {
-        console.log("Storing UID...", currentUser);
+
         socket.emit("storeUid", { email: currentUser, uid });
         setCurrentUser(null);
         setUid(null);
@@ -179,9 +181,41 @@ function ResponsiveDrawer(props) {
             socket.off("userProfilePicture");
         };
     }, [socket, userEmail]);
-
     useEffect(() => {
-        console.log("Working on history...");
+        socket.emit("getGroupChatHistory", userEmail);
+        socket.on("groupChatHistory", (messages) => {
+            setChats(prevChats => {
+                // Initialize an object to store the updated chats
+                const updatedChats = { ...prevChats };
+
+                // Iterate over each group's chat history
+                messages.history.forEach((groupHistory) => {
+                    // Extract groupId and history from groupHistory
+                    const { groupId, history } = groupHistory;
+
+                    // Check if the groupId already exists in the chats
+                    if (updatedChats[groupId]) {
+                        // If it exists, concatenate the new history with the existing one
+                        updatedChats[groupId] = [
+                            ...updatedChats[groupId],
+                            ...history.map(message => ({ ...message, email: message.sender }))
+                        ];
+                    } else {
+                        // If it doesn't exist, simply set the history for the groupId
+                        updatedChats[groupId] = history.map(message => ({ ...message, email: message.sender }));
+                    }
+                });
+
+                // Return the updated chats object
+                return updatedChats;
+            });
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [currentUser, uid]);
+    useEffect(() => {
         socket.emit("getHistory", { email: userEmail });
         socket.on("history", async (payload) => {
             const { sender, receiver, messages } = payload;
@@ -267,7 +301,6 @@ function ResponsiveDrawer(props) {
     };
     const handleReply = (payload) => {
         setReply(payload);
-        console.log("Replying to:", payload.message);
     }
     const sendChat = (e) => {
         e.preventDefault();
@@ -278,14 +311,14 @@ function ResponsiveDrawer(props) {
         let year = date.getFullYear();
         const Time = day + '/' + month + '/' + year + "  ,  " + date.getHours() + ':' + date.getMinutes() + ":" + date.getSeconds();
         if (receiver != "You")
-            socket.emit("send privateMessage", { receiver, email: userEmail, message, Time, reply, type });
+            socket.emit("send privateMessage", { receiver: (type === "group" ? userEmail : receiver), email: (type === "group" ? receiver : userEmail), message, Time, reply, type, name: (type === "group" ? userName : null) });
 
         setReply([]);
         const updatedChats = { ...chats };
         if (!updatedChats[receiver]) {
             updatedChats[receiver] = [];
         }
-        updatedChats[receiver].push({ receiver, message, email: userEmail, Time, reply, type });
+        updatedChats[receiver].push({ receiver: (type === "group" ? userEmail : receiver), email: (type === "group" ? receiver : userEmail), message, Time, reply, type });
 
         console.log(updatedChats);
         setChats(updatedChats);
@@ -304,25 +337,30 @@ function ResponsiveDrawer(props) {
         });
         if (socket && userEmail) {
             socket.on("private message", (payload) => {
-                console.log(payload.email);
+
                 if (!Object.keys(contacts).includes(payload.email)) {
-                    console.log("email not found");
+
 
                     setUsers(prevUsers => [...prevUsers, payload.email]);
-                    socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
-                    const newContact = { username: "", profilePicture: "you.webp" };
+                    if (payload.type === "private")
+                        socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
+
+
+                    console.log("The name of the group is", payload.group);
+                    const newContact = { username: payload.type === "private" ? "" : payload.group, profilePicture: "you.webp", type: payload.type };
                     setContacts(prevState => ({
                         ...prevState,
                         [payload.email]: newContact
 
                     }));
 
-                    socket.emit('getPicture', { email: payload.email });
+                    console.log("contacts:", contacts);
+                    if (payload.type === "private")
+                        socket.emit('getPicture', { email: payload.email });
                 }
                 if (payload.email !== receiver) {
                     setChatCount(prevChatCount => {
                         const newCount = (prevChatCount[payload.email] || 0) + 1;
-                        console.log("ChatCount:", newCount);
                         return {
                             ...prevChatCount,
                             [payload.email]: newCount
@@ -342,7 +380,7 @@ function ResponsiveDrawer(props) {
 
                     return updatedChats;
                 });
-
+                console.log("Chats: ", chats);
                 showDesktopNotification(`You have a new message from ${payload.email}`);
             });
         }
@@ -377,8 +415,22 @@ function ResponsiveDrawer(props) {
     const drawer = (
         <div className='drawer'>
             <Toolbar className='toolbar'>
-                <div className='webchat' style={{ backgroundImage: 'linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))', fontWeight: "900" }}>
-                    <img src="logo.jpg" style={{ width: "40px", height: "40px", marginRight: "10px", borderRadius: "50%" }}></img>   WebChat
+                <div
+                    className='webchat'
+                    style={{
+                        backgroundImage: `
+      -webkit-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
+      -moz-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
+      linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))
+    `,
+                        fontWeight: 900,
+                    }}
+                >
+                    <img
+                        src="logo.jpg"
+                        style={{ width: "40px", height: "40px", marginRight: "10px", borderRadius: "50%" }}
+                    />
+                    WebChat
                 </div>
                 {mobileOpen ? (<ArrowBackIosNewIcon
                     onClick={handleDrawerToggle} />)
@@ -497,9 +549,11 @@ function ResponsiveDrawer(props) {
                     <div className='message-container' ref={messageContainerRef}>
                         {receiver && chats[receiver] && chats[receiver].map((payload, index) => (
                             <>
-                                <div key={index} className={payload.email === userEmail ? 'my-msg' : 'other-msg'} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
+
+                                <div key={index} className={payload.type === "private" ? (payload.email === userEmail ? 'my-msg' : 'other-msg') : ((payload.receiver === userEmail ? 'my-msg' : 'other-msg'))} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
                                     <div className='username'>
-                                        <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{payload.email === userEmail ? 'You' : contacts[payload.email].username}</div>
+                                        {console.log(payload.name)}
+                                        <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{payload.type === "group" ? (payload.receiver === userEmail ? "You" : payload.name) : (payload.email === userEmail ? "You" : contacts[payload.email].username)}</div>
 
                                         <div className="menu-icon-container">
                                             <KeyboardArrowDownIcon onClick={handleClick} style={{ cursor: "pointer" }} />
@@ -582,7 +636,7 @@ function ResponsiveDrawer(props) {
                             </>
                         ) : null}
 
-                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} userEmail={userEmail} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} setTyping={setTyping} />
+                        <InputArea receiver={receiver} setMessage={setMessage} message={message} sendChat={sendChat} userEmail={userEmail} setChats={setChats} chats={chats} socket={socket} setReply={setReply} reply={reply} setTyping={setTyping} userName={userName} msgtype={type} />
 
                     </Box>
                 </Box>

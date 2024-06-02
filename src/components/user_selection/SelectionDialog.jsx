@@ -49,6 +49,7 @@ const SelectionDialog= ({ open, onClose, contacts, currentUser,socket }) => {
                 />
                 <List style={{ maxHeight: 300, overflowY: 'auto' }}>
                     {Object.keys(contacts).map((email) => (
+                        contacts[email].type === "private" && (
                         <ListItem key={email}>
                             <ListItemAvatar>
                                 <Avatar alt={contacts[email].username} src={contacts[email].profilePicture} />
@@ -61,7 +62,7 @@ const SelectionDialog= ({ open, onClose, contacts, currentUser,socket }) => {
                                     checked={selectedUsers.includes(email)}
                                 />
                             </ListItemSecondaryAction>
-                        </ListItem>
+                        </ListItem>)
                     ))}
                 </List>
             </DialogContent>

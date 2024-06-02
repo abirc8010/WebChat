@@ -18,7 +18,7 @@ import './InputArea.css';
 import { UploadRounded } from '@mui/icons-material';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
 
-const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping }) => {
+const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping,msgtype ,userName}) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorPinEl, setAnchorPinEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
@@ -189,13 +189,14 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       const message = uploadSelection;
       const url = selectedUrl;
+         
       if(receiver!="You")
-      socket.emit("send privateMessage", { receiver, message: uploadSelection, email: userEmail, Time, url, reply });
+      socket.emit("send privateMessage", { receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection||type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply,type:msgtype ,name:(msgtype==="group"?userName:null)});
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
       }
-      updatedChats[receiver].push({ receiver, message: uploadSelection, email: userEmail, Time, url, reply });
+      updatedChats[receiver].push( { receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection||type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply ,type:msgtype,name:(msgtype==="group"?userName:null)});
       setReply([]);
       setChats(updatedChats);
       setMessage('');

@@ -6,7 +6,7 @@ import NotificationBadge from './badge';
 import SelectionDialog from '../user_selection/SelectionDialog';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver ,setType}) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [searchText, setSearchText] = useState("");
@@ -25,7 +25,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
         socket.on("success", (data) => {
             setAdd(false);
             console.log("Executed");
-            const newContact = { username: "", profilePicture: "",type:"private" };
+            const newContact = { username: "", profilePicture: "", type: "private" };
             setContacts(prevState => ({
                 ...prevState,
                 [data.contactEmail]: newContact
@@ -36,25 +36,40 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     useEffect(() => {
         socket.emit('getUserGroups', userEmail);
         socket.on('userGroups', (data) => {
-            const groups = data.groups; // Access the 'groups' array from the 'data' object
-            for (const group of groups) {
-                getGroupById(group._id, (groupData) => {
-                    if (groupData.group) {
+            console.log(data);
+            if (data && data.groups) {
+                // Extract the 'groups' array from the data
+                const groups = data.groups;
 
-                        const groupInfo = {
-                           username: groupData.group.groupName,
-                            profilePicture: groupData.group.profilePicture,
-                            type:"group"
-                        };
-                        setContacts(prevState => ({
-                            ...prevState,
-                            [group._id]: groupInfo
-                        }));
-                    }
+                // Iterate over each group in the 'groups' array
+                groups.forEach(group => {
+                    // Extract necessary information from the group
+                    const { _id: groupId, groupName, profilePicture } = group;
+
+                    // Create an object with group information
+                    const groupInfo = {
+                        username: groupName,
+                        profilePicture: profilePicture || "you.webp",
+                        type: "group"
+                    };
+
+                    // Update the 'contacts' state with the group information
+                    setContacts(prevState => ({
+                        ...prevState,
+                        [groupId]: groupInfo
+                    }));
+
+                    // Log the assignment of group information
+                    console.log("Assigned group:", groupId, "with name:", groupName);
                 });
+            } else {
+                // Handle the case where the received data is invalid or missing the 'groups' array
+                console.error("Error: Invalid or missing groups data");
+                // Optionally, you can handle the error in another appropriate way
             }
-
         });
+
+        // Fetch contact list
         socket.emit("getContactList", userEmail);
         socket.on("contactList", (data) => {
             if (data.error) {
@@ -62,19 +77,23 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 return;
             }
             const contactsData = data.contacts.reduce((acc, curr) => {
-                acc[curr] = { username: "", profilePicture: "",type:"private" };
+                acc[curr] = { username: "", profilePicture: "", type: "private" };
                 return acc;
             }, {});
             setContacts(contactsData);
+
             // Fetch profile pictures and usernames for all users in the contact list
             data.contacts.forEach(user => {
                 socket.emit('getPicture', { email: user });
             });
         });
+
         return () => {
             socket.off("contactList");
+            socket.off("userGroups");
         };
-    }, []);
+    }, [userEmail]);
+
 
     // Listen for profile picture updates from the server
     useEffect(() => {
@@ -136,7 +155,13 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     return (
         <>
             <SelectionDialog open={openSelectionDialog} onClose={handleCloseSelectionDialog} contacts={contacts} currentUser={userEmail} socket={socket} />
-            <div className="Search_Box">
+            <div className="Search_Box" style={{
+                backgroundImage: `
+      -webkit-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
+      -moz-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
+      linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))
+    `,
+            }}>
                 <TextField
                     id="outlined-basic"
                     label="Search"
@@ -186,8 +211,8 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                     </div>
                 </div>
                 {filteredContacts.map(([email, data]) => (
-                   email&&( <div key={email}>
-                        <div className="contact" onClick={() => { setType(data.type); setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username); console.log(email)}}>
+                    email && (<div key={email}>
+                        <div className="contact" onClick={() => { setType(data.type); setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username); console.log("current contact: ", data); }}>
                             <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
                             <div className="user-detail">
                                 <div className="user-info">
