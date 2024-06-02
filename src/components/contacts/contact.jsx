@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from '@mui/icons-material/Search';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import NotificationBadge from './badge';
 import SelectionDialog from '../user_selection/SelectionDialog';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType }) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType,setAdmin }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [searchText, setSearchText] = useState("");
@@ -36,7 +38,6 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     useEffect(() => {
         socket.emit('getUserGroups', userEmail);
         socket.on('userGroups', (data) => {
-            console.log(data);
             if (data && data.groups) {
                 // Extract the 'groups' array from the data
                 const groups = data.groups;
@@ -44,21 +45,21 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 // Iterate over each group in the 'groups' array
                 groups.forEach(group => {
                     // Extract necessary information from the group
-                    const { _id: groupId, groupName, profilePicture } = group;
+                    const { _id: groupId, groupName, profilePicture, members,isAdmin } = group;
 
                     // Create an object with group information
                     const groupInfo = {
                         username: groupName,
                         profilePicture: profilePicture || "you.webp",
-                        type: "group"
+                        type: "group",
+                        members: members,
+                        isAdmin:isAdmin
                     };
-
-                    // Update the 'contacts' state with the group information
                     setContacts(prevState => ({
                         ...prevState,
                         [groupId]: groupInfo
                     }));
-
+                      setAdmin(groupInfo.isAdmin);
                     // Log the assignment of group information
                     console.log("Assigned group:", groupId, "with name:", groupName);
                 });
@@ -167,7 +168,15 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                     label="Search"
                     sx={{ width: "250px", height: "40px", mb: 2, backgroundColor: `#c7bdc1!important` }}
                     InputProps={{
-                        sx: { height: "100%", fontSize: "1.2rem" }
+                        sx: { height: "100%", fontSize: "1.0rem" },
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <SearchIcon />
+                            </InputAdornment>
+                        )
+                    }}
+                    InputLabelProps={{
+                      sx:{fontSize:"0.9rem"}
                     }}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}

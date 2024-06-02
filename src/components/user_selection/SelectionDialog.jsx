@@ -40,7 +40,7 @@ const SelectionDialog= ({ open, onClose, contacts, currentUser,socket }) => {
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogContent>
+            <DialogContent >
                 <TextField
                     label="Group Name"
                     fullWidth

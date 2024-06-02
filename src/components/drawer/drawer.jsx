@@ -26,6 +26,8 @@ import { useRef } from 'react';
 import './drawer.css';
 import ImageDialog from '../image_dialog/ImageDialog';
 import VideoDialog from '../video_dialog/VideoDialog';
+import GroupMembersDialog from '../user_selection/GroupMembersDialog';
+import PictureDialog from '../picture_dialog/pictureDialog';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 const userEmail = localStorage.getItem("currentUser");
@@ -134,7 +136,9 @@ function ResponsiveDrawer(props) {
     const [showVideoDialog, setShowVideoDialog] = useState(false);
     const [type, setType] = useState('private');
     const [storedUid, setStoredUid] = useState(localStorage.getItem('uid'));
-
+    const [contactDialog, setContactDialog] = useState(false);
+    const [admin,setAdmin]=useState(false);
+    const [pictureDialog, setPictureDialog] = useState(false);
     useEffect(() => {
         if (userEmail) {
             console.log(userEmail);
@@ -214,7 +218,7 @@ function ResponsiveDrawer(props) {
         return () => {
             socket.disconnect();
         };
-    }, [currentUser, uid]);
+    }, [currentUser, uid, socket]);
     useEffect(() => {
         socket.emit("getHistory", { email: userEmail });
         socket.on("history", async (payload) => {
@@ -243,7 +247,7 @@ function ResponsiveDrawer(props) {
         return () => {
             socket.off("getHistory");
         };
-    }, []);
+    }, [socket]);
 
     useEffect(() => {
         messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
@@ -338,7 +342,7 @@ function ResponsiveDrawer(props) {
         if (socket && userEmail) {
             socket.on("private message", (payload) => {
 
-                if (!Object.keys(contacts).includes(payload.email)) {
+                if (payload.type!=="group" && !Object.keys(contacts).includes(payload.email)) {
 
 
                     setUsers(prevUsers => [...prevUsers, payload.email]);
@@ -460,7 +464,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} />
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} setAdmin={setAdmin}/>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} userEmail={userEmail} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />
@@ -499,10 +503,11 @@ function ResponsiveDrawer(props) {
                         >
                             <ArrowForwardIosIcon />
                         </IconButton>
-                        <img src={pic} className='avatar' />
+                        <img src={pic} className='avatar' style={{cursor:((admin&&(type==="group"))?"pointer":null)}} onClick={()=>{if(type==="group"&&admin){setPictureDialog(true)}}}/>
                         <Typography variant="h6" component="div" >
                             {displayReceiver}
                             <div className='typing'>{typing}</div>
+                            {type==="group"?(<div onClick={()=>setContactDialog(true)} style={{fontSize:"12px",cursor:"pointer",opacity:"0.8"}}>See members</div>):null}
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -641,6 +646,8 @@ function ResponsiveDrawer(props) {
                     </Box>
                 </Box>
             </Box>
+            <PictureDialog open={pictureDialog} onClose={() => setPictureDialog(false)} currentPicture={pic} onPictureUpload={setPic} />
+            { contacts[receiver] && type==="group"?(<GroupMembersDialog  socket={socket} contacts={contacts[receiver]} open={contactDialog} setOpen={setContactDialog} admin={admin} receiver={receiver}/> ):null} 
             <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
             <VideoDialog open={showVideoDialog} videoUrl={selectedImageUrl} onClose={closeVideoDialog} />
         </>
