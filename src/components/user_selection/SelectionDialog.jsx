@@ -23,12 +23,10 @@ const SelectionDialog= ({ open, onClose, contacts, currentUser,socket }) => {
                 adminEmail: currentUser,
                 memberEmails: selectedUsers
             };
-            console.log(data);
             socket.emit('createGroup', data);
             socket.on('groupCreated', (res) => {
                 if(res.success)
                 {
-                    console.log("Group Created");
                     onClose();
                 }
             });

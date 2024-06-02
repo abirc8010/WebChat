@@ -141,7 +141,6 @@ function ResponsiveDrawer(props) {
     const [pictureDialog, setPictureDialog] = useState(false);
     useEffect(() => {
         if (userEmail) {
-            console.log(userEmail);
             if (uid || !uid && currentUser) {
                 socket.emit("uid", { userEmail, uid: storedUid });
                 socket.on("uidResult", ({ success }) => {
@@ -240,8 +239,6 @@ function ResponsiveDrawer(props) {
                     [key]: updatedChat
                 };
             });
-
-            console.log("History:", chats); // Moved inside the socket.on callback
         });
 
         return () => {
@@ -265,7 +262,6 @@ function ResponsiveDrawer(props) {
             // Listen for the response from the server
 
             socket.on('userProfilePicture', (data) => {
-                console.log("Pic of user", data);
                 setProfilePicture(data.profilePicture);
                 setPic(data.profilePicture);
             });
@@ -324,7 +320,6 @@ function ResponsiveDrawer(props) {
         }
         updatedChats[receiver].push({ receiver: (type === "group" ? userEmail : receiver), email: (type === "group" ? receiver : userEmail), message, Time, reply, type });
 
-        console.log(updatedChats);
         setChats(updatedChats);
         setMessage('');
 
@@ -349,8 +344,6 @@ function ResponsiveDrawer(props) {
                     if (payload.type === "private")
                         socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
 
-
-                    console.log("The name of the group is", payload.group);
                     const newContact = { username: payload.type === "private" ? "" : payload.group, profilePicture: "you.webp", type: payload.type };
                     setContacts(prevState => ({
                         ...prevState,
@@ -358,7 +351,6 @@ function ResponsiveDrawer(props) {
 
                     }));
 
-                    console.log("contacts:", contacts);
                     if (payload.type === "private")
                         socket.emit('getPicture', { email: payload.email });
                 }
@@ -384,7 +376,6 @@ function ResponsiveDrawer(props) {
 
                     return updatedChats;
                 });
-                console.log("Chats: ", chats);
                 showDesktopNotification(`You have a new message from ${payload.email}`);
             });
         }
@@ -557,7 +548,6 @@ function ResponsiveDrawer(props) {
 
                                 <div key={index} className={payload.type === "private" ? (payload.email === userEmail ? 'my-msg' : 'other-msg') : ((payload.receiver === userEmail ? 'my-msg' : 'other-msg'))} style={payload.url ? { backgroundImage: "linear-gradient" } : null}>
                                     <div className='username'>
-                                        {console.log(payload.name)}
                                         <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{payload.type === "group" ? (payload.receiver === userEmail ? "You" : payload.name) : (payload.email === userEmail ? "You" : contacts[payload.email].username)}</div>
 
                                         <div className="menu-icon-container">
