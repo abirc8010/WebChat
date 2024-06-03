@@ -554,7 +554,7 @@ function ResponsiveDrawer(props) {
                     sx={{
                         width: { sm: `calc(100% - ${drawerWidth}px)` },
                         ml: { sm: `${drawerWidth}px` },
-                        backgroundImage: 'linear-gradient(135deg, rgb(23, 7, 63), rgb(32, 1, 32)90%)',
+                        backgroundImage: 'linear-gradient(to bottom right , rgb(23, 7, 63), rgb(32, 1, 32))',
                     }}
                     className='bar'
                 >
