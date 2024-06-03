@@ -14,8 +14,14 @@ import {
   IconButton
 } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-const MemberListDialog = ({ socket, contacts, open, setOpen, admin, receiver }) => {
+
+const MemberListDialog = ({ socket, contacts, open, setOpen, admin, receiver, email }) => {
   const [chatReceiver, setChatReceiver] = useState(contacts);
+
+  useEffect(() => {
+    console.log(admin);
+    setChatReceiver(contacts);
+  }, [contacts]);
 
   useEffect(() => {
     socket.on("userRemovedFromGroup", ({ success, removedUserEmail }) => {
@@ -34,6 +40,7 @@ const MemberListDialog = ({ socket, contacts, open, setOpen, admin, receiver }) 
       socket.off("userRemovedFromGroup");
     };
   }, [socket, setChatReceiver]);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -55,28 +62,37 @@ const MemberListDialog = ({ socket, contacts, open, setOpen, admin, receiver }) 
           }
         }}
       >
-        <DialogTitle sx={{ backgroundImage: " linear-gradient(135deg,rgb(63, 9, 122), rgba(40, 17, 99, 0.969), rgba(55, 0, 55, 0.969)90%)", color: "white" }}>Members</DialogTitle>
-        <DialogContent sx={{ backgroundImage: "linear-gradient(135deg, rgba(63, 9, 122, 0.9), rgba(40, 17, 99, 0.9), rgba(55, 0, 55, 0.9))", color: "white" }}>
+        <DialogTitle
+          sx={{
+            backgroundImage: "linear-gradient(135deg, rgb(23, 7, 63), rgb(32, 1, 32)90%)",
+            color: "rgba(225,225,225,0.8)",
+            textAlign: "center",
+              borderBottom: "1px solid rgba(225, 225, 225, 0.3)" 
+          }}>
+          Members
+        </DialogTitle>
+        <DialogContent sx={{ backgroundImage: "linear-gradient(135deg, rgb(23, 7, 63), rgb(32, 1, 32)90%)", opacity: "0.95", color: "white" }}>
           <List>
             {chatReceiver.members.map((member, index) => (
-
               <ListItem key={index}>
                 <ListItemAvatar>
                   <Avatar sx={{ marginRight: 2 }} src={member.profilePicture} />
                 </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <React.Fragment>
-                      <span style={{ marginRight: "auto" }}>{member.username} {member.isAdmin && "(Admin)"}</span>
-                      {(!member.isAdmin)&&admin && (
-                        <IconButton edge="end" size="small" style={{ color: "red" }} onClick={() => socket.emit("removeUserFromGroup", { userEmail: member.email, groupId: receiver })}>
-                          <RemoveCircleOutlineIcon sx={{ fontSize: "medium" }} />
-                        </IconButton>
-                      )}
-                    </React.Fragment>
-                  }
-                  secondary={<span style={{ color: "white", opacity: "0.7" }}>{member.email}</span>}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                  <ListItemText
+                    primary={
+                      <React.Fragment>
+                        <span>{member.username} {member.isAdmin && "(Admin)"}</span>
+                      </React.Fragment>
+                    }
+                    secondary={<span style={{ color: "white", opacity: "0.7" }}>{member.email}</span>}
+                  />
+                  {(!member.isAdmin && admin) && (
+                    <IconButton edge="end" size="small" style={{ color: "red" }} onClick={() => socket.emit("removeUserFromGroup", { userEmail: member.email, groupId: receiver })}>
+                      <RemoveCircleOutlineIcon sx={{ fontSize: "medium" }} />
+                    </IconButton>
+                  )}
+                </Box>
               </ListItem>
             ))}
           </List>

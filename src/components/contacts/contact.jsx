@@ -8,103 +8,56 @@ import NotificationBadge from './badge';
 import SelectionDialog from '../user_selection/SelectionDialog';
 import "./contact.css";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType,setAdmin }) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType, setAdmin }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [searchText, setSearchText] = useState("");
     const [filteredContacts, setFilteredContacts] = useState([]);
     const [add, setAdd] = useState(false);
     const [openSelectionDialog, setOpenSelectionDialog] = useState(false);
+    const [onlineUsers, setOnlineUsers] = useState(new Set()); // Track online users
+
     const handleCloseSelectionDialog = () => setOpenSelectionDialog(false);
-    function getGroupById(groupId, callback) {
-        socket.emit("getGroupById", groupId);
-        socket.on("groupById", (data) => {
-            callback(data); // Call the provided callback with the data
-        });
-    }
+
     useEffect(() => {
         socket.on("failed", () => { setAdd(true) });
         socket.on("success", (data) => {
             setAdd(false);
-            console.log("Executed");
             const newContact = { username: "", profilePicture: "", type: "private" };
             setContacts(prevState => ({
                 ...prevState,
                 [data.contactEmail]: newContact
             }));
             handleClose();
-        })
-    }, [socket]);
-    useEffect(() => {
-        socket.emit('getUserGroups', userEmail);
-        socket.on('userGroups', (data) => {
-            if (data && data.groups) {
-                // Extract the 'groups' array from the data
-                const groups = data.groups;
-
-                // Iterate over each group in the 'groups' array
-                groups.forEach(group => {
-                    // Extract necessary information from the group
-                    const { _id: groupId, groupName, profilePicture, members,isAdmin } = group;
-
-                    // Create an object with group information
-                    const groupInfo = {
-                        username: groupName,
-                        profilePicture: profilePicture || "you.webp",
-                        type: "group",
-                        members: members,
-                        isAdmin:isAdmin
-                    };
-                    setContacts(prevState => ({
-                        ...prevState,
-                        [groupId]: groupInfo
-                    }));
-                      setAdmin(groupInfo.isAdmin);
-                    // Log the assignment of group information
-                    console.log("Assigned group:", groupId, "with name:", groupName);
-                });
-            } else {
-                // Handle the case where the received data is invalid or missing the 'groups' array
-                console.error("Error: Invalid or missing groups data");
-                // Optionally, you can handle the error in another appropriate way
-            }
         });
 
-        // Fetch contact list
-        socket.emit("getContactList", userEmail);
-        socket.on("contactList", (data) => {
-            if (data.error) {
-                console.error("Error:", data.error);
-                return;
-            }
-            const contactsData = data.contacts.reduce((acc, curr) => {
-                acc[curr] = { username: "", profilePicture: "", type: "private" };
-                return acc;
-            }, {});
-            setContacts(contactsData);
 
-            // Fetch profile pictures and usernames for all users in the contact list
-            data.contacts.forEach(user => {
-                socket.emit('getPicture', { email: user });
+        const contactEmails = Object.keys(contacts).filter(email => contacts[email].type === 'private');
+       
+        socket.emit('fetchContactsStatus', contactEmails, (statuses) => {
+         
+            const onlineContacts = statuses.filter(contact => contact.status === 'online').map(contact => contact.email);
+            setOnlineUsers(new Set(onlineContacts));
+        });
+
+        // Listen for user online status
+        socket.on('userOnlineStatus', (data) => {
+            setOnlineUsers((prevOnlineUsers) => {
+                const newOnlineUsers = new Set(prevOnlineUsers);
+                if (data.status === 'online') {
+                    newOnlineUsers.add(data.email);
+                } else {
+                    newOnlineUsers.delete(data.email);
+                }
+                return newOnlineUsers;
             });
         });
 
         return () => {
-            socket.off("contactList");
-            socket.off("userGroups");
+            // Clean up event listener
+            socket.off('userOnlineStatus');
         };
-    }, [userEmail]);
-
-
-    // Listen for profile picture updates from the server
-    useEffect(() => {
-        socket.on("Picture", (data) => {
-            setContacts(prevState => ({
-                ...prevState,
-                [data.email]: { ...prevState[data.email], username: data.username, profilePicture: data.profilePicture }
-            }));
-        });
-    }, []);
+    }, [socket,contacts]);
 
     useEffect(() => {
         const filtered = Object.entries(contacts);
@@ -156,13 +109,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     return (
         <>
             <SelectionDialog open={openSelectionDialog} onClose={handleCloseSelectionDialog} contacts={contacts} currentUser={userEmail} socket={socket} />
-            <div className="Search_Box" style={{
-                backgroundImage: `
-      -webkit-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
-      -moz-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
-      linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))
-    `,
-            }}>
+            <div className="Search_Box">
                 <TextField
                     id="outlined-basic"
                     label="Search"
@@ -176,7 +123,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                         )
                     }}
                     InputLabelProps={{
-                      sx:{fontSize:"0.9rem"}
+                        sx: { fontSize: "0.9rem" }
                     }}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
@@ -216,13 +163,18 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 <div>
                     <div className="contact" onClick={() => { setDisplayReceiver("You"); setPic(profilePicture); setReceiver("You") }}>
                         <img src={profilePicture} className="avatar" />
+
                         <div className="user-detail" > <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>You : {username} </div></div>
                     </div>
                 </div>
                 {filteredContacts.map(([email, data]) => (
-                    email && (<div key={email}>
-                        <div className="contact" onClick={() => { setType(data.type); setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username); console.log("current contact: ", data); }}>
-                            <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
+                    email && (
+                        <div className="contact" onClick={() => { setType(data.type); setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username); if (data.type === "group") { setAdmin(data.isAdmin) } }}>
+
+                            <div className="avatar-container">
+                                <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />
+                                {data.type === "private" && (<div className={`status-circle ${onlineUsers.has(email) ? 'online' : 'offline'}`}></div>)}
+                            </div>
                             <div className="user-detail">
                                 <div className="user-info">
                                     <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{data.username || email}</div>
@@ -231,8 +183,9 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                                 <div className="last-message">{getLastMessage(email)}</div>
                             </div>
                         </div>
-                    </div>)
+                    )
                 ))}
+
             </div>
             <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
         </>

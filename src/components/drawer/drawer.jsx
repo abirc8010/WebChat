@@ -137,8 +137,90 @@ function ResponsiveDrawer(props) {
     const [type, setType] = useState('private');
     const [storedUid, setStoredUid] = useState(localStorage.getItem('uid'));
     const [contactDialog, setContactDialog] = useState(false);
-    const [admin,setAdmin]=useState(false);
+    const [admin, setAdmin] = useState(false);
     const [pictureDialog, setPictureDialog] = useState(false);
+   
+   
+    function getGroupById(groupId, callback) {
+        socket.emit("getGroupById", groupId);
+        socket.on("groupById", (data) => {
+            callback(data); // Call the provided callback with the data
+        });
+    }
+  
+    useEffect(() => {
+        socket.emit('getUserGroups', userEmail);
+        socket.on('userGroups', (data) => {
+            if (data && data.groups) {
+                // Extract the 'groups' array from the data
+                const groups = data.groups;
+
+                // Iterate over each group in the 'groups' array
+                groups.forEach(group => {
+                    // Extract necessary information from the group
+                    const { _id: groupId, groupName, profilePicture, members, isAdmin } = group;
+
+                    // Create an object with group information
+                    const groupInfo = {
+                        username: groupName,
+                        profilePicture: profilePicture || "you.webp",
+                        type: "group",
+                        members: members,
+                        isAdmin: isAdmin
+                    };
+                    setContacts(prevState => ({
+                        ...prevState,
+                        [groupId]: groupInfo
+                    }));
+                    setAdmin(groupInfo.isAdmin);
+                    // Log the assignment of group information
+                  
+                });
+            } else {
+                // Handle the case where the received data is invalid or missing the 'groups' array
+                console.error("Error: Invalid or missing groups data");
+                // Optionally, you can handle the error in another appropriate way
+            }
+        });
+
+        // Fetch contact list
+        socket.emit("getContactList", userEmail);
+        socket.on("contactList", (data) => {
+            if (data.error) {
+                console.error("Error:", data.error);
+                return;
+            }
+            const contactsData = data.contacts.reduce((acc, curr) => {
+                acc[curr] = { username: "", profilePicture: "", type: "private" };
+                return acc;
+            }, {});
+            setContacts(contactsData);
+
+            // Fetch profile pictures and usernames for all users in the contact list
+            data.contacts.forEach(user => {
+                socket.emit('getPicture', { email: user });
+            });
+        });
+
+        return () => {
+            socket.off("contactList");
+            socket.off("userGroups");
+        };
+    }, [userEmail]);
+
+
+    // Listen for profile picture updates from the server
+    useEffect(() => {
+        socket.on("Picture", (data) => {
+            setContacts(prevState => ({
+                ...prevState,
+                [data.email]: { ...prevState[data.email], username: data.username, profilePicture: data.profilePicture }
+            }));
+        });
+    }, []);
+
+
+
     useEffect(() => {
         if (userEmail) {
             if (uid || !uid && currentUser) {
@@ -337,7 +419,7 @@ function ResponsiveDrawer(props) {
         if (socket && userEmail) {
             socket.on("private message", (payload) => {
 
-                if (payload.type!=="group" && !Object.keys(contacts).includes(payload.email)) {
+                if (payload.type !== "group" && !Object.keys(contacts).includes(payload.email)) {
 
 
                     setUsers(prevUsers => [...prevUsers, payload.email]);
@@ -413,12 +495,7 @@ function ResponsiveDrawer(props) {
                 <div
                     className='webchat'
                     style={{
-                        backgroundImage: `
-      -webkit-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
-      -moz-linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969)),
-      linear-gradient(135deg, rgb(118, 72, 234), rgba(109, 59, 234, 0.969), rgba(240, 55, 240, 0.969))
-    `,
-                        fontWeight: 900,
+                          fontWeight: 900,
                     }}
                 >
                     <img
@@ -455,7 +532,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} setAdmin={setAdmin}/>
+                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} setAdmin={setAdmin} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} userEmail={userEmail} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />
@@ -477,7 +554,7 @@ function ResponsiveDrawer(props) {
                     sx={{
                         width: { sm: `calc(100% - ${drawerWidth}px)` },
                         ml: { sm: `${drawerWidth}px` },
-                        backgroundImage: 'linear-gradient(135deg,rgb(97, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969) 90%)',
+                        backgroundImage: 'linear-gradient(135deg, rgb(23, 7, 63), rgb(32, 1, 32)90%)',
                     }}
                     className='bar'
                 >
@@ -494,11 +571,11 @@ function ResponsiveDrawer(props) {
                         >
                             <ArrowForwardIosIcon />
                         </IconButton>
-                        <img src={pic} className='avatar' style={{cursor:((admin&&(type==="group"))?"pointer":null)}} onClick={()=>{if(type==="group"&&admin){setPictureDialog(true)}}}/>
+                        <img src={pic} className='avatar' style={{ cursor: ((admin && (type === "group")) ? "pointer" : null) }} onClick={() => { if (type === "group" && admin) { setPictureDialog(true) } }} />
                         <Typography variant="h6" component="div" >
                             {displayReceiver}
                             <div className='typing'>{typing}</div>
-                            {type==="group"?(<div onClick={()=>setContactDialog(true)} style={{fontSize:"12px",cursor:"pointer",opacity:"0.8"}}>See members</div>):null}
+                            {type === "group" ? (<div onClick={() => setContactDialog(true)} style={{ fontSize: "12px", cursor: "pointer", opacity: "0.8" }}>See members</div>) : null}
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -637,7 +714,8 @@ function ResponsiveDrawer(props) {
                 </Box>
             </Box>
             <PictureDialog open={pictureDialog} onClose={() => setPictureDialog(false)} currentPicture={pic} onPictureUpload={setPic} />
-            { contacts[receiver] && type==="group"?(<GroupMembersDialog  socket={socket} contacts={contacts[receiver]} open={contactDialog} setOpen={setContactDialog} admin={admin} receiver={receiver}/> ):null} 
+ 
+            {contacts[receiver] && type === "group" ? (<GroupMembersDialog socket={socket} contacts={contacts[receiver]} open={contactDialog} setOpen={setContactDialog} admin={admin} receiver={receiver} email={userEmail} />) : null}
             <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
             <VideoDialog open={showVideoDialog} videoUrl={selectedImageUrl} onClose={closeVideoDialog} />
         </>

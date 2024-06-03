@@ -14,8 +14,7 @@
       width:370px;
    height:70px;
    margin-bottom:1px;
-   border-top:1px solid rgba(255, 255, 255, 0.433);
-   box-shadow:0 1px 0 rgba(255, 255, 255, 0.49);
+   box-shadow:0 1px 0 rgba(255, 255, 255, 0.109);
    font-size:20px;
      overflow: hidden;
     white-space: nowrap;
@@ -38,6 +37,7 @@
     height: 32px;
     width:auto;
     font-size: 15px;
+    opacity:0.8;
 }
 .user-info{
     padding-top:8px;
@@ -47,12 +47,40 @@
     align-items: center;
 }
 .Search_Box{
-    margin-left:-10px;
-    width:351px;
+    margin-left:-15px;
+    width:355px;
     padding-top:10px;
     display:flex;
     align-items: center;
     justify-content: space-evenly;
-    background-image: linear-gradient(135deg,rgb(128, 0, 128), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969)90%);
-  
+    background-color: rgba(67, 3, 67, 0.969);
+    margin-bottom: 5px;
+    border-bottom: 1px thin rgba(255, 255, 255, 0.21);
+}
+.contact {
+    display: flex; /* Use flexbox layout */
+    align-items: center; /* Center align items vertically */
+    margin-bottom: 10px;
+}
+
+.avatar-container {
+    position: relative;
+    margin-right: 10px; /* Add some spacing between the avatar and the status circle */
+}
+
+.status-circle {
+    position: absolute;
+    bottom: 8px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-circle.online {
+    background-color: green;
+}
+
+.status-circle.offline {
+    background-color: rgb(127, 17, 17);
 }

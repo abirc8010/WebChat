@@ -1,7 +1,4 @@
-.bar{
-  background-image: linear-gradient(135deg,rgb(63, 9, 122), rgba(40, 17, 99, 0.969), rgba(55, 0, 55, 0.969)90%);
-  
-}
+
 .drawer{
     height:100%;
     overflow: hidden;
@@ -9,7 +6,7 @@
 .MuiDrawer-paper{
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0)!important;
-         background-image: linear-gradient(135deg,rgb(73, 20, 180), rgb(61, 31, 138), rgb(128, 0, 128));
+        background-image: linear-gradient(135deg, rgb(23, 7, 63), rgb(32, 1, 32)90%);
   
 }
 .message{
@@ -78,7 +75,6 @@
     radial-gradient(100% 100% at var(--_p) 0,#0000 99%,#000 102%) 
       var(--_p) 100%/var(--t) var(--t) no-repeat,
     linear-gradient(#000 0 0) padding-box;
-  background: linear-gradient(135deg,#FE6D00,#1384C5) border-box;
 }
 .my-msg {
       --_p: 100%;
@@ -112,8 +108,9 @@
     max-width:270px;
     margin-bottom: 18px;
      display:inline-block;
-   background-image: linear-gradient(to bottom right, rgb(108, 14, 55), rgb(152, 21, 97))!important;
-  overflow-wrap: break-word;
+     background-image: linear-gradient(135deg, rgb(135, 14, 52), rgb(92, 10, 36)90%);
+  
+   overflow-wrap: break-word;
    position: relative;
     align-self: flex-start;
 }
@@ -155,7 +152,7 @@
     left: 0;
 }
 .toolbar{
-     background-image: linear-gradient(135deg,rgb(97, 20, 180), rgba(61, 31, 138, 0.969), rgba(128, 0, 128, 0.969)90%);
+    background-image: linear-gradient(135deg, rgba(23, 7, 63, 0.969), rgba(59, 1, 59, 0.969)90%);
   
     text-align: center;
 }
