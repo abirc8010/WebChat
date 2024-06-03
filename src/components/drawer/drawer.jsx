@@ -139,15 +139,15 @@ function ResponsiveDrawer(props) {
     const [contactDialog, setContactDialog] = useState(false);
     const [admin, setAdmin] = useState(false);
     const [pictureDialog, setPictureDialog] = useState(false);
-   
-   
+
+
     function getGroupById(groupId, callback) {
         socket.emit("getGroupById", groupId);
         socket.on("groupById", (data) => {
             callback(data); // Call the provided callback with the data
         });
     }
-  
+
     useEffect(() => {
         socket.emit('getUserGroups', userEmail);
         socket.on('userGroups', (data) => {
@@ -174,7 +174,7 @@ function ResponsiveDrawer(props) {
                     }));
                     setAdmin(groupInfo.isAdmin);
                     // Log the assignment of group information
-                  
+
                 });
             } else {
                 // Handle the case where the received data is invalid or missing the 'groups' array
@@ -367,22 +367,29 @@ function ResponsiveDrawer(props) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
 
-    const handleClick = (event) => {
+    const handleClick = (event, index) => {
         setAnchorEl(event.currentTarget);
+        setSelectedIndex(index);
     };
 
     const handleClose = () => {
         setAnchorEl(null);
     };
 
-    const handleDelete = (contact, messageId) => {
+    const handleDelete = () => {
         const updatedChats = { ...chats };
-        updatedChats[contact] = updatedChats[contact].filter((_, index) => index !== messageId);
+        updatedChats[receiver] = updatedChats[receiver].filter((_, index) => index !== selectedIndex);
         setChats(updatedChats);
         handleClose();
     };
-    const handleReply = (payload) => {
-        setReply(payload);
+    const handleReply = () => {
+        if (selectedIndex !== null) {
+            const clickedMessage = chats[receiver][selectedIndex];
+            setReply(clickedMessage);
+            console.log("Message: ", chats[receiver][selectedIndex]);
+        } else {
+            console.error("No index selected");
+        }
     }
     const sendChat = (e) => {
         e.preventDefault();
@@ -495,7 +502,7 @@ function ResponsiveDrawer(props) {
                 <div
                     className='webchat'
                     style={{
-                          fontWeight: 900,
+                        fontWeight: 900,
                     }}
                 >
                     <img
@@ -627,20 +634,22 @@ function ResponsiveDrawer(props) {
                                         <div style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{payload.type === "group" ? (payload.receiver === userEmail ? "You" : payload.name) : (payload.email === userEmail ? "You" : contacts[payload.email].username)}</div>
 
                                         <div className="menu-icon-container">
-                                            <KeyboardArrowDownIcon onClick={handleClick} style={{ cursor: "pointer" }} />
+                                            <KeyboardArrowDownIcon onClick={(e) => { handleClick(e, index) }} style={{ cursor: "pointer" }} />
                                         </div>
                                     </div>
+                                    {console.log(payload)}
                                     {payload.reply.url ? (
 
                                         <div className='show-reply'>
-                                            <div>{payload.reply.username}</div>
+                                            <div>{payload.type === "private" ? ((payload.reply.email === userEmail) ? "You" : displayReceiver) : payload.name}</div>
                                             Sticker
                                         </div>
 
                                     ) :
                                         (payload.reply.message ? (
                                             <div className='show-reply'>
-                                                <div>{payload.reply.username}</div>
+                                                <div>{payload.type === "private" ? ((payload.reply.email === userEmail) ? "You" : displayReceiver) : payload.name}</div>
+
                                                 {payload.reply.message}
                                             </div>
                                         ) : null
@@ -669,18 +678,19 @@ function ResponsiveDrawer(props) {
                                         <div className='message-content'>{payload.message}</div>
                                     )}
 
-                                    <div className="date-time">{payload.Time}</div>
-
+                                    <div className="date-time" >{payload.Time}</div>
+                                    
                                     <Menu
                                         anchorEl={anchorEl}
                                         keepMounted
                                         open={Boolean(anchorEl)}
                                         onClose={handleClose}
                                     >
-                                        <MenuItem onClick={() => { handleDelete(receiver, index), handleClose(); }}>
+
+                                        <MenuItem onClick={() => { handleDelete(); handleClose(); }}  disabled={(type==="private"&&selectedIndex)?chats[receiver][selectedIndex].email !== userEmail:false}>
                                             Delete
                                         </MenuItem>
-                                        <MenuItem onClick={() => { handleReply(payload), handleClose(); }}>
+                                        <MenuItem onClick={() => { handleReply(), handleClose(); }}>
                                             Reply
                                         </MenuItem>
                                     </Menu>
@@ -696,12 +706,15 @@ function ResponsiveDrawer(props) {
                     <Box className='message'>
                         {reply.message ? (
                             <>
+                                {console.log("reply:", reply)}
                                 <div className='reply'>
-                                    <div style={{ color: "rgb(0,255,183)", textDecoration: "underline" }}>
-                                        {reply.username}
+                                    <div style={{ color: "rgb(0,255,183)", textDecoration: "underline", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                        <div>{reply.type === "private" ? ((reply.email === userEmail) ? "You" : displayReceiver) : ((reply.receiver === userEmail) ? "You" : reply.name)}</div>
+
+                                        <CloseIcon style={{ cursor: "pointer", marginRight: "8px" }} onClick={() => { setReply([]); }} />
                                     </div>
                                     <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: "flex", justifyContent: "space-between", width: "100%" }}>
-                                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: "300px" }}>  {reply.message}</div><CloseIcon style={{ cursor: "pointer", marginRight: "8px" }} onClick={() => { setReply([]); }} />
+                                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: "300px" }}>  {reply.message}</div>
                                     </div>
                                 </div>
                             </>
@@ -713,7 +726,7 @@ function ResponsiveDrawer(props) {
                 </Box>
             </Box>
             <PictureDialog open={pictureDialog} onClose={() => setPictureDialog(false)} currentPicture={pic} onPictureUpload={setPic} />
- 
+
             {contacts[receiver] && type === "group" ? (<GroupMembersDialog socket={socket} contacts={contacts[receiver]} open={contactDialog} setOpen={setContactDialog} admin={admin} receiver={receiver} email={userEmail} />) : null}
             <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
             <VideoDialog open={showVideoDialog} videoUrl={selectedImageUrl} onClose={closeVideoDialog} />
