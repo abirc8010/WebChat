@@ -7,6 +7,7 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
+import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 import Contacts from '../contacts/contact';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import PropTypes from 'prop-types';
@@ -30,6 +31,7 @@ import GroupMembersDialog from '../user_selection/GroupMembersDialog';
 import PictureDialog from '../picture_dialog/pictureDialog';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+
 const userEmail = localStorage.getItem("currentUser");
 const userName = localStorage.getItem("currentUsername");
 const Useruid = localStorage.getItem("uid");
@@ -139,7 +141,7 @@ function ResponsiveDrawer(props) {
     const [contactDialog, setContactDialog] = useState(false);
     const [admin, setAdmin] = useState(false);
     const [pictureDialog, setPictureDialog] = useState(false);
-
+    const [onlineStatus, setOnlineStatus] = useState(false);
 
     function getGroupById(groupId, callback) {
         socket.emit("getGroupById", groupId);
@@ -378,10 +380,16 @@ function ResponsiveDrawer(props) {
 
     const handleDelete = () => {
         const updatedChats = { ...chats };
-        updatedChats[receiver] = updatedChats[receiver].filter((_, index) => index !== selectedIndex);
+        updatedChats[receiver] = updatedChats[receiver].map((message, index) => {
+            if (index === selectedIndex) {
+                return { ...message, message: "This message was deleted" ,deleted:true,reply:[],url:null};
+            }
+            return message;
+        });
         setChats(updatedChats);
         handleClose();
     };
+
     const handleReply = () => {
         if (selectedIndex !== null) {
             const clickedMessage = chats[receiver][selectedIndex];
@@ -411,7 +419,7 @@ function ResponsiveDrawer(props) {
 
         setChats(updatedChats);
         setMessage('');
-
+        console.log(receiver);
     };
 
     useEffect(() => {
@@ -433,7 +441,7 @@ function ResponsiveDrawer(props) {
                     if (payload.type === "private")
                         socket.emit("addContact", { contactEmail: payload.email, email: userEmail });
 
-                    const newContact = { username: payload.type === "private" ? "" : payload.group, profilePicture: "you.webp", type: payload.type };
+                    const newContact = { username: payload.type === "private" ? payload.name : payload.group, profilePicture: "you.webp", type: payload.type };
                     setContacts(prevState => ({
                         ...prevState,
                         [payload.email]: newContact
@@ -539,7 +547,7 @@ function ResponsiveDrawer(props) {
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0} className="panel">
-                    <Contacts socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} setAdmin={setAdmin} />
+                    <Contacts setTyping={setTyping} socket={socket} setReceiver={setReceiver} chats={chats} setChatCount={setChatCount} chatCount={chatCount} receiver={receiver} handleDrawerClose={handleDrawerClose} mobileOpen={mobileOpen} userEmail={userEmail} username={userName} profilePicture={profilePicture} setPic={setPic} users={users} setUsers={setUsers} contacts={contacts} setContacts={setContacts} setDisplayReceiver={setDisplayReceiver} setType={setType} setAdmin={setAdmin} setOnlineStatus={setOnlineStatus} />
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1} className="panel" >
                     <SettingsDialog socket={socket} openConfig={openConfig} onClose={handleSettingsClose} setImgUrl={setImgUrl} userEmail={userEmail} setProfilePicture={setProfilePicture} profilePicture={profilePicture} setAuthenticUser={props.setAuthenticUser} />
@@ -580,8 +588,17 @@ function ResponsiveDrawer(props) {
                         <img src={pic} className='avatar' style={{ cursor: ((admin && (type === "group")) ? "pointer" : null) }} onClick={() => { if (type === "group" && admin) { setPictureDialog(true) } }} />
                         <Typography variant="h6" component="div" >
                             {displayReceiver}
-                            <div className='typing'>{typing}</div>
-                            {type === "group" ? (<div onClick={() => setContactDialog(true)} style={{ fontSize: "12px", cursor: "pointer", opacity: "0.8" }}>See members</div>) : null}
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                {type === "group" ? (
+                                    <div onClick={() => setContactDialog(true)} style={{ fontSize: "12px", cursor: "pointer", opacity: "0.8", display: 'inline-block' }}>See members</div>
+                                ) : (
+                                    onlineStatus ? (
+                                        <div style={{ fontSize: "12px", cursor: "pointer", opacity: "0.8", display: 'inline-block' }}>online</div>
+                                    ) : null
+                                )}
+                                <div className='typing' style={{ display: 'inline-block', marginLeft: '10px' }}>{typing}</div>
+                            </div>
+
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -637,7 +654,6 @@ function ResponsiveDrawer(props) {
                                             <KeyboardArrowDownIcon onClick={(e) => { handleClick(e, index) }} style={{ cursor: "pointer" }} />
                                         </div>
                                     </div>
-                                    {console.log(payload)}
                                     {payload.reply.url ? (
 
                                         <div className='show-reply'>
@@ -675,11 +691,13 @@ function ResponsiveDrawer(props) {
                                             )
                                         )
                                     ) : (
-                                        <div className='message-content'>{payload.message}</div>
+                                       <>
+                                        <div className={payload.deleted?'delete':'message-content'}> {payload.deleted?<HighlightOffOutlinedIcon sx={{fontSize:"medium"}}/>:null} {payload.message}</div>
+                                      </>
                                     )}
 
                                     <div className="date-time" >{payload.Time}</div>
-                                    
+
                                     <Menu
                                         anchorEl={anchorEl}
                                         keepMounted
@@ -687,7 +705,7 @@ function ResponsiveDrawer(props) {
                                         onClose={handleClose}
                                     >
 
-                                        <MenuItem onClick={() => { handleDelete(); handleClose(); }}  disabled={(type==="private"&&selectedIndex)?chats[receiver][selectedIndex].email !== userEmail:false}>
+                                        <MenuItem onClick={() => { handleDelete(chats[receiver][selectedIndex]); handleClose(); }} disabled={(type === "private" && selectedIndex) ? chats[receiver][selectedIndex].email !== userEmail : false}>
                                             Delete
                                         </MenuItem>
                                         <MenuItem onClick={() => { handleReply(), handleClose(); }}>

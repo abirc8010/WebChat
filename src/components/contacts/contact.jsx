@@ -7,8 +7,9 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import NotificationBadge from './badge';
 import SelectionDialog from '../user_selection/SelectionDialog';
 import "./contact.css";
+import { SwapHoriz } from "@mui/icons-material";
 
-export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType, setAdmin }) {
+export default function Contact({ socket, setReceiver, chats, setChatCount, chatCount, receiver, handleDrawerClose, mobileOpen, username, profilePicture, setPic, userEmail, contacts, setContacts, setDisplayReceiver, setType, setAdmin, setOnlineStatus,setTyping }) {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [searchText, setSearchText] = useState("");
@@ -22,8 +23,9 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
     useEffect(() => {
         socket.on("failed", () => { setAdd(true) });
         socket.on("success", (data) => {
+
             setAdd(false);
-            const newContact = { username: "", profilePicture: "", type: "private" };
+            const newContact = { username: data.username, profilePicture: data.profilepicture, type: "private" };
             setContacts(prevState => ({
                 ...prevState,
                 [data.contactEmail]: newContact
@@ -33,10 +35,16 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
 
 
         const contactEmails = Object.keys(contacts).filter(email => contacts[email].type === 'private');
-       
+
         socket.emit('fetchContactsStatus', contactEmails, (statuses) => {
-         
-            const onlineContacts = statuses.filter(contact => contact.status === 'online').map(contact => contact.email);
+
+            const onlineContacts = statuses.filter(contact => contact.status === 'online')
+                .map(contact => {
+                    if (contact.email === receiver) {
+                        setOnlineStatus(true);
+                    }
+                    return contact.email;
+                });
             setOnlineUsers(new Set(onlineContacts));
         });
 
@@ -46,8 +54,14 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 const newOnlineUsers = new Set(prevOnlineUsers);
                 if (data.status === 'online') {
                     newOnlineUsers.add(data.email);
+                    if (data.email === receiver) {
+                        setOnlineStatus(true);
+                    }
                 } else {
                     newOnlineUsers.delete(data.email);
+                    if (data.email === receiver) {
+                        setOnlineStatus(false);
+                    }
                 }
                 return newOnlineUsers;
             });
@@ -57,7 +71,7 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
             // Clean up event listener
             socket.off('userOnlineStatus');
         };
-    }, [socket,contacts]);
+    }, [socket, contacts]);
 
     useEffect(() => {
         const filtered = Object.entries(contacts);
@@ -169,7 +183,24 @@ export default function Contact({ socket, setReceiver, chats, setChatCount, chat
                 </div>
                 {filteredContacts.map(([email, data]) => (
                     email && (
-                        <div className="contact" onClick={() => { setType(data.type); setReceiver(email); setChatCountZero(email); handleDrawerClose(); setPic(data.profilePicture ? data.profilePicture : "you.webp"); setDisplayReceiver(data.username); if (data.type === "group") { setAdmin(data.isAdmin) } }}>
+                        <div className="contact" onClick={() => {
+                            setTyping(null);
+                            setType(data.type);
+                            setReceiver(email);
+                            setChatCountZero(email);
+                            handleDrawerClose();
+                            setPic(data.profilePicture ? data.profilePicture : "you.webp");
+                            setDisplayReceiver(data.username);
+                            if (data.type === "group") {
+                                setAdmin(data.isAdmin);
+                            }
+                            if (onlineUsers.has(email)) {
+                                setOnlineStatus(true);
+                            }
+                            else
+                              setOnlineStatus(false);
+                        }}>
+
 
                             <div className="avatar-container">
                                 <img src={data.profilePicture ? data.profilePicture : "you.webp"} className="avatar" />

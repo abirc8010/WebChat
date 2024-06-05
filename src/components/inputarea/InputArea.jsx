@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import MoodIcon from '@mui/icons-material/Mood';
@@ -11,14 +11,13 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
-import { Button, IconButton } from '@mui/material';
+import { Button, IconButton, Typography } from '@mui/material';
 import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import './InputArea.css';
-import { UploadRounded } from '@mui/icons-material';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
 
-const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping,msgtype ,userName}) => {
+const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping, msgtype, userName }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorPinEl, setAnchorPinEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
@@ -30,7 +29,8 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [selectedUrl, setSelectedUrl] = useState('');
   const [listening, setListening] = useState(false); // State to track whether speech recognition is active
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
-  const [uploadSelection,setUploadSelection] = useState('');
+  const [uploadSelection, setUploadSelection] = useState('');
+  const [typingTimeout, setTypingTimeout] = useState(null);
   const handleClickPinMenu = (event) => {
     setAnchorPinEl(event.currentTarget);
   };
@@ -55,32 +55,47 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       setListening(false);
     }
   };
+  const receiverRef = useRef(receiver);
+
+  // Update the receiverRef when receiver changes
   useEffect(() => {
-    const inputMsg = document.querySelector(".inputmsg");
+    receiverRef.current = receiver;
+  }, [receiver]);
+  useEffect(() => {
+    const inputMsg = document.querySelector(".input-msg");
+
     if (inputMsg) {
-      inputMsg.addEventListener("keydown", () => {
-        socket.emit("typing", { receiver });
+      inputMsg.addEventListener("keydown", (event) => {
+
+        socket.emit("typing", { userEmail,userName, receiver, msgtype });
+        if(event.key==="Enter"){
+          sendChat(event);
+        }
       });
       inputMsg.addEventListener("keyup", () => {
         socket.emit("stopTyping", "");
       });
     }
-  }, []);
+  }, [message]);
   useEffect(() => {
-    // Event listener for receiving typing notification
+
+
     const handleTyping = (data) => {
-      if (data.receiver !== userEmail) {
-        setTyping(`is typing`);
+   
+      if (data.receiver === userEmail && data.userEmail === receiverRef.current) {
+        if (data.msgtype !== "group")
+          setTyping('Typing..');
       }
     };
 
     // Event listener for receiving stopTyping notification
     const handleStopTyping = () => {
-      // Clear the typing message after 2 seconds
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
+      if (typingTimeout) {
+        clearTimeout(typingTimeout); // Clear the existing timeout
+      }
+      setTypingTimeout(setTimeout(() => {
         setTyping('');
-      }, 2000);
+      }, 2000));
     };
 
     // Attach event listeners
@@ -179,7 +194,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   };
 
   const handleSendChat = (type, selectedUrl) => {
-   
+
     if (selectedUrl) {
       const date = new Date();
       let day = date.getDate();
@@ -189,14 +204,14 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
       const message = uploadSelection;
       const url = selectedUrl;
-         
-      if(receiver!="You")
-      socket.emit("send privateMessage", { receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection||type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply,type:msgtype ,name:(msgtype==="group"?userName:null)});
+
+      if (receiver != "You")
+        socket.emit("send privateMessage", { receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection || type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply, type: msgtype, name: (msgtype === "group" ? userName : null) });
       const updatedChats = { ...chats };
       if (!updatedChats[receiver]) {
         updatedChats[receiver] = [];
       }
-      updatedChats[receiver].push( { receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection||type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply ,type:msgtype,name:(msgtype==="group"?userName:null)});
+      updatedChats[receiver].push({ receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection || type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply, type: msgtype, name: (msgtype === "group" ? userName : null) });
       setReply([]);
       setChats(updatedChats);
       setMessage('');
@@ -211,7 +226,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     const file = event.target.files[0];
     if (!file) return; // If no file is selected, do nothing
 
-       console.log(uploadSelection);
+  
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
@@ -357,12 +372,12 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                   fontSize: '20px' // font size for very small screens
                 }
               }}
-              onClick={(event)=>{handleClickPinMenu(event);setUploadSelection('pdf')}}
+              onClick={(event) => { handleClickPinMenu(event); setUploadSelection('pdf') }}
               component="label"
             >
 
               <PictureAsPdfIcon />
-              <input type="file" accept="pdf/*" style={{ display: 'none' }}   onChange={handleFileUpload}  />
+              <input type="file" accept="pdf/*" style={{ display: 'none' }} onChange={handleFileUpload} />
 
             </IconButton>
 
@@ -381,13 +396,13 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                   fontSize: '20px' // font size for very small screens
                 }
               }}
-             onClick={(event)=>{handleClickPinMenu(event);setUploadSelection('image')}}
+              onClick={(event) => { handleClickPinMenu(event); setUploadSelection('image') }}
               component="label"
             >
 
 
               <PhotoIcon />
-              <input type="file" accept="image/*" style={{ display: 'none' }} onClick={()=>setUploadSelection('image')} onChange={handleFileUpload}  />
+              <input type="file" accept="image/*" style={{ display: 'none' }} onClick={() => setUploadSelection('image')} onChange={handleFileUpload} />
 
             </IconButton>
           </MenuItem>
@@ -405,11 +420,11 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                   fontSize: '20px' // font size for very small screens
                 }
               }}
-              onClick={(event)=>{handleClickPinMenu(event);setUploadSelection('video')}}
+              onClick={(event) => { handleClickPinMenu(event); setUploadSelection('video') }}
               component="label"
             >
               <VideocamIcon />
-              <input type="file" accept="video/*" style={{ display: 'none' }} OnClick={()=> setUploadSelection("video")} onChange={handleFileUpload} />
+              <input type="file" accept="video/*" style={{ display: 'none' }} OnClick={() => setUploadSelection("video")} onChange={handleFileUpload} />
 
             </IconButton>
           </MenuItem>
@@ -429,8 +444,8 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
         {/* GIFs dialog */}
         <Dialog open={openGifsDialog} onClose={handleCloseGifsDialog} fullWidth maxWidth="sm">
           <div className='add'>
-            <DialogContent title="Search for GIFs">
-              {/* GIF search content goes here */}
+            <DialogContent>
+              <Typography variant="h6" sx={{ color: "rgb(225,225,225)", mb: 1 }}>Search For GIFs</Typography>
               <TextField
                 sx={{ mb: 2, backgroundColor: 'white', borderRadius: '50px' }}
                 variant="outlined"
@@ -459,8 +474,9 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
         {/* Stickers dialog */}
         <Dialog open={openStickersDialog} onClose={handleCloseStickersDialog} fullWidth maxWidth="sm">
           <div className='add'>
-            <DialogContent title="Search for Stickers">
-              {/* Sticker search content goes here */}
+            <DialogContent >
+              <Typography variant="h6" sx={{ color: "rgb(225,225,225)", mb: 1 }}>Search For Stickers</Typography>
+
               <TextField
                 sx={{ mb: 2, backgroundColor: 'white', borderRadius: '50px' }}
                 variant="outlined"

@@ -154,16 +154,9 @@
 }
 
 .typing {
-    padding-left: 20px;
-    margin-left: 10px;
-    color: rgb(0, 255, 183);
-    width: 100vw;
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    text-align: center;
-    right: 80px;
-    top: 50px;
+ font-size: 12px;
+  cursor: pointer;
+   opacity: 0.8
 }
 
 .menu-icon {
@@ -231,4 +224,12 @@
         width: 78%;
         margin-right: 30px;
     }
+}
+.delete{
+    font-size:15px;
+    opacity:0.8;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
 }
