@@ -52,12 +52,10 @@ export default function SignUp({ setValue, setCurrentUser, setAuthenticUser,uid,
 
       const g = await signInWithPopup(auth, provider);
       const userEmail =g.user.email
-      console.log(g.user.displayName);
       setCurrentUser(userEmail);
       localStorage.setItem('uid', g.user.uid);
          setUid(g.user.uid);
      setAuthenticUser(true);
-     console.log(g);
       localStorage.setItem('currentUser', userEmail);
          localStorage.setItem('currentUsername', g.user.displayName);
     } catch (error) {

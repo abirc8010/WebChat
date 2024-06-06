@@ -5,7 +5,7 @@ const ForwardDialog = ({ payload, sendChat, open, onClose, contacts, currentUser
 
     const [selectedUsers, setSelectedUsers] = React.useState([]);
 
-    console.log("ForwardDialog", payload);
+
     const handleCheckboxChange = (email) => {
         setSelectedUsers((prevSelected) => {
             if (prevSelected.includes(email)) {
@@ -20,7 +20,8 @@ const ForwardDialog = ({ payload, sendChat, open, onClose, contacts, currentUser
             selectedUsers.forEach(user => {
                 const modifiedPayload = {
                     ...payload,
-                    receiver: user 
+                    receiver: user ,
+                    reply:[]
                 };
                 socket.emit("send privateMessage", modifiedPayload);
 

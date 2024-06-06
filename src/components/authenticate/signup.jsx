@@ -51,7 +51,6 @@ export default function SignUp({ setValue, setAuthenticUser, setCurrentUser ,uid
         try {
             const g = await signInWithPopup(auth, provider);
             const userEmail = g.user.email
-            console.log(g.user.displayName);
                      localStorage.setItem('uid', g.user.uid);
                         setUid(g.user.uid);
             setCurrentUser(userEmail);

@@ -19,7 +19,6 @@ const MemberListDialog = ({ socket, contacts, open, setOpen, admin, receiver, em
   const [chatReceiver, setChatReceiver] = useState(contacts);
 
   useEffect(() => {
-    console.log(admin);
     setChatReceiver(contacts);
   }, [contacts]);
 

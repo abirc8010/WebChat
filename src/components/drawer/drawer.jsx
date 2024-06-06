@@ -396,7 +396,7 @@ function ResponsiveDrawer(props) {
         if (selectedIndex !== null) {
             const clickedMessage = chats[receiver][selectedIndex];
             setReply(clickedMessage);
-            console.log("Message: ", chats[receiver][selectedIndex]);
+         
         } else {
             console.error("No index selected");
         }
@@ -424,7 +424,6 @@ function ResponsiveDrawer(props) {
 
         setChats(updatedChats);
         setMessage('');
-        console.log(receiver);
     };
 
     useEffect(() => {
@@ -716,7 +715,7 @@ function ResponsiveDrawer(props) {
                                         <MenuItem onClick={() => { handleReply(), handleClose(); }}>
                                             Reply
                                         </MenuItem>
-                                         <MenuItem onClick={()=> {handleForward(),handleClose();console.log("forward")}}>
+                                         <MenuItem onClick={()=> {handleForward(),handleClose();}}>
                                             Forward
                                         </MenuItem>
                                           <MenuItem >
@@ -735,7 +734,7 @@ function ResponsiveDrawer(props) {
                     <Box className='message'>
                         {reply.message ? (
                             <>
-                                {console.log("reply:", reply)}
+
                                 <div className='reply'>
                                     <div style={{ color: "rgb(0,255,183)", textDecoration: "underline", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: "flex", justifyContent: "space-between", width: "100%" }}>
                                         <div>{reply.type === "private" ? ((reply.email === userEmail) ? "You" : displayReceiver) : ((reply.receiver === userEmail) ? "You" : reply.name)}</div>
