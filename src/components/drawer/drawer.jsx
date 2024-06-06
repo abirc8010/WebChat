@@ -31,6 +31,7 @@ import GroupMembersDialog from '../user_selection/GroupMembersDialog';
 import PictureDialog from '../picture_dialog/pictureDialog';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import ForwardDialog from '../user_selection/UserSelection';
 
 const userEmail = localStorage.getItem("currentUser");
 const userName = localStorage.getItem("currentUsername");
@@ -142,6 +143,7 @@ function ResponsiveDrawer(props) {
     const [admin, setAdmin] = useState(false);
     const [pictureDialog, setPictureDialog] = useState(false);
     const [onlineStatus, setOnlineStatus] = useState(false);
+    const [forward,setForward]=useState(false);
 
     function getGroupById(groupId, callback) {
         socket.emit("getGroupById", groupId);
@@ -398,6 +400,9 @@ function ResponsiveDrawer(props) {
         } else {
             console.error("No index selected");
         }
+    }
+    const handleForward = () => {
+        setForward(true);
     }
     const sendChat = (e) => {
         e.preventDefault();
@@ -705,11 +710,17 @@ function ResponsiveDrawer(props) {
                                         onClose={handleClose}
                                     >
 
-                                        <MenuItem onClick={() => { handleDelete(chats[receiver][selectedIndex]); handleClose(); }} disabled={(type === "private" && selectedIndex) ? chats[receiver][selectedIndex].email !== userEmail : false}>
+                                        <MenuItem onClick={() => { handleDelete(chats[receiver][selectedIndex]); handleClose(); }} >
                                             Delete
                                         </MenuItem>
                                         <MenuItem onClick={() => { handleReply(), handleClose(); }}>
                                             Reply
+                                        </MenuItem>
+                                         <MenuItem onClick={()=> {handleForward(),handleClose();console.log("forward")}}>
+                                            Forward
+                                        </MenuItem>
+                                          <MenuItem >
+                                            Edit
                                         </MenuItem>
                                     </Menu>
 
@@ -743,8 +754,8 @@ function ResponsiveDrawer(props) {
                     </Box>
                 </Box>
             </Box>
+             {(selectedIndex||selectedIndex===0)&&chats[receiver][selectedIndex]?( <ForwardDialog contacts={contacts} payload={chats[receiver][selectedIndex]} sendChat={sendChat} open={forward} onClose={()=>setForward(false)}  currentUser={userEmail} setChats={setChats} socket={socket}/>):null}
             <PictureDialog open={pictureDialog} onClose={() => setPictureDialog(false)} currentPicture={pic} onPictureUpload={setPic} />
-
             {contacts[receiver] && type === "group" ? (<GroupMembersDialog socket={socket} contacts={contacts[receiver]} open={contactDialog} setOpen={setContactDialog} admin={admin} receiver={receiver} email={userEmail} />) : null}
             <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
             <VideoDialog open={showVideoDialog} videoUrl={selectedImageUrl} onClose={closeVideoDialog} />

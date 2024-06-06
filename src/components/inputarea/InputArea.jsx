@@ -254,7 +254,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   return (
     <>
       <div className='input-container'>
-        {/* Text field for message input */}
+  
 
         <TextField
           variant="outlined"

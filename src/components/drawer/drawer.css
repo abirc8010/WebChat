@@ -1,6 +1,7 @@
-.bar{
-    background-image: linear-gradient(to bottom right , rgb(25, 8, 66), rgb(53, 2, 53));
+.bar {
+    background-image: linear-gradient(to bottom right, rgb(25, 8, 66), rgb(53, 2, 53));
 }
+
 .drawer {
     height: 100%;
     overflow: hidden;
@@ -9,7 +10,7 @@
 .MuiDrawer-paper {
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0) !important;
-    background-image: linear-gradient(to bottom right , rgb(23, 7, 63), rgb(32, 1, 32));
+    background-image: linear-gradient(to bottom right, rgb(23, 7, 63), rgb(32, 1, 32));
 
 }
 
@@ -18,9 +19,9 @@
     padding-left: 30px;
     position: fixed;
     bottom: 0;
-    background-image: linear-gradient(180deg, rgba(203, 58, 198, 0.072), rgb(116, 12, 169)) !important;
+    background-image: linear-gradient(to bottom right, rgb(23, 7, 63), rgb(32, 1, 32));
     width: 80%;
-    height: 70px;
+    height: 80px;
     margin-left: 20%;
     right: 0;
     display: flex;
@@ -154,9 +155,9 @@
 }
 
 .typing {
- font-size: 12px;
-  cursor: pointer;
-   opacity: 0.8
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.8
 }
 
 .menu-icon {
@@ -196,7 +197,7 @@
     position: fixed;
     border-radius: 10px;
     color: white;
-    background-image: linear-gradient(to bottom right , rgb(23, 7, 63), rgb(32, 1, 32));
+    background-image: linear-gradient(to bottom right, rgb(23, 7, 63), rgb(32, 1, 32));
     padding-left: 20px;
     padding-top: 10px;
     height: 150px;
@@ -225,9 +226,10 @@
         margin-right: 30px;
     }
 }
-.delete{
-    font-size:15px;
-    opacity:0.8;
+
+.delete {
+    font-size: 15px;
+    opacity: 0.8;
     font-style: italic;
     display: flex;
     align-items: center;
