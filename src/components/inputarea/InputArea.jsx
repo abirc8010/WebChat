@@ -38,7 +38,11 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const handleClosePinMenu = () => {
     setAnchorPinEl(null);
   };
-
+   const handleKeypress = (event) => {
+      if(event.key==="Enter"){
+          sendChat(event);
+        }
+   }
   const handleInput = (e) => {
     setMessage(e.target.value); // Update the message state
 
@@ -68,9 +72,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       inputMsg.addEventListener("keydown", (event) => {
 
         socket.emit("typing", { userEmail,userName, receiver, msgtype });
-        if(event.key==="Enter"){
-          sendChat(event);
-        }
+       
       });
       inputMsg.addEventListener("keyup", () => {
         socket.emit("stopTyping", "");
@@ -259,6 +261,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           placeholder="Enter your message"
           value={message}
           onInput={handleInput}
+          onKeyDown={handleKeypress}
           InputProps={{
             endAdornment: (
               <>
