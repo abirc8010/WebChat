@@ -3,7 +3,6 @@ import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import MoodIcon from '@mui/icons-material/Mood';
 import SendIcon from '@mui/icons-material/Send';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PhotoIcon from '@mui/icons-material/Photo';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -14,12 +13,80 @@ import Dialog from '@mui/material/Dialog';
 import { Button, IconButton, Typography } from '@mui/material';
 import MicrophoneIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import EditIcon from '@mui/icons-material/Edit';
+import Box from '@mui/material/Box';
 import './InputArea.css';
+import { styled } from '@mui/system';
 const API_TOKEN = import.meta.env.VITE_GIPHY_API_KEY;
 
+
+const CustomEditIcon = styled(EditIcon)({
+  fontSize: 22,
+});
+const CustomSpeedDialIcon = styled(SpeedDialIcon)({
+  fontSize: 20,
+});
+const OpenIconSpeedDial = ({setUploadSelection,handleFileUpload}) => {
+  const actions = [
+  {
+    icon:  <IconButton             
+              onClick={(event) => {  setUploadSelection('pdf') }}
+              component="label"
+            >
+              <PictureAsPdfIcon sx={{color:"red"}}/>
+              <input type="file" accept="pdf/*" style={{ display: 'none' }}  onChange={handleFileUpload} />
+
+            </IconButton>, name: 'Pdf'
+  },
+  { icon: <IconButton             
+              onClick={(event) => {  setUploadSelection('image') }}
+              component="label"
+            >
+              <PhotoIcon sx={{color:"green"}} />
+              <input type="file" accept="image/*" style={{ display: 'none' }}  onChange={handleFileUpload} />
+
+            </IconButton>
+  , name: 'Image' },
+  { icon: <IconButton             
+              onClick={(event) => {  setUploadSelection('pdf') }}
+              component="label"
+            >
+              <VideocamIcon sx={{color:"black"}}/>
+              <input type="file" accept="video/*" style={{ display: 'none' }}  onChange={handleFileUpload} />
+
+            </IconButton>, name: 'Video' },
+];
+  return (
+    <Box sx={{ zIndex: 5, height: 320, width: 70, transform: 'translateZ(0px)', flexGrow: 1, mb: 11 }}>
+      <SpeedDial
+        ariaLabel="SpeedDial openIcon example"
+        icon={<CustomSpeedDialIcon openIcon={<CustomEditIcon />} />}
+
+        sx={{
+          '& .MuiFab-primary': {
+            width: 40,
+            height: 40,
+          }
+        }}
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+
+          />
+        ))}
+      </SpeedDial>
+    </Box>
+  );
+}
 const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, userEmail, setChats, chats, setReply, reply, setTyping, msgtype, userName }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [anchorPinEl, setAnchorPinEl] = useState(null);
   const [openEmojiDialog, setOpenEmojiDialog] = useState(false);
   const [openGifsDialog, setOpenGifsDialog] = useState(false);
   const [openStickersDialog, setOpenStickersDialog] = useState(false);
@@ -31,18 +98,12 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   const [speechRecognition, setSpeechRecognition] = useState(null); // State to hold the SpeechRecognition object
   const [uploadSelection, setUploadSelection] = useState('');
   const [typingTimeout, setTypingTimeout] = useState(null);
-  const handleClickPinMenu = (event) => {
-    setAnchorPinEl(event.currentTarget);
-  };
-
-  const handleClosePinMenu = () => {
-    setAnchorPinEl(null);
-  };
-   const handleKeypress = (event) => {
-      if(event.key==="Enter"){
-          sendChat(event);
-        }
-   }
+ 
+  const handleKeypress = (event) => {
+    if (event.key === "Enter") {
+      sendChat(event);
+    }
+  }
   const handleInput = (e) => {
     setMessage(e.target.value); // Update the message state
 
@@ -71,8 +132,8 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     if (inputMsg) {
       inputMsg.addEventListener("keydown", (event) => {
 
-        socket.emit("typing", { userEmail,userName, receiver, msgtype });
-       
+        socket.emit("typing", { userEmail, userName, receiver, msgtype });
+
       });
       inputMsg.addEventListener("keyup", () => {
         socket.emit("stopTyping", "");
@@ -83,7 +144,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
 
 
     const handleTyping = (data) => {
-   
+
       if (data.receiver === userEmail && data.userEmail === receiverRef.current) {
         if (data.msgtype !== "group")
           setTyping('Typing..');
@@ -216,6 +277,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
       updatedChats[receiver].push({ receiver: (msgtype === "group" ? userEmail : receiver), message: uploadSelection || type, email: (msgtype === "group" ? receiver : userEmail), Time, url, reply, type: msgtype, name: (msgtype === "group" ? userName : null) });
       setReply([]);
       setChats(updatedChats);
+      console.log("Chats: ", updatedChats);
       setMessage('');
       handleCloseEmojiDialog();
       handleCloseGifsDialog();
@@ -228,7 +290,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
     const file = event.target.files[0];
     if (!file) return; // If no file is selected, do nothing
 
-  
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
@@ -254,7 +316,8 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
   return (
     <>
       <div className='input-container'>
-  
+
+        <OpenIconSpeedDial handleFileUpload={handleFileUpload} setUploadSelection={setUploadSelection}/>
 
         <TextField
           variant="outlined"
@@ -283,27 +346,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
                   >
                     <MoodIcon />
                   </IconButton>
-                  <IconButton
-                    sx={{
-                      cursor: "pointer",
-                      marginLeft: "8px",
-                      fontSize: {
-                        xs: '20px', // font size for extra small screens
-                        sm: '25px', // font size for small screens
-                        md: '30px', // font size for medium screens
-                        lg: '31px'  // font size for large screens
-                      },
-                      '@media (max-width: 600px)': {
-                        fontSize: '20px' // font size for very small screens
-                      }
-                    }}
-                    onClick={handleClickPinMenu}
-                    component="label"
-                  >
-                    <AttachFileIcon />
-                    {/* <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} /> */}
-
-                  </IconButton>
+               
                   <IconButton
 
                     onClick={toggleSpeechRecognition}
@@ -341,7 +384,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
         />
 
         {/* Send button */}
-        <button type="submit" className="submit-btn" onClick={(message) ? sendChat : null}>
+        <button type="submit" className="submit-btn" onClick={(message) ?sendChat : null}>
           <SendIcon sx={{ fontSize: "30px" }} />
         </button>
 
@@ -355,83 +398,7 @@ const TextFieldWithIcon = ({ setMessage, message, sendChat, socket, receiver, us
           <MenuItem onClick={() => { handleMenuOptionClick('gifs'); }}>GIFs</MenuItem>
           <MenuItem onClick={() => { handleMenuOptionClick('stickers'); }}>Stickers</MenuItem>
         </Menu>
-        <Menu
-          anchorEl={anchorPinEl}
-          open={Boolean(anchorPinEl)}
-          onClose={handleClosePinMenu}
-        >
-          <MenuItem>
-
-            <IconButton
-              sx={{
-                cursor: "pointer",
-                fontSize: {
-                  xs: '20px', // font size for extra small screens
-                  sm: '25px', // font size for small screens
-                  md: '30px', // font size for medium screens
-                  lg: '31px'  // font size for large screens
-                },
-                '@media (max-width: 600px)': {
-                  fontSize: '20px' // font size for very small screens
-                }
-              }}
-              onClick={(event) => { handleClickPinMenu(event); setUploadSelection('pdf') }}
-              component="label"
-            >
-
-              <PictureAsPdfIcon />
-              <input type="file" accept="pdf/*" style={{ display: 'none' }} onChange={handleFileUpload} />
-
-            </IconButton>
-
-          </MenuItem>
-          <MenuItem>
-            <IconButton
-              sx={{
-                cursor: "pointer",
-                fontSize: {
-                  xs: '20px', // font size for extra small screens
-                  sm: '25px', // font size for small screens
-                  md: '30px', // font size for medium screens
-                  lg: '31px'  // font size for large screens
-                },
-                '@media (max-width: 600px)': {
-                  fontSize: '20px' // font size for very small screens
-                }
-              }}
-              onClick={(event) => { handleClickPinMenu(event); setUploadSelection('image') }}
-              component="label"
-            >
-
-
-              <PhotoIcon />
-              <input type="file" accept="image/*" style={{ display: 'none' }} onClick={() => setUploadSelection('image')} onChange={handleFileUpload} />
-
-            </IconButton>
-          </MenuItem>
-          <MenuItem>
-            <IconButton
-              sx={{
-                cursor: "pointer",
-                fontSize: {
-                  xs: '20px', // font size for extra small screens
-                  sm: '25px', // font size for small screens
-                  md: '30px', // font size for medium screens
-                  lg: '31px'  // font size for large screens
-                },
-                '@media (max-width: 600px)': {
-                  fontSize: '20px' // font size for very small screens
-                }
-              }}
-              onClick={(event) => { handleClickPinMenu(event); setUploadSelection('video') }}
-              component="label"
-            >
-              <VideocamIcon />
-              <input type="file" accept="video/*" style={{ display: 'none' }} OnClick={() => setUploadSelection("video")} onChange={handleFileUpload} />
-
-            </IconButton>
-          </MenuItem>
-        </Menu>
+        
 
         {/* Dialogs for emoji, GIFs, and stickers */}
         {/* Emoji dialog */}

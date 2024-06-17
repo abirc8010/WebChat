@@ -5,7 +5,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from '@mui/icons-material/Search';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import NotificationBadge from './badge';
-import SelectionDialog from '../user_selection/SelectionDialog';
+import SelectionDialog from '../dialogs/SelectionDialog';
 import "./contact.css";
 import { SwapHoriz } from "@mui/icons-material";
 

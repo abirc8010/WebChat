@@ -27,11 +27,12 @@ import { useRef } from 'react';
 import './drawer.css';
 import ImageDialog from '../image_dialog/ImageDialog';
 import VideoDialog from '../video_dialog/VideoDialog';
-import GroupMembersDialog from '../user_selection/GroupMembersDialog';
+import GroupMembersDialog from '../dialogs/GroupMembersDialog';
 import PictureDialog from '../picture_dialog/pictureDialog';
+import EditDialog from '../dialogs/Edit';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import ForwardDialog from '../user_selection/UserSelection';
+import ForwardDialog from '../dialogs/UserSelection';
 
 const userEmail = localStorage.getItem("currentUser");
 const userName = localStorage.getItem("currentUsername");
@@ -143,7 +144,8 @@ function ResponsiveDrawer(props) {
     const [admin, setAdmin] = useState(false);
     const [pictureDialog, setPictureDialog] = useState(false);
     const [onlineStatus, setOnlineStatus] = useState(false);
-    const [forward,setForward]=useState(false);
+    const [forward, setForward] = useState(false);
+    const [edit, setEdit] = useState(false);
 
     function getGroupById(groupId, callback) {
         socket.emit("getGroupById", groupId);
@@ -211,7 +213,38 @@ function ResponsiveDrawer(props) {
             socket.off("userGroups");
         };
     }, [userEmail]);
+    useEffect(() => {
+        socket.on("edit_success", (data) => {
+            setChats(prevChats => {
+                const updatedChats = { ...prevChats };
 
+                // Ensure receiver exists in updatedChats
+                if (updatedChats[data.receiver]) {
+                    const receiverChats = [...updatedChats[data.receiver]];
+
+                    // Ensure selectedIndex is within bounds
+                    if (data.selectedIndex >= 0 && data.selectedIndex < receiverChats.length) {
+                        receiverChats[data.selectedIndex] = {
+                            ...receiverChats[data.selectedIndex],
+                            message: data.message,
+                            Time: `Edited: ${receiverChats[data.selectedIndex].Time}`,
+                        };
+                    } else {
+                        // If selectedIndex is out of bounds, push the new message at the end
+                        receiverChats.push({
+                            message: data.message,
+                            Time: `Edited: ${new Date().toLocaleString()}`,  // Example of timestamp
+                        });
+                    }
+
+                    updatedChats[data.receiver] = receiverChats;
+                }
+
+                return updatedChats;
+            });
+        });
+
+    }, []);
 
     // Listen for profile picture updates from the server
     useEffect(() => {
@@ -251,6 +284,10 @@ function ResponsiveDrawer(props) {
     const closeVideoDialog = () => {
         setShowVideoDialog(false);
     };
+
+    const handleEdit = () => {
+        setEdit(true);
+    }
 
     const handleImageClick = (imageUrl) => {
         setSelectedImageUrl(imageUrl);
@@ -384,7 +421,7 @@ function ResponsiveDrawer(props) {
         const updatedChats = { ...chats };
         updatedChats[receiver] = updatedChats[receiver].map((message, index) => {
             if (index === selectedIndex) {
-                return { ...message, message: "This message was deleted" ,deleted:true,reply:[],url:null};
+                return { ...message, message: "This message was deleted", deleted: true, reply: [], url: null };
             }
             return message;
         });
@@ -396,7 +433,7 @@ function ResponsiveDrawer(props) {
         if (selectedIndex !== null) {
             const clickedMessage = chats[receiver][selectedIndex];
             setReply(clickedMessage);
-         
+
         } else {
             console.error("No index selected");
         }
@@ -695,9 +732,9 @@ function ResponsiveDrawer(props) {
                                             )
                                         )
                                     ) : (
-                                       <>
-                                        <div className={payload.deleted?'delete':'message-content'}> {payload.deleted?<HighlightOffOutlinedIcon sx={{fontSize:"medium"}}/>:null} {payload.message}</div>
-                                      </>
+                                        <>
+                                            <div className={payload.deleted ? 'delete' : 'message-content'}> {payload.deleted ? <HighlightOffOutlinedIcon sx={{ fontSize: "medium" }} /> : null} {payload.message}</div>
+                                        </>
                                     )}
 
                                     <div className="date-time" >{payload.Time}</div>
@@ -715,10 +752,10 @@ function ResponsiveDrawer(props) {
                                         <MenuItem onClick={() => { handleReply(), handleClose(); }}>
                                             Reply
                                         </MenuItem>
-                                         <MenuItem onClick={()=> {handleForward(),handleClose();}}>
+                                        <MenuItem onClick={() => { handleForward(), handleClose(); }}>
                                             Forward
                                         </MenuItem>
-                                          <MenuItem >
+                                        <MenuItem onClick={() => { console.log(chats[receiver][selectedIndex]),handleEdit(), handleClose(); }} disabled={(selectedIndex>=0&&selectedIndex!=null)?chats[receiver][selectedIndex].receiver===userEmail:true}>
                                             Edit
                                         </MenuItem>
                                     </Menu>
@@ -753,7 +790,8 @@ function ResponsiveDrawer(props) {
                     </Box>
                 </Box>
             </Box>
-             {(selectedIndex||selectedIndex===0)&&chats[receiver][selectedIndex]?( <ForwardDialog contacts={contacts} payload={chats[receiver][selectedIndex]} sendChat={sendChat} open={forward} onClose={()=>setForward(false)}  currentUser={userEmail} setChats={setChats} socket={socket}/>):null}
+            {(selectedIndex || selectedIndex === 0) && chats[receiver][selectedIndex] ? (<EditDialog payload={chats[receiver][selectedIndex]} open={edit} onClose={() => setEdit(false)} setChats={setChats} socket={socket} chats={chats} selectedIndex={selectedIndex} receiver={receiver} />) : null}
+            {(selectedIndex || selectedIndex === 0) && chats[receiver][selectedIndex] ? (<ForwardDialog contacts={contacts} payload={chats[receiver][selectedIndex]} sendChat={sendChat} open={forward} onClose={() => setForward(false)} currentUser={userEmail} setChats={setChats} socket={socket} />) : null}
             <PictureDialog open={pictureDialog} onClose={() => setPictureDialog(false)} currentPicture={pic} onPictureUpload={setPic} />
             {contacts[receiver] && type === "group" ? (<GroupMembersDialog socket={socket} contacts={contacts[receiver]} open={contactDialog} setOpen={setContactDialog} admin={admin} receiver={receiver} email={userEmail} />) : null}
             <ImageDialog open={openDialog} imageUrl={selectedImageUrl} onClose={handleCloseDialog} />
