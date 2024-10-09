@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../../redux/slices/authSlice';
+import { loginUser, validateToken } from '../../../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -9,12 +9,13 @@ const Login = () => {
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.auth);
     const navigate = useNavigate();
-
+    
     const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(loginUser({ email, password })).then(({ meta }) => {
             if (meta.requestStatus === 'fulfilled') {
-                navigate('/dashboard'); 
+                localStorage.setItem('email', email); 
+                navigate('/'); 
             }
         });
     };
