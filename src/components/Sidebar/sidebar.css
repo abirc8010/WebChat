@@ -1,0 +1,39 @@
+.webchat{
+    height: 40px;
+}
+.sidebar {
+    background: rgba(165, 42, 42, 0.8);  
+    height: 100%;
+    overflow-y: auto; 
+    width:300px;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(165, 42, 42, 0.8); 
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(165, 42, 42, 1); 
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 228, 225, 0.8); 
+}
+
+
+.sidebar {
+    scrollbar-width: thin; 
+    scrollbar-color: rgba(165, 42, 42, 0.8) rgba(255, 228, 225, 0.8); 
+}
+@media (max-width: 750px) {
+    .sidebar {
+        position: absolute;
+        width:100%;
+    }
+    
+}
