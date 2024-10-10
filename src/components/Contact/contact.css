@@ -1,9 +1,11 @@
 .contact{
     width:300px;
-    background-color: violet;
+    background-color: #ffffff16;
+    color:#ffffff;
     height: 60px;
     display:flex;
     align-items: center;
+    border-bottom: 1px solid #ffffff6b;
 }
 .profile-pic{
     height:40px;
@@ -11,7 +13,7 @@
     border-radius: 100%;
 }
 .contact-info{
-    background-color: blue;
+   
     width:100%  ;
     display: flex;
 }

@@ -30,7 +30,7 @@ export const registerUser = createAsyncThunk('auth/registerUser', async ({ email
 });
 
 const initialState = {
-    user: null,
+    user: localStorage.getItem('email') ? { email: localStorage.getItem('email'), username: localStorage.getItem('username') } : null,
     token: localStorage.getItem('token') || null,  
     loading: false,
     error: null
