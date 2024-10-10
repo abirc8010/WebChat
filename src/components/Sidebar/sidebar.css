@@ -2,7 +2,8 @@
     height: 40px;
 }
 .sidebar {
-    background: rgba(165, 42, 42, 0.8);  
+    background-color: #00356e;
+    border-right: 1px solid #ffffff6b;
     height: 100%;
     overflow-y: auto; 
     width:300px;
