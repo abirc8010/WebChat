@@ -24,7 +24,6 @@ function App() {
         ({ meta }) => {
           if (meta.requestStatus === "fulfilled") {
             socket.emit("login", savedEmail);
-            console.log(socket);
           } else {
             localStorage.removeItem("token");
             localStorage.removeItem("email");

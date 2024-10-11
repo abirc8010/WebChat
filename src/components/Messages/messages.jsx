@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import socket from "../../services/socket";
 import apiClient from "../../services/axiosConfig";
+import Media from "./Media/media";
 import "./messages.css";
 
 const Messages = () => {
@@ -12,6 +13,7 @@ const Messages = () => {
   const currentEmail = useSelector((state) => state.contacts.currentEmail);
 
   const endOfMessagesRef = useRef(null);
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -80,6 +82,12 @@ const Messages = () => {
     return acc;
   }, {});
 
+  const renderMediaContent = (mediaType, mediaUrl) => {
+    console.log(mediaType);
+    if (!mediaUrl) return null;
+    return <Media mediaUrl={mediaUrl} mediaType={mediaType} />;
+  };
+
   return (
     <div className="message-container">
       {Object.entries(groupedMessages).map(([date, msgs]) => (
@@ -96,7 +104,9 @@ const Messages = () => {
                   message.sender.email === email ? "sent" : "received"
                 }`}
               >
-                <strong>{message.sender.username}:</strong> {message.content}
+                <strong>{message.sender.username}:</strong>
+                {message.mediaUrl ? null : message.content}
+                {renderMediaContent(message.content, message.mediaUrl)}
               </div>
             ))}
           </div>

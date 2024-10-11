@@ -10,6 +10,11 @@
 }
 
 .MuiTextField-root {
-    width: calc(100% - 400px);
+    width: calc(100% - 430px);
     margin-right: 5px;
+}
+@media (max-width: 750px) {
+    .MuiTextField-root {
+        width: calc(80%);
+    }       
 }
