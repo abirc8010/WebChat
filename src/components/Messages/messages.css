@@ -7,12 +7,10 @@
   overflow-y: scroll;
   max-height: 75%;
 }
-
 .message-group {
   display: flex;
   flex-direction: column;
 }
-
 .message-container::-webkit-scrollbar {
   display: none;
 }
@@ -93,4 +91,11 @@
   background-color: #fff; 
   border-radius: 10px; 
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
+@media (max-width: 750px) {
+  .message-container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
 }

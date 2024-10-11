@@ -1,12 +1,24 @@
-.contact{
-    width:300px;
+.contact {
+    position: relative;
+    width: 300px;
     background-color: #ffffff16;
-    color:#ffffff;
-    height: 60px;
-    display:flex;
+    color: #ffffff;
+    height: 50px;
+    display: flex;
     align-items: center;
-    border-bottom: 1px solid #ffffff6b;
+    padding: 8px;
 }
+
+.contact::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 18%; 
+    width: 100%;
+    height: 1px; 
+    background-color: #ffffff6b; 
+}
+
 .profile-pic{
     height:40px;
     width: 40px;

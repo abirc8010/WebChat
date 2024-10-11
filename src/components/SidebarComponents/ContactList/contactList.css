@@ -1,0 +1,20 @@
+.contact-list{
+}
+.search-contact{
+  height:50px;
+  width:100%;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+.search-input{
+  height:25px;
+  width:90%;
+  padding: 5px;
+  border:none;
+  color:#ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.search-input::placeholder{
+  color:#ffffff7e;
+}

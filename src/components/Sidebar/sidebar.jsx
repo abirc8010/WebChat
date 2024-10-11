@@ -1,43 +1,52 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import Contact from "../Contact/contact";
-import { fetchContacts } from "../../redux/slices/contactsSlice";
+import React, { useState } from "react";
 import LogoutButton from "../Auth/Logout/logout";
 import "./sidebar.css";
-
+import ContactsIcon from "@mui/icons-material/Contacts";
+import SettingsIcon from "@mui/icons-material/Settings";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import ContactList from "../SidebarComponents/ContactList/contactList";
+import Settings from "../SidebarComponents/Settings/settings";
+import AddUser from "../SidebarComponents/AddUser/addUser";
+import GroupAdd from "../SidebarComponents/GroupAdd/groupAdd";
 export default function Sidebar() {
-  const dispatch = useDispatch();
+  const [currentComponent, setCurrentComponent] = useState("contacts");
 
-  const { contacts, loading, error } = useSelector((state) => state.contacts);
-  const email = localStorage.getItem("email");
-
-  useEffect(() => {
-    dispatch(fetchContacts({ email }));
-  }, [dispatch, email]);
-
-  useEffect(() => {
-    console.log(contacts);
-  }, [contacts]);
+  const renderComponent = () => {
+    switch (currentComponent) {
+      case "contacts":
+        return <ContactList />;
+      case "settings":
+        return <Settings />;
+      case "addPerson":
+        return <AddUser />;
+      case "groupAdd":
+        return <GroupAdd />;
+      default:
+        return <ContactList />;
+    }
+  };
 
   return (
     <div className="sidebar">
       <div className="webchat">
         Webchat <LogoutButton />
       </div>
-      <div className="contacts-list">
-        {loading && <p>Loading contacts...</p>}
-        {error && <p>Error loading contacts: {error}</p>}
-
-        {!loading && !error && Object.keys(contacts).length > 0 ? (
-          Object.entries(contacts).map(([key, contactArray]) =>
-            contactArray.map((contact) => (
-              <Contact key={contact._id} user={contact} />
-            ))
-          )
-        ) : (
-          <p>No contacts found</p>
-        )}
+      <div className="sidebar-options">
+        <div className="tab" onClick={() => setCurrentComponent("contacts")}>
+          <ContactsIcon />
+        </div>
+        <div className="tab" onClick={() => setCurrentComponent("settings")}>
+          <SettingsIcon />
+        </div>
+        <div className="tab" onClick={() => setCurrentComponent("addPerson")}>
+          <PersonAddIcon />
+        </div>
+        <div className="tab" onClick={() => setCurrentComponent("groupAdd")}>
+          <GroupAddIcon />
+        </div>
       </div>
+      <div className="component-container">{renderComponent()}</div>
     </div>
   );
 }

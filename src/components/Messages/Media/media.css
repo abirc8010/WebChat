@@ -1,0 +1,13 @@
+
+.message-media{
+    width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+.message-media img{
+    width:100%;
+    height:100%;
+    cursor: pointer;
+    object-fit: contain;
+}

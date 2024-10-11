@@ -4,6 +4,7 @@
     background-color: #00356e;
     display:flex;
     align-items: center;
+    border-bottom:1px solid #ffffff6b;;
 }
 .current-pic{
     height: 50px;
@@ -13,5 +14,5 @@
 }
 .current-username{
     height:50px;
-    background-color: white;
+    color: rgb(255, 255, 255);
 }
