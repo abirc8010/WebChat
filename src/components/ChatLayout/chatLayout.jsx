@@ -6,7 +6,10 @@ import "./chatLayout.css";
 export default function ChatLayout() {
   const user = useSelector((state) => state.auth.user);
   return (
-    <div className="mainchat">
+    <div
+      className="mainchat"
+      style={{ backgroundImage: "url('darkbackground.jpg')" }}
+    >
       <ChatHeader />
       <Messages />
       <Composer />
