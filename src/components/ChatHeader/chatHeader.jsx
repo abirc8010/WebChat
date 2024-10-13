@@ -5,17 +5,22 @@ import {
   setCurrentEmail,
   setCurrentUsername,
 } from "../../redux/slices/contactsSlice";
+import GroupMembersDialog from "../Dialogs/GroupMembersDialog/groupMembersDialog";
 import "./chatHeader.css";
 
 export default function ChatHeader() {
   const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
   const currentUsername = useSelector(
     (state) => state.contacts.currentUsername
   );
   const currentProfilePic = useSelector(
     (state) => state.contacts.currentProfilePic
   );
-
+  const currentContactType = useSelector(
+    (state) => state.contacts.currentContactType
+  );
+  const currentChatId = useSelector((state) => state.contacts.currentChatId);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -49,8 +54,22 @@ export default function ChatHeader() {
         src={currentProfilePic || "you.webp"}
         alt="profile pic"
         className="current-pic"
+        onClick={() => setOpen(true)}
       />
-      <div className="current-username">{currentUsername}</div>
+      <div
+        className="current-username"
+        styel={{ cursor: "pointer" }}
+        onClick={() => {
+          currentContactType === "Group" ? setOpen(true) : null;
+        }}
+      >
+        {currentUsername}
+      </div>
+      <GroupMembersDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        groupId={currentChatId}
+      />
     </div>
   );
 }

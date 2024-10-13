@@ -7,29 +7,31 @@ import "./contactList.css";
 
 export default function ContactList() {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
   const { contacts, loading, error } = useSelector((state) => state.contacts);
-  const email = localStorage.getItem("email");
+
   const [searchTerm, setSearchTerm] = useState("");
-
   useEffect(() => {
-    dispatch(fetchContacts({ email }));
-  }, [dispatch, email]);
-
-  useEffect(() => {
-    socket.on("contactAdded", () => {
-      dispatch(fetchContacts({ email }));
+    socket.on("contactAdded", (newContact) => {
+      dispatch(fetchContacts({ email: user.email }));
     });
 
     return () => {
       socket.off("contactAdded");
     };
-  }, [dispatch, email]);
+  }, [dispatch]);
 
-  const filteredContacts = Object.entries(contacts).flatMap(
-    ([key, contactArray]) =>
-      contactArray.filter((contact) =>
-        contact.username.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  useEffect(() => {
+    if (!user) return;
+    dispatch(fetchContacts({ email: user.email }));
+  }, [dispatch, user]);
+
+  const filteredContacts = contacts.contacts?.filter((contact) =>
+    contact.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredGroups = contacts.groups?.filter((group) =>
+    group.groupName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -37,7 +39,7 @@ export default function ContactList() {
       <div className="search-contact">
         <input
           type="text"
-          placeholder="Search contacts..."
+          placeholder="Search contacts or groups..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -46,14 +48,36 @@ export default function ContactList() {
       {loading && <p>Loading contacts...</p>}
       {error && <p>Error loading contacts: {error}</p>}
 
-      {!loading && !error && filteredContacts.length > 0 ? (
-        filteredContacts.map((contact) => (
-          <>
-            <Contact key={contact._id} user={contact} />
-          </>
-        ))
-      ) : (
-        <p>No contacts found</p>
+      {!loading && !error && (
+        <>
+          {filteredContacts && filteredContacts.length > 0 && (
+            <>
+              {filteredContacts.map((contact) => (
+                <Contact key={contact._id} user={contact} />
+              ))}
+            </>
+          )}
+
+          {filteredGroups && filteredGroups.length > 0 && (
+            <>
+              {filteredGroups.map((group) => (
+                <Contact
+                  key={group._id}
+                  user={{
+                    _id: group._id,
+                    username: group.groupName,
+                    email: null,
+                    profilePicture: group.groupPicture,
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {(!filteredContacts || filteredContacts.length === 0) &&
+            (!filteredGroups || filteredGroups.length === 0) && (
+              <p>No contacts or groups found</p>
+            )}
+        </>
       )}
     </div>
   );

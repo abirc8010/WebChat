@@ -9,8 +9,12 @@ import { cloudinaryUpload } from "../../services/cloudinary";
 import "./composer.css";
 
 const Composer = () => {
-  const dispatch = useDispatch();
   const currentEmail = useSelector((state) => state.contacts.currentEmail);
+  const currentContactType = useSelector(
+    (state) => state.contacts.currentContactType
+  );
+  const currentChatId = useSelector((state) => state.contacts.currentChatId);
+
   const user = useSelector((state) => state.auth.user);
   const [message, setMessage] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
@@ -18,7 +22,7 @@ const Composer = () => {
   const [mediaType, setMediaType] = useState(null);
 
   const handleSendMessage = async () => {
-    if (currentEmail && (message || mediaUrl)) {
+    if ((currentEmail || currentChatId) && (message || mediaUrl)) {
       const content = mediaUrl ? `${mediaType}` : message;
 
       const messageData = {
@@ -26,6 +30,7 @@ const Composer = () => {
         receiverEmail: currentEmail,
         content,
         mediaUrl,
+        groupId: currentContactType === "Group" ? currentChatId : null,
       };
 
       socket.emit("sendMessage", messageData);
