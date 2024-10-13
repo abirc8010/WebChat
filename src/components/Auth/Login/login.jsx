@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, validateToken } from "../../../redux/slices/authSlice";
+import socket from "../../../services/socket";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -15,8 +16,8 @@ const Login = () => {
     dispatch(loginUser({ email, password })).then(({ meta }) => {
       if (meta.requestStatus === "fulfilled") {
         localStorage.setItem("email", email);
-        socket.emit("login", email);
         navigate("/");
+        window.location.reload();
       }
     });
   };

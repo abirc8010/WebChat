@@ -13,9 +13,12 @@ import AddIcon from "@mui/icons-material/Add";
 import apiClient from "../../../services/axiosConfig";
 import socket from "../../../services/socket";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { addContactToState } from "../../../redux/slices/contactsSlice";
 import "./addUser.css";
 
 export default function AddUser() {
+  const dispatch = useDispatch();
   const [addedEmail, setAddedEmail] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -25,6 +28,7 @@ export default function AddUser() {
 
   useEffect(() => {
     socket.on("contactAdded", (addedUser) => {
+      dispatch(addContactToState(addedUser));
       setFeedbackMessage(`Contact ${addedUser.email} added successfully!`);
       setOpenSnackbar(true);
     });

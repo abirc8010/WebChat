@@ -11,6 +11,7 @@ const LogoutButton = () => {
     dispatch(logout());
     localStorage.removeItem("token");
     localStorage.removeItem("email");
+    localStorage.removeItem("username");
     navigate("/");
   };
 

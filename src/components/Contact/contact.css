@@ -5,6 +5,7 @@
     color: #ffffff;
     height: 50px;
     display: flex;
+    gap:12px;
     align-items: center;
     padding: 8px;
 }
