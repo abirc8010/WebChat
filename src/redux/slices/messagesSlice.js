@@ -21,10 +21,14 @@ const messagesSlice = createSlice({
     messages: [],
     latestSender: null,
     latestMesages: null,
+    reply: null,
     loading: false,
     error: null,
   },
   reducers: {
+    setReply: (state, action) => {
+      state.reply = action.payload;
+    },
     setLatestSender: (state, action) => {
       state.latestSender = action.payload;
     },
@@ -55,8 +59,13 @@ const messagesSlice = createSlice({
   },
 });
 
-export const { latestMesages, latestSender, addMessage, clearMessages } =
-  messagesSlice.actions;
+export const {
+  latestMesages,
+  latestSender,
+  addMessage,
+  setReply,
+  clearMessages,
+} = messagesSlice.actions;
 
 export const selectMessages = (state) => state.messages.messages;
 export const selectLoading = (state) => state.messages.loading;

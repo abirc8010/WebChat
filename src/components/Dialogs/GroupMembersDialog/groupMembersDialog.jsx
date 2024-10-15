@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGroupMembers } from "../../../redux/slices/groupSlice";
 import {
   Dialog,
   DialogTitle,
@@ -11,14 +10,7 @@ import {
 } from "@mui/material";
 
 const GroupMembersDialog = ({ open, onClose, groupId }) => {
-  const dispatch = useDispatch();
   const { members, loading, error } = useSelector((state) => state.group);
-
-  useEffect(() => {
-    if (open && groupId) {
-      dispatch(fetchGroupMembers(groupId));
-    }
-  }, [open, groupId, dispatch]);
 
   return (
     <Dialog open={open} onClose={onClose}>

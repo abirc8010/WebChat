@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Menu, MenuItem, IconButton } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-
-const MessageDropDown = ({ messageId, onEdit, onDelete, onReply }) => {
+const MessageDropDown = ({ messageId, onReply }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -31,7 +29,7 @@ const MessageDropDown = ({ messageId, onEdit, onDelete, onReply }) => {
   return (
     <>
       <IconButton onClick={handleClick}>
-        <MoreVertIcon sx={{ fontSize: "10px" }} />
+        <MoreVertIcon sx={{ fontSize: "13px", color: "#ffffff" }} />
       </IconButton>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={handleReply}>Reply</MenuItem>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Sidebar from "../../components/Sidebar/sidebar";
 import ChatLayout from "../../components/ChatLayout/chatLayout";
+import Welcome from "../../components/Welcome/welcome";
 import "./mainChat.css";
 
 function MainChat() {
@@ -29,7 +30,7 @@ function MainChat() {
   return (
     <div className="container">
       {shouldShowSidebar && <Sidebar />}
-      <ChatLayout />
+      {currentUsername ? <ChatLayout /> : <Welcome />}
     </div>
   );
 }

@@ -1,20 +1,9 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import "./landing.css";
+import "./welcome.css";
 
-function Landing() {
-  const navigate = useNavigate();
-
-  const handleRegister = () => {
-    navigate("/register");
-  };
-
-  const handleLogin = () => {
-    navigate("/login");
-  };
-
+export default function Welcome() {
   return (
-    <div className="landing">
+    <div className="welcome">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 1440 320"
@@ -37,17 +26,13 @@ function Landing() {
           d="M0,96L30,85.3C60,75,120,53,180,69.3C240,85,300,139,360,149.3C420,160,480,128,540,117.3C600,107,660,117,720,128C780,139,840,149,900,154.7C960,160,1020,160,1080,144C1140,128,1200,96,1260,90.7C1320,85,1380,107,1410,117.3L1440,128V320H0Z"
         ></path>
       </svg>
-
-      <div className="landing-content">
-        <h1>Welcome to WebChat</h1>
-        <p>Connect with your friends and family easily!</p>
-        <div className="button-group">
-          <button onClick={handleLogin}>Login</button>
-          <button onClick={handleRegister}>Register</button>
-        </div>
+      <div className="welcome-header">
+        <h1>Welcome to WebChat !</h1>
+        <p>Click on a contact to begin!</p>
+      </div>
+      <div className="welcome-illustration">
+        <img src="illustration.png" alt="Chat illustration" />
       </div>
     </div>
   );
 }
-
-export default Landing;

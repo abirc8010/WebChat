@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import socket from "../../services/socket";
 import {
@@ -7,11 +7,12 @@ import {
   selectMessages,
   selectLoading,
 } from "../../redux/slices/messagesSlice";
+import { fetchGroupMembers } from "../../redux/slices/groupSlice";
 import Media from "./Media/media";
 import MessageDropDown from "./MessageDropDown/messageDropDown";
 import "./messages.css";
 
-const Messages = () => {
+const Messages = ({ setReply }) => {
   const dispatch = useDispatch();
   const messages = useSelector(selectMessages);
   const loading = useSelector(selectLoading);
@@ -22,8 +23,15 @@ const Messages = () => {
   const user = useSelector((state) => state.auth.user);
   const email = user.email;
   const currentEmail = useSelector((state) => state.contacts.currentEmail);
-
+  const members = useSelector((state) => state.group.members);
   const endOfMessagesRef = useRef(null);
+  const [highlightedMessageId, setHighlightedMessageId] = useState(null);
+
+  useEffect(() => {
+    if (currentChatId && currentContactType === "Group") {
+      dispatch(fetchGroupMembers(currentChatId));
+    }
+  }, [currentChatId, currentContactType, dispatch]);
 
   useEffect(() => {
     dispatch(
@@ -51,10 +59,6 @@ const Messages = () => {
       endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
-
-  if (loading) {
-    return <div>Loading messages...</div>;
-  }
 
   const formatDate = (date) => {
     const messageDate = new Date(date);
@@ -104,16 +108,27 @@ const Messages = () => {
     return <Media mediaUrl={mediaUrl} mediaType={mediaType} />;
   };
 
-  const handleEdit = (messageId) => {
-    console.log("Edit message:", messageId);
+  const scrollToMessage = (replyToId) => {
+    const messageElement = document.getElementById(replyToId);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: "smooth" });
+      setHighlightedMessageId(replyToId);
+      setTimeout(() => setHighlightedMessageId(null), 2000); // Clear highlight after 2 seconds
+    }
   };
 
-  const handleDelete = (messageId) => {
-    // dispatch(deleteMessage(messageId));
+  const convert = (utcDate) => {
+    const date = new Date(utcDate);
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(date.getTime() + istOffset);
+    const hours = istDate.getUTCHours().toString().padStart(2, "0");
+    const minutes = istDate.getUTCMinutes().toString().padStart(2, "0");
+
+    return `${hours}:${minutes}`;
   };
 
-  const handleReply = (messageId) => {
-    console.log("Reply to message:", messageId);
+  const findMemberById = (id) => {
+    return members.find((member) => member._id === id);
   };
 
   return (
@@ -125,36 +140,79 @@ const Messages = () => {
             <span>{date}</span>
           </div>
           <div className="message-group">
-            {msgs.map((message) => (
-              <>
+            {msgs.map((message) => {
+              const member = findMemberById(message.sender._id);
+              const profilePicture = member ? member.profilePicture : null;
+
+              return (
                 <div
                   key={message._id}
+                  id={message._id}
                   className={`message ${
                     message.sender.email === email ? "sent" : "received"
-                  }`}
+                  } ${highlightedMessageId === message._id ? "highlight" : ""}`}
                 >
-                  {currentContactType === "Group" ? (
+                  <div className="message-sender-info">
                     <div
                       style={{
-                        fontSize: "0.7rem",
+                        fontSize: "0.8rem",
                         fontWeight: "600",
+                        marginLeft: "5px",
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
-                      {message.sender.username}
+                      {profilePicture && (
+                        <img
+                          src={profilePicture}
+                          alt={message.sender.username}
+                          className="sender-profile-picture"
+                        />
+                      )}
+                      {message.sender.email == user.email
+                        ? "You"
+                        : message.sender.username}
                     </div>
-                  ) : null}
+                    <div>
+                      <MessageDropDown
+                        messageId={message._id}
+                        onReply={setReply}
+                      ></MessageDropDown>
+                    </div>
+                  </div>
                   <div
                     style={{
-                      fontSize: "0.8rem",
-                      color: "rgba(255,255,255,0.8)",
+                      fontSize: "1rem",
+                      color: "rgba(255,255,255,1)",
                     }}
                   >
+                    {message.replyTo?._id && (
+                      <div
+                        className="message-reply-box"
+                        onClick={() => scrollToMessage(message.replyTo._id)}
+                      >
+                        <span className="message-reply">
+                          {message.replyTo.content}
+                        </span>
+                      </div>
+                    )}
                     {message.mediaUrl ? null : message.content}
                   </div>
                   {renderMediaContent(message.content, message.mediaUrl)}
+                  <div
+                    style={{
+                      textAlign: "right",
+                      width: "100%",
+                      fontSize: "0.7rem",
+                      fontStyle: "italic",
+                      color: "rgba(255,255,255,0.7)",
+                    }}
+                  >
+                    {convert(message.timestamp)}
+                  </div>
                 </div>
-              </>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}
