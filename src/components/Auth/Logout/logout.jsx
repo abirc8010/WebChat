@@ -13,6 +13,7 @@ const LogoutButton = () => {
     localStorage.removeItem("email");
     localStorage.removeItem("username");
     navigate("/");
+    window.location.reload();
   };
 
   return (

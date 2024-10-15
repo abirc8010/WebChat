@@ -16,7 +16,7 @@
 }
 
 .message-container {
-  -ms-overflow-style: none; 
+  -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
@@ -43,60 +43,114 @@
 }
 
 .message-divider {
-  position: relative; 
+  position: relative;
   text-align: center;
   font-weight: bold;
-  margin: 20px 0; 
-  color: #001cb9; 
-  background-color: transparent;   
-  font-size: 0.8rem; 
+  margin: 20px 0;
+  color: #001cb9;
+  background-color: transparent;
+  font-size: 0.8rem;
 }
 
 .message-divider::before,
 .message-divider::after {
-  content: ""; 
+  content: "";
   position: absolute;
-  top: 50%; 
-  height: 2px; 
-  background-color: #565656; 
-  border-radius: 2px; 
+  top: 50%;
+  height: 2px;
+  background-color: #565656;
+  border-radius: 2px;
 }
 
 .message-divider::before {
-  left: 0; 
-  width: 50%; 
+  left: 0;
+  width: 50%;
 }
 
 .message-divider::after {
-  right: 0; 
-  width: 50%; 
+  right: 0;
+  width: 50%;
 }
 
 .message-divider .bulge {
-  position: absolute; 
-  left: 50%; 
+  position: absolute;
+  left: 50%;
   transform: translateX(-50%);
-  top: 50%; 
-  width: 50px; 
+  top: 50%;
+  width: 50px;
   height: 10px;
-  background-color: #fff; 
-  border-radius: 10px; 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-  z-index: 1; 
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 }
 
 .message-divider span {
-  padding: 0 15px; 
-  position: relative; 
-  z-index: 2; 
-  background-color: #fff; 
-  border-radius: 10px; 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+  padding: 0 15px;
+  position: relative;
+  z-index: 2;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 750px) {
   .message-container {
     padding-left: 15px;
     padding-right: 15px;
+  }
+}
+@media (max-width: 400px) {
+  .message {
+    max-width: 200px;
+  }
+}
+
+.sender-profile-picture {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.message-sender-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  justify-content: space-between;
+}
+.message-reply-box {
+  margin: 5px 0;
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #007bff; /* Adjust color as needed */
+}
+
+.message-reply-content {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* Add this to your messages.css */
+
+.highlight {
+  position: relative;
+  animation: flashlight 1s forwards;
+}
+
+@keyframes flashlight {
+  0% {
+    box-shadow: 0 0 10px rgba(199, 220, 245, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 0, 1);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0);
+    transform: scale(1);
   }
 }
