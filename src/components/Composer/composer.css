@@ -10,12 +10,12 @@
 }
 
 .MuiTextField-root {
-  width: calc(100% - 430px);
+  width: calc(100% - 530px);
   margin-right: 5px;
 }
 @media (max-width: 750px) {
   .MuiTextField-root {
-    width: calc(70%);
+    width: calc(80%);
   }
 }
 .reply-box {

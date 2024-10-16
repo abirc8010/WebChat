@@ -1,0 +1,48 @@
+.dialog-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.profile-avatar {
+  width: 56px;
+  height: 56px;
+  margin-right: 16px;
+}
+
+.member-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.member-box:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.member-avatar {
+  width: 50px;
+  height: 50px;
+  margin-right: 16px;
+}
+
+.add-members-button {
+  margin-top: 16px;
+}
+
+.back-button {
+  margin-bottom: 16px;
+}

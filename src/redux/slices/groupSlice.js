@@ -7,7 +7,7 @@ export const fetchGroupMembers = createAsyncThunk(
     const response = await apiClient.get(
       `api/v1/users/group-members/${groupId}`
     );
-    return response.data.members;
+    return response.data;
   }
 );
 
@@ -15,6 +15,7 @@ const groupSlice = createSlice({
   name: "group",
   initialState: {
     members: [],
+    admin: null,
     loading: false,
     error: null,
   },
@@ -30,8 +31,10 @@ const groupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchGroupMembers.fulfilled, (state, action) => {
+        console.log(action.payload);
         state.loading = false;
-        state.members = action.payload;
+        state.members = action.payload.members;
+        state.admin = action.payload.admin;
       })
       .addCase(fetchGroupMembers.rejected, (state, action) => {
         state.loading = false;

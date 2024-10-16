@@ -3,36 +3,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 100vh;
   flex-grow: 1;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.2) 0%,
-    rgba(0, 0, 0, 0.2) 100%
-  );
+  background: linear-gradient(to bottom, #082e57, #001124);
   color: #ecf0f1;
   text-align: center;
-  padding: 40px 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   position: relative;
-  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
-
-.welcome::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40%;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23003366" d="M0,192L30,186.7C60,181,120,171,180,160C240,149,300,128,360,133.3C420,139,480,181,540,186.7C600,192,660,160,720,160C780,160,840,192,900,197.3C960,203,1020,181,1080,160C1140,139,1200,117,1260,117.3C1320,117,1380,139,1410,149.3L1440,160L1440,320L0,320Z"></path></svg>');
-  z-index: 1;
-}
-
-.welcome-header,
-.welcome-footer {
+.welcome-header {
   position: relative;
   z-index: 2;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.welcome-logo {
+  width: 300px;
+  margin-bottom: 15px;
 }
 
 .welcome-header h1 {
@@ -49,7 +37,18 @@
 
 .welcome-illustration img {
   width: 80%;
+  border-radius: 10px;
   max-width: 500px;
   height: auto;
   margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .welcome-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .welcome-illustration img {
+    width: 90%;
+  }
 }

@@ -63,6 +63,7 @@ const Messages = ({ setReply }) => {
   const formatDate = (date) => {
     const messageDate = new Date(date);
     const today = new Date();
+
     if (
       messageDate.getFullYear() === today.getFullYear() &&
       messageDate.getMonth() === today.getMonth() &&
@@ -70,10 +71,13 @@ const Messages = ({ setReply }) => {
     ) {
       return "Today";
     } else {
-      return messageDate.toLocaleDateString();
+      const day = String(messageDate.getDate()).padStart(2, "0");
+      const month = String(messageDate.getMonth() + 1).padStart(2, "0");
+      const year = messageDate.getFullYear();
+
+      return `${day}/${month}/${year}`;
     }
   };
-
   const groupedMessages = messages.reduce((acc, message) => {
     const date = formatDate(message.timestamp);
     if (!acc[date]) {
@@ -113,7 +117,7 @@ const Messages = ({ setReply }) => {
     if (messageElement) {
       messageElement.scrollIntoView({ behavior: "smooth" });
       setHighlightedMessageId(replyToId);
-      setTimeout(() => setHighlightedMessageId(null), 2000); // Clear highlight after 2 seconds
+      setTimeout(() => setHighlightedMessageId(null), 2000);
     }
   };
 

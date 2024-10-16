@@ -100,12 +100,11 @@
     padding-right: 15px;
   }
 }
-@media (max-width: 400px) {
+@media (max-width: 500px) {
   .message {
-    max-width: 200px;
+    max-width: 290px;
   }
 }
-
 .sender-profile-picture {
   width: 20px;
   height: 20px;
@@ -119,10 +118,11 @@
   justify-content: space-between;
 }
 .message-reply-box {
+  cursor: pointer;
   margin: 5px 0;
   padding: 5px;
   background-color: rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #007bff; /* Adjust color as needed */
+  border-left: 4px solid #007bff;
 }
 
 .message-reply-content {
@@ -133,8 +133,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* Add this to your messages.css */
-
 .highlight {
   position: relative;
   animation: flashlight 1s forwards;

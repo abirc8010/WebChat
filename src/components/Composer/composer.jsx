@@ -10,6 +10,8 @@ import {
   Typography,
 } from "@mui/material";
 import ListIcon from "@mui/icons-material/List";
+import NoteIcon from "@mui/icons-material/Note";
+import GifBoxIcon from "@mui/icons-material/GifBox";
 import SendIcon from "@mui/icons-material/Send";
 import VideoCameraIcon from "@mui/icons-material/VideoCameraFront";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
@@ -17,7 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { cloudinaryUpload } from "../../services/cloudinary";
 import "./composer.css";
 import { selectMessages } from "../../redux/slices/messagesSlice";
-
+import GifStickerDialog from "../Dialogs/GifStickerDialog/gifStickerDialog";
 const Composer = ({ reply, setReply }) => {
   const currentEmail = useSelector((state) => state.contacts.currentEmail);
   const currentContactType = useSelector(
@@ -30,6 +32,7 @@ const Composer = ({ reply, setReply }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mediaUrl, setMediaUrl] = useState(null);
   const [mediaType, setMediaType] = useState(null);
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   console.log(chats);
   const handleSendMessage = async () => {
@@ -55,14 +58,24 @@ const Composer = ({ reply, setReply }) => {
   };
 
   const handleFileUpload = async (file, type) => {
-    try {
-      const url = await cloudinaryUpload(file);
-      setMediaUrl(url);
+    if (type === "GIF") {
       setMediaType(type);
-      setAnchorEl(null);
-      handleSendMessage();
-    } catch (error) {
-      console.error("Error uploading file:", error);
+      console.log("GIF");
+      setOpen(true);
+    } else if (type === "Sticker") {
+      setMediaType(type);
+      console.log("Sticker");
+      setOpen(true);
+    } else {
+      try {
+        const url = await cloudinaryUpload(file);
+        setMediaUrl(url);
+        setMediaType(type);
+        setAnchorEl(null);
+        handleSendMessage();
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
     }
   };
 
@@ -82,6 +95,13 @@ const Composer = ({ reply, setReply }) => {
   };
   return (
     <>
+      <GifStickerDialog
+        type={mediaType}
+        setMediaUrl={setMediaUrl}
+        open={open}
+        setOpen={setOpen}
+        handleSendMessage={handleSendMessage}
+      />
       {replyMessageContent && (
         <div>
           <Box className="reply-box">
@@ -172,6 +192,12 @@ const Composer = ({ reply, setReply }) => {
               style={{ display: "none" }}
               onChange={(e) => handleFileUpload(e.target.files[0], "video")}
             />
+          </MenuItem>
+          <MenuItem onClick={() => handleFileUpload(null, "GIF")}>
+            <GifBoxIcon sx={{ marginRight: "10px" }} /> GIF
+          </MenuItem>
+          <MenuItem onClick={() => handleFileUpload(null, "Sticker")}>
+            <NoteIcon sx={{ marginRight: "10px" }} /> Sticker
           </MenuItem>
         </Menu>
       </div>
