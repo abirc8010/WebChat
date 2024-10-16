@@ -1,13 +1,17 @@
-
-.message-media{
-    width: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.message-media {
+  width: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.message-media img {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  object-fit: contain;
+}
+@media (max-width: 500px) {
+  .message-media {
+    max-width: 200px;
   }
-.message-media img{
-    width:100%;
-    height:100%;
-    cursor: pointer;
-    object-fit: contain;
 }

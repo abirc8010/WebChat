@@ -1,61 +1,65 @@
-.webchat{
-    height: 40px;
+.webchat {
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  padding: 8px;
 }
-.sidebar-options{
-    display: flex;
-    height:40px;
-    align-items: center;
-    font-size: 10px;
-    justify-content: space-evenly;
-    width:100%;
+.webchat img {
+  height: 100%;
 }
-.tab{
-    flex:1;
-    height:100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color:rgba(235, 229, 229, 0.815);
-    border: 1px solid rgba(173, 168, 168, 0.322);
-    background: linear-gradient(to bottom, #d0e7ff28, #00356e);
-    cursor: pointer;
+.sidebar-options {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  font-size: 10px;
+  justify-content: space-evenly;
+  width: 100%;
+}
+.tab {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(235, 229, 229, 0.815);
+  border: 1px solid rgba(173, 168, 168, 0.322);
+  background: linear-gradient(to bottom, #d0e7ff28, #00356e);
+  cursor: pointer;
 }
 .sidebar {
-    background-color: #00356e;
-    border-right: 1px solid #ffffff6b;
-    height: 100%;
-    overflow-y: auto; 
-    width:300px;
-    overflow-x: hidden;
-    z-index: 10;
+  background-color: #00356e;
+  border-right: 1px solid #ffffff6b;
+  height: 100%;
+  overflow-y: auto;
+  width: 400px;
+  overflow-x: hidden;
+  z-index: 10;
 }
 
 .sidebar::-webkit-scrollbar {
-    width: 1px; 
+  width: 1px;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background-color: #00356e;
-    border-radius: 4px;
+  background-color: #00356e;
+  border-radius: 4px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background-color: #00356e;
+  background-color: #00356e;
 }
 
 .sidebar::-webkit-scrollbar-track {
-    background: rgba(255, 228, 225, 0.8); 
+  background: rgba(255, 228, 225, 0.8);
 }
-
 
 .sidebar {
-    scrollbar-width: thin; 
-    scrollbar-color: rgba(50, 118, 173, 0.8) rgba(255, 228, 225, 0.8); 
+  scrollbar-width: thin;
+  scrollbar-color: rgba(50, 118, 173, 0.8) rgba(255, 228, 225, 0.8);
 }
 @media (max-width: 750px) {
-    .sidebar {
-        position: absolute;
-        width:100%;
-    }
-    
+  .sidebar {
+    position: absolute;
+    width: 100%;
+  }
 }

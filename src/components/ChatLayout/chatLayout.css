@@ -1,8 +1,8 @@
-.mainchat{
-   /* background: url('chatBackground.jpg'); */
-   background: url('darkbackground.jpg'); 
-   height:100%;
-    flex-grow: 1; 
-    display: flex;
-    flex-direction: column;
+.mainchat {
+  /* background: url('chatBackground.jpg'); */
+  background: url("darkbackground.jpg");
+  height: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }

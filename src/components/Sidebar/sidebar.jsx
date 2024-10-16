@@ -30,7 +30,7 @@ export default function Sidebar() {
   return (
     <div className="sidebar">
       <div className="webchat">
-        Webchat <LogoutButton />
+        <img src="logo.png"></img> <LogoutButton />
       </div>
       <div className="sidebar-options">
         <div className="tab" onClick={() => setCurrentComponent("contacts")}>

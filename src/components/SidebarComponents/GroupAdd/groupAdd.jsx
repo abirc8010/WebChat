@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addContactToState } from "../../../redux/slices/contactsSlice";
 import { Snackbar, Button, TextField } from "@mui/material";
 import socket from "../../../services/socket";
-import ContactCheckbox from "../../ContactsCheckBox/contactsCheckBox"; // Import the ContactCheckbox component
-
+import ContactCheckbox from "../../ContactsCheckBox/contactsCheckBox";
 export default function GroupAdd() {
   const dispatch = useDispatch();
   const contacts = useSelector((state) => state.contacts.contacts.contacts);
