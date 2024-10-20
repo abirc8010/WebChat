@@ -32,10 +32,13 @@ const contactsSlice = createSlice({
       const { type, ...contact } = action.payload;
 
       if (type === "Private") {
-        state.contacts.contacts.push(contact);
+        state.contacts.push(contact);
       } else {
-        state.contacts.groups.push(contact);
+        state.groups.push(contact);
       }
+    },
+    setContacts(state, action) {
+      state.contacts = action.payload; // Set contacts to the provided payload
     },
     setCurrentEmail(state, action) {
       state.currentEmail = action.payload;
