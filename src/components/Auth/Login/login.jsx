@@ -38,6 +38,7 @@ export default function Login() {
         setMessage("Login Successful!");
         setOpen(true);
         navigate("/");
+        window.location.reload();
       }
     } catch (err) {
       console.error(err);

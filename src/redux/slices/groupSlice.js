@@ -31,7 +31,6 @@ const groupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchGroupMembers.fulfilled, (state, action) => {
-        console.log(action.payload);
         state.loading = false;
         state.members = action.payload.members;
         state.admin = action.payload.admin;

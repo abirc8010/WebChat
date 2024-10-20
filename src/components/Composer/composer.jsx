@@ -34,7 +34,6 @@ const Composer = ({ reply, setReply }) => {
   const [mediaType, setMediaType] = useState(null);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  console.log(chats);
   const handleSendMessage = async () => {
     if ((currentEmail || currentChatId) && (message || mediaUrl)) {
       const content = mediaUrl ? `${mediaType}` : message;
@@ -60,11 +59,9 @@ const Composer = ({ reply, setReply }) => {
   const handleFileUpload = async (file, type) => {
     if (type === "GIF") {
       setMediaType(type);
-      console.log("GIF");
       setOpen(true);
     } else if (type === "Sticker") {
       setMediaType(type);
-      console.log("Sticker");
       setOpen(true);
     } else {
       try {

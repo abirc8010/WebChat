@@ -37,11 +37,6 @@ export default function AddUser() {
       setFeedbackMessage(`Error: ${errorMessage}`);
       setOpenSnackbar(true);
     });
-
-    return () => {
-      socket.off("contactAdded");
-      socket.off("error");
-    };
   }, []);
 
   useEffect(() => {

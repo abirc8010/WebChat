@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addContactToState } from "../../../redux/slices/contactsSlice";
-import { Snackbar, Button, TextField } from "@mui/material";
+import { Snackbar, Button, TextField, Typography, Box } from "@mui/material";
 import socket from "../../../services/socket";
 import ContactCheckbox from "../../ContactsCheckBox/contactsCheckBox";
+import "./groupAdd.css";
+
 export default function GroupAdd() {
   const dispatch = useDispatch();
   const contacts = useSelector((state) => state.contacts.contacts.contacts);
@@ -70,22 +72,30 @@ export default function GroupAdd() {
   }, [dispatch]);
 
   return (
-    <div>
-      <h1>Group Add</h1>
+    <Box className="group-add-container">
+      <Typography className="group-add-title">Create a Group</Typography>
       <TextField
         label="Group Name"
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
+        style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
         fullWidth
         margin="normal"
+        variant="outlined"
       />
-      <h2>Contact List</h2>
+      <Typography className="group-add-subtitle">Select Contacts</Typography>
       <ContactCheckbox
         contacts={contacts}
         selectedMembers={selectedMembers}
         onCheckboxChange={handleCheckboxChange}
       />
-      <Button variant="contained" color="primary" onClick={handleCreateGroup}>
+      <br></br>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleCreateGroup}
+        className="group-add-button"
+      >
         Create Group
       </Button>
       <Snackbar
@@ -93,7 +103,11 @@ export default function GroupAdd() {
         message={snackbarMessage}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        ContentProps={{
+          className: "snackbar",
+        }}
       />
-    </div>
+    </Box>
   );
 }

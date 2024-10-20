@@ -33,7 +33,6 @@ const GroupMembersDialog = ({ open, onClose, groupId, groupPicture }) => {
   };
 
   const handleAddMembers = () => {
-    console.log(admin, user._id);
     if (admin === user._id) setShowContacts(true);
   };
 
@@ -93,7 +92,7 @@ const GroupMembersDialog = ({ open, onClose, groupId, groupPicture }) => {
                     />
                     <Box sx={{ flex: 1 }}>
                       <Typography variant="h6" sx={{ marginBottom: 0.5 }}>
-                        {member.username}
+                        {member.username} {member._id === admin && "(Admin)"}
                       </Typography>
                       <Typography variant="body2" color="textSecondary">
                         {member.email}

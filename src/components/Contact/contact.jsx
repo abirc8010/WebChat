@@ -9,7 +9,7 @@ import {
 } from "../../redux/slices/contactsSlice";
 import "./contact.css";
 const Contact = ({ user }) => {
-  const { username, profilePicture, email, _id, type } = user;
+  const { username, profilePicture, email, _id, type, latestMessage } = user;
   const dispatch = useDispatch();
   const handleSelect = () => {
     dispatch(setCurrentContactType(type || "Group"));
@@ -27,7 +27,10 @@ const Contact = ({ user }) => {
         className="profile-pic"
       />
       <div className="contact-info">
-        <div>{username}</div>
+        <div className="contact-name">{username}</div>
+        {latestMessage[0] ? (
+          <div className="latest-message">{latestMessage[0].content}</div>
+        ) : null}
       </div>
     </div>
   );

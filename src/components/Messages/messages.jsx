@@ -166,13 +166,11 @@ const Messages = ({ setReply }) => {
                         alignItems: "center",
                       }}
                     >
-                      {profilePicture && (
-                        <img
-                          src={profilePicture}
-                          alt={message.sender.username}
-                          className="sender-profile-picture"
-                        />
-                      )}
+                      <img
+                        src={message.sender.profilePicture}
+                        alt={message.sender.username}
+                        className="sender-profile-picture"
+                      />
                       {message.sender.email == user.email
                         ? "You"
                         : message.sender.username}
