@@ -1,0 +1,37 @@
+.group-add-container {
+  padding: 2rem;
+  color: #fff;
+  border-radius: 12px;
+  margin: 2rem auto;
+}
+
+.group-add-title {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.group-add-subtitle {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+
+  color: #fff;
+}
+
+.group-add-button {
+  width: 100%;
+  background-color: #007bff;
+  color: #fff;
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+.snackbar {
+  background-color: #323232;
+}
+
+.text-field {
+  margin-bottom: 1rem;
+}

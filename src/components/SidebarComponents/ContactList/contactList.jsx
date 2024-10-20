@@ -68,6 +68,7 @@ export default function ContactList() {
                     username: group.groupName,
                     email: null,
                     profilePicture: group.groupPicture,
+                    latestMessage: group.latestMessage,
                   }}
                 />
               ))}

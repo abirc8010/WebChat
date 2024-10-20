@@ -1,9 +1,10 @@
 import React from "react";
-import { Checkbox, FormControlLabel } from "@mui/material";
+import { Checkbox, FormControlLabel, Box } from "@mui/material";
+import "./checkbox.css";
 
 const ContactCheckbox = ({ contacts, selectedMembers, onCheckboxChange }) => {
   return (
-    <div>
+    <Box>
       {contacts.map((contact) => (
         <FormControlLabel
           key={contact._id}
@@ -14,7 +15,7 @@ const ContactCheckbox = ({ contacts, selectedMembers, onCheckboxChange }) => {
             />
           }
           label={
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <Box display="flex" alignItems="center" className="contact-item">
               <img
                 src={contact.profilePicture}
                 alt={contact.username}
@@ -26,11 +27,11 @@ const ContactCheckbox = ({ contacts, selectedMembers, onCheckboxChange }) => {
                 }}
               />
               {contact.username}
-            </div>
+            </Box>
           }
         />
       ))}
-    </div>
+    </Box>
   );
 };
 
