@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchContacts } from "../../../redux/slices/contactsSlice";
 import Contact from "../../Contact/contact";
 import socket from "../../../services/socket";
+import { setContacts } from "../../../redux/slices/contactsSlice";
 import "./contactList.css";
 
 export default function ContactList() {
@@ -20,6 +21,38 @@ export default function ContactList() {
       socket.off("contactAdded");
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    const handleLatestMessageChange = (updatedMessage) => {
+      const { sender, receiver } = updatedMessage;
+
+      const newContacts = {
+        ...contacts,
+        contacts: contacts.contacts.map((contact) => {
+          if (sender._id === user._id && contact._id === receiver.id) {
+            return { ...contact, latestMessage: [updatedMessage] };
+          } else if (contact._id === sender._id) {
+            return { ...contact, latestMessage: [updatedMessage] };
+          }
+          return contact;
+        }),
+        groups: contacts.groups.map((group) => {
+          if (group._id === receiver.id) {
+            return { ...group, latestMessage: [updatedMessage] };
+          }
+          return group;
+        }),
+      };
+
+      dispatch(setContacts(newContacts));
+    };
+
+    socket.on("receiveMessage", handleLatestMessageChange);
+
+    return () => {
+      socket.off("receiveMessage", handleLatestMessageChange);
+    };
+  }, [dispatch, contacts, user]);
 
   useEffect(() => {
     if (!user) return;

@@ -10,6 +10,7 @@ import {
 import "./contact.css";
 const Contact = ({ user }) => {
   const { username, profilePicture, email, _id, type, latestMessage } = user;
+
   const dispatch = useDispatch();
   const handleSelect = () => {
     dispatch(setCurrentContactType(type || "Group"));
@@ -18,7 +19,6 @@ const Contact = ({ user }) => {
     dispatch(setCurrentUsername(username));
     dispatch(setCurrentProfilePic(profilePicture));
   };
-
   return (
     <div className="contact" onClick={handleSelect}>
       <img

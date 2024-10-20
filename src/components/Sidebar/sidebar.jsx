@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import LogoutButton from "../Auth/Logout/logout";
 import "./sidebar.css";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -30,7 +29,7 @@ export default function Sidebar() {
   return (
     <div className="sidebar">
       <div className="webchat">
-        <img src="logo.png"></img> <LogoutButton />
+        <img src="logo.png"></img>
       </div>
       <div className="sidebar-options">
         <div className="tab" onClick={() => setCurrentComponent("contacts")}>

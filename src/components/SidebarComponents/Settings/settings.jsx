@@ -4,7 +4,7 @@ import { cloudinaryUpload } from "../../../services/cloudinary";
 import Button from "@mui/material/Button";
 import apiClient from "../../../services/axiosConfig";
 import { updateProfilePicture } from "../../../redux/slices/authSlice";
-
+import LogoutButton from "../../Auth/Logout/logout";
 export default function Settings() {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
@@ -35,7 +35,9 @@ export default function Settings() {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <div>Settings</div>
+      <div style={{ color: "#ffffff", fontSize: "20px", fontWeight: "600" }}>
+        Settings
+      </div>
       <div
         style={{
           width: "200px",
@@ -66,7 +68,9 @@ export default function Settings() {
       >
         {loading ? "Uploading..." : "Change Photo"}
       </Button>
-
+      <br />
+      <br />
+      <LogoutButton />
       <input
         type="file"
         accept="image/*"
